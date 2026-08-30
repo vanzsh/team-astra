@@ -1,5 +1,5 @@
-import { actionGeneric } from "convex/server";
 import { v } from "convex/values";
+import { action, env } from "./_generated/server";
 
 function normalizeDomain(input: string) {
   const url = new URL(input.includes("://") ? input : `https://${input}`);
@@ -7,7 +7,7 @@ function normalizeDomain(input: string) {
   return url.hostname.replace(/^www\./, "").toLowerCase();
 }
 
-export const researchProspect = actionGeneric({
+export const researchProspect = action({
   args: { domain: v.string() },
   handler: async (_ctx, { domain: input }) => {
     let domain: string;
@@ -16,7 +16,7 @@ export const researchProspect = actionGeneric({
     } catch {
       return { status: "error", domain: input, message: "Enter a valid company domain" };
     }
-    const apiKey = process.env.CONTEXT_DEV_API_KEY;
+    const apiKey = env.CONTEXT_DEV_API_KEY;
     if (!apiKey) return { status: "unavailable", domain, message: "Context.dev is not configured" };
 
     try {

@@ -34,11 +34,7 @@ export type DemoStrategy = {
   status: "recommended" | "approved";
 };
 
-export type DemoKpi = {
-  label: string;
-  value: string;
-  delta: string;
-};
+export type DemoKpi = { label: string; value: string; delta: string };
 
 export type DemoException = {
   id: string;
@@ -84,6 +80,7 @@ export type ConversationMessage = {
   content: string;
   citations?: string[];
   live?: boolean;
+  error?: boolean;
 };
 
 export type AgentAction =
@@ -92,6 +89,7 @@ export type AgentAction =
   | { type: "generate_demo" }
   | { type: "create_brief" }
   | { type: "research" }
+  | { type: "test_persona"; persona: string }
   | { type: "none" };
 
 export type AgentResponse = {
@@ -99,6 +97,19 @@ export type AgentResponse = {
   citations: string[];
   action: AgentAction;
   live: boolean;
+  error?: string;
+};
+
+export type PersonaTestResult = {
+  persona: string;
+  target: string;
+  reaction: string;
+  objections: string[];
+  missing: string[];
+  score: number;
+  improve: string[];
+  live: boolean;
+  error?: string;
 };
 
 export type AccountWorkspace = {
@@ -112,8 +123,5 @@ export type AccountWorkspace = {
   insights: AccountInsight[];
   strategy: DemoStrategy;
   artifacts: Artifact[];
-  demo: {
-    generic: DemoConfig;
-    personalized: DemoConfig;
-  };
+  demo: { generic: DemoConfig; personalized: DemoConfig };
 };

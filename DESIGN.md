@@ -2,45 +2,41 @@
 
 ## Product Read
 
-The interface must communicate **Context → Agent → Outputs** within five seconds. It is an account workspace, not a dashboard or chat app. The center is the dominant working surface; sources and outputs support it.
+ContextSE is one persistent desktop workspace. Within five seconds the user should understand **Sources → AI → Test**, with generated artifacts immediately reachable. Relay is an artifact opened from ContextSE, never the main application.
 
 ## Visual Character
 
-Premium, calm, precise, technical, and compact. Use warm off-white surfaces, near-black ink, restrained cobalt for active intelligence, and amber only for attention. Avoid gradients, glass effects, oversized cards, AI sparkles, and decorative motion.
+Combine NotebookLM’s workspace clarity with Vercel’s restraint without cloning either. Use white and near-white surfaces, near-black typography, neutral gray borders, compact controls, minimal shadows, crisp alignment, restrained radius, and generous but efficient whitespace. Do not use gradients, glowing AI effects, glassmorphism, giant cards, or decorative animation.
 
 ## Workspace Anatomy
 
-- **Header:** product, current account, research state, and one compact utility action.
-- **Left rail (Context):** seller and prospect sources, confidence/truth labels, and source inspection.
-- **Center (AI Solutions Engineer):** account thesis, recommended strategy, evidence, approval, and grounded conversation.
-- **Right rail (Outputs):** artifact state and direct open actions. Outputs are real work product, never placeholders.
+- **Global rail:** ContextSE identity, obvious New chat action, recent conversations, and real artifacts.
+- **Sources:** compact Our company and Prospect groups with Add source always available.
+- **AI Solutions Engineer:** dominant conversational work surface with a concise account brief and grounded responses.
+- **Testing Lab:** persona selection, test target, and adversarial buyer feedback.
 
-Desktop uses three columns with the center receiving remaining width. On smaller screens, rails become explicit Context and Outputs views while the Agent remains the default.
+Desktop widths are intentionally unequal: global rail 184px, sources 248px, center consumes remaining space, testing lab 300px. Secondary creation and source-entry flows use focused modal surfaces rather than routes.
 
 ## Type and Density
 
-Use a neutral sans-serif system stack. Headings are compact and semibold; labels are uppercase and tracked; body copy stays short. Prefer dividers and whitespace over nested cards. Keep controls 32–40px high and preserve clear focus states.
+Use Geist. Panel labels are compact and semibold; body copy is concise; controls are 32–38px high. Prefer separators and whitespace over nested cards. Every interactive element has a visible focus state.
 
 ## Truth Presentation
 
-Truth labels are always textual, not color-only:
+Truth labels are textual, not color-only:
 
-- **FACT:** sourced public information;
-- **SELLER CONTEXT:** approved Relay information;
+- **FACT:** retrieved public evidence;
+- **SELLER CONTEXT:** approved Relay or seller-provided account context;
 - **INFERENCE:** ContextSE reasoning;
 - **SYNTHETIC:** invented demo operations.
 
-Every prospect claim opens its supporting source. Every synthetic operational surface carries a persistent label.
+Every synthetic Relay surface carries a persistent label. Missing model configuration appears as an explicit error and never as a fake AI response.
 
 ## Interaction Rules
 
-- Research reveals progress and leaves the last reliable state intact on failure.
-- Recommendations explain what to show, why, and supporting evidence.
-- Approval visibly changes artifact state.
-- Conversation is compact and grounded in the workspace; structured recommendations and actions may appear inline.
-- Every visible primary button performs a real action.
-- Motion is limited to state transitions and progress feedback, and respects reduced-motion preferences.
-
-## Hero Output
-
-The Relay demo must make generic versus GulfLink-specific strategy obvious through operating story, locations, entities, exceptions, KPI framing, and feature priority—not just branding. Users can toggle the comparison without losing context.
+- New chat creates the active account workspace immediately from a website and optional material.
+- Add source supports URL or pasted material without a complex uploader.
+- Conversation is the primary center interaction and can trigger deterministic product actions from structured Groq output.
+- Artifacts open from the global rail and are marked ready only when a working renderer exists.
+- Testing uses a buyer role distinct from the Solutions Engineer role and returns reaction, objections, missing proof, score, and improvements.
+- External failures preserve account context and artifacts without claiming live success.

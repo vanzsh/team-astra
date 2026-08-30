@@ -4,48 +4,28 @@ The TypeScript source of truth is `lib/contracts.ts`. Frontend and backend chang
 
 ## AccountWorkspace
 
-Contains account identity, seller product, sources, research summary, strategy, conversation, artifacts, and demo configuration. The MVP uses one account but no field assumes GulfLink-specific rendering.
+Contains account identity, seller product, sources, research summary, strategy, artifacts, and demo configuration. Renderers must not depend on raw provider responses.
 
 ## Source
 
-- `id`, `group`, `title`, `detail`;
-- `truth`: `FACT | SELLER_CONTEXT | INFERENCE | SYNTHETIC`;
-- optional `url` and excerpt;
-- source IDs are retained by claims and recommendations.
+A source has an ID, seller/prospect group, title, detail, truth classification, excerpt, and optional URL. Claims and model citations retain source IDs.
 
-## DemoStrategy
+## AgentResponse
 
-- target persona and meeting objective;
-- concise thesis;
-- ordered demo moments;
-- reasons and evidence source IDs;
-- approval status.
+The Groq Solutions Engineer returns a concise answer, validated source citations, optional application action, `live`, and an optional configuration/error message. Actions are limited to persona focus, strategy approval, demo generation, brief generation, research, or buyer testing.
 
-A strategy may reference only capabilities declared in the seller product contract.
+## PersonaTestResult
 
-## DemoConfig
+The Groq tester returns persona, target, reaction, objections, missing proof, score from 1–10, and one to three improvements. Tester prompts are independent from the Solutions Engineer prompt.
 
-Renderer-safe content only: identity, terminology, locations, KPIs, exceptions, shipments, and narrative. Operational records carry `synthetic: true`. Renderers do not consume raw research responses.
+## DemoStrategy and DemoConfig
+
+Strategies may reference only approved Relay capabilities. Demo configuration contains renderer-safe identity, terminology, locations, KPIs, exceptions, shipments, and narrative. Every operational record is synthetic.
 
 ## Artifact
 
-- `type`: `interactive_demo | meeting_brief`;
-- `status`: `recommended | generating | ready | error`;
-- title and updated timestamp.
-
-An artifact marked `ready` must open a working renderer or downloadable document.
-
-## Conversation
-
-The frontend sends user text, recent messages, compact workspace intelligence, and source excerpts. The backend returns:
-
-- concise grounded `answer`;
-- zero or more cited source IDs;
-- optional action: `focus_persona | approve_strategy | generate_demo | create_brief | research`;
-- optional action payload.
-
-Unknown or unsafe actions are ignored. Conversation continuity is scoped to the account.
+Artifacts are `interactive_demo` or `meeting_brief` with a status. `ready` means the item opens a working renderer or downloadable document.
 
 ## Integration Results
 
-External actions return `ok`, `unavailable`, `not_found`, or `error`. Failure results preserve the last reliable workspace state and never convert fixture content into `FACT`.
+External actions return controlled success, unavailable, not-found, or error states. Failure preserves the last reliable workspace and never converts fixture content into FACT.

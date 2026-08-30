@@ -1,7 +1,7 @@
-import { mutationGeneric, queryGeneric } from "convex/server";
 import { v } from "convex/values";
+import { mutation, query } from "./_generated/server";
 
-export const get = queryGeneric({
+export const get = query({
   args: { slug: v.string() },
   handler: async (ctx, { slug }) => {
     const account = await ctx.db.query("accounts").withIndex("by_slug", (q) => q.eq("slug", slug)).unique();
@@ -14,7 +14,7 @@ export const get = queryGeneric({
   },
 });
 
-export const approveStrategy = mutationGeneric({
+export const approveStrategy = mutation({
   args: { slug: v.string(), name: v.string(), domain: v.string(), persona: v.string() },
   handler: async (ctx, args) => {
     const now = Date.now();

@@ -2,38 +2,31 @@
 
 ## Runtime Shape
 
-ContextSE is one Next.js application. The frontend renders a shared `AccountWorkspace` contract and starts with a deterministic GulfLink fixture. Convex is the backend/state boundary. Context.dev and OpenRouter are called only from Convex actions, where secrets remain server-side.
+ContextSE is one Next.js application. The frontend renders a shared `AccountWorkspace` contract with a deterministic GulfLink fallback. Convex is the backend/state boundary. Context.dev and Groq are called only from Convex actions, where secrets remain server-side.
 
 ```text
-Next.js workspace
-  → typed fixture fallback
-  → Convex queries/mutations/actions
-      → Context.dev brand intelligence
-      → OpenRouter account conversation
+Sources and user context
+  → Convex state/actions
+      → Context.dev company intelligence
+      → normalized account context
+      → Groq Solutions Engineer or buyer tester
+  → conversation, artifacts, and test feedback
 ```
 
 ## Boundaries
 
 ### Frontend
 
-Owns workspace layout, interaction state, evidence inspection, approval UX, Relay demo rendering, meeting-brief rendering, and responsive behavior. It consumes contracts from `lib/contracts.ts`; it does not reshape backend data ad hoc.
+Owns the four-zone workspace, source entry, conversation UX, testing UX, evidence inspection, and existing Relay and meeting-brief renderers. It consumes `lib/contracts.ts` and does not expose provider secrets.
 
 ### Backend
 
-Owns persisted account/research/conversation/artifact state and external calls. `researchProspect` normalizes Context.dev results into evidence. `converse` builds compact grounded context and returns a concise answer plus optional product action.
+Owns persisted account state, external research, grounded context construction, Groq calls, structured action parsing, and buyer-test evaluation. The Solutions Engineer and tester share transport but use separate prompts and model IDs.
 
 ## Reliability
 
-The GulfLink fixture is the last-known-good demo state. Missing credentials or external failures must not break account understanding, approval, the Relay demo, or the meeting brief. The UI identifies fixture-backed state without presenting a fake service success.
+The GulfLink fixture remains the last-known-good context and artifact state. Missing credentials return explicit configuration errors; they never produce fake live AI responses. Context.dev failure preserves fixture research.
 
 ## Security
 
-`CONTEXT_DEV_API_KEY` and `OPENROUTER_API_KEY` are Convex environment variables and never use `NEXT_PUBLIC_`. Browser code receives normalized results only. Domain input is normalized and external failures are returned as controlled states.
-
-## Integration Sequence
-
-1. UI reads deterministic fixture.
-2. When Convex is configured, account state moves to Convex without changing renderers.
-3. Context.dev replaces prospect fixture research through `researchProspect`.
-4. OpenRouter powers conversation through `converse`.
-5. Existing `DemoStrategy`, `DemoConfig`, and artifact renderers remain unchanged.
+`CONTEXT_DEV_API_KEY` and `GROQ_API_KEY` are Convex environment variables and never use `NEXT_PUBLIC_`. Browser code receives normalized results only. Domain and model outputs are validated at their boundaries.

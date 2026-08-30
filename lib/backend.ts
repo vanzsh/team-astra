@@ -1,21 +1,12 @@
 import { ConvexHttpClient } from "convex/browser";
-import { makeFunctionReference } from "convex/server";
-import { fallbackAgentResponse } from "./agent-fallback";
-import type { AccountWorkspace, AgentResponse, ConversationMessage, Source } from "./contracts";
+import { api } from "@/convex/_generated/api";
+import type { AccountWorkspace, AgentResponse, ConversationMessage, PersonaTestResult, Source } from "./contracts";
 
 const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
 const client = convexUrl ? new ConvexHttpClient(convexUrl) : null;
+const configurationError = "Connect Convex and set GROQ_API_KEY to use live AI.";
 
-const converseRef = makeFunctionReference<
-  "action",
-  { text: string; context: string; sourceIds: string[]; messages: { role: "user" | "assistant"; content: string }[] },
-  AgentResponse
->("agent:converse");
-
-const researchRef = makeFunctionReference<"action", { domain: string }, { status: string; domain: string; message?: string; source?: Source }>("research:researchProspect");
-const approveRef = makeFunctionReference<"mutation", { slug: string; name: string; domain: string; persona: string }, { approved: boolean; updatedAt: number }>("accounts:approveStrategy");
-
-export const backendMode = client ? "convex" : "fixture";
+export const backendMode = client ? "convex" : "unconfigured";
 
 export function compactAccountContext(workspace: AccountWorkspace, persona: string) {
   return JSON.stringify({
@@ -29,24 +20,33 @@ export function compactAccountContext(workspace: AccountWorkspace, persona: stri
   });
 }
 
-export async function converse(workspace: AccountWorkspace, persona: string, messages: ConversationMessage[], text: string) {
-  if (!client) return fallbackAgentResponse(text);
+export async function converse(workspace: AccountWorkspace, persona: string, messages: ConversationMessage[], text: string): Promise<AgentResponse> {
+  if (!client) return { answer: configurationError, citations: [], action: { type: "none" }, live: false, error: configurationError };
   try {
-    return await client.action(converseRef, {
+    return await client.action(api.agent.converse, {
       text,
       context: compactAccountContext(workspace, persona),
       sourceIds: workspace.sources.map((source) => source.id),
       messages: messages.map(({ role, content }) => ({ role, content })),
     });
   } catch {
-    return fallbackAgentResponse(text);
+    return { answer: "Groq is unavailable. Verify the Convex deployment and GROQ_API_KEY.", citations: [], action: { type: "none" }, live: false, error: "Groq request failed." };
+  }
+}
+
+export async function testPersona(workspace: AccountWorkspace, persona: string, target: string): Promise<PersonaTestResult> {
+  if (!client) return { persona, target, reaction: configurationError, objections: [], missing: [], score: 0, improve: [], live: false, error: configurationError };
+  try {
+    return await client.action(api.agent.testPersona, { persona, target, context: compactAccountContext(workspace, persona) });
+  } catch {
+    return { persona, target, reaction: "Groq is unavailable. Verify the Convex deployment and GROQ_API_KEY.", objections: [], missing: [], score: 0, improve: [], live: false, error: "Groq request failed." };
   }
 }
 
 export async function researchProspect(domain: string) {
   if (!client) return { status: "unavailable", domain, message: "Convex is not configured" };
   try {
-    return await client.action(researchRef, { domain });
+    return await client.action(api.research.researchProspect, { domain });
   } catch {
     return { status: "unavailable", domain, message: "Research service is unavailable" };
   }
@@ -55,7 +55,7 @@ export async function researchProspect(domain: string) {
 export async function persistApproval(workspace: AccountWorkspace, persona: string) {
   if (!client) return null;
   try {
-    return await client.mutation(approveRef, { slug: workspace.id, name: workspace.name, domain: workspace.domain, persona });
+    return await client.mutation(api.accounts.approveStrategy, { slug: workspace.id, name: workspace.name, domain: workspace.domain, persona });
   } catch {
     return null;
   }

@@ -22,7 +22,7 @@ The standard is one account, one excellent workflow, and one obvious before/afte
 - **Ponytail** — mandatory minimal-engineering ruleset for every coding agent;
 - **Convex** — the only application backend, database, persistent state, artifact, and realtime layer;
 - **Context.dev** — the public-web research, extraction, company-intelligence, and evidence provider;
-- **OpenRouter** — the conversational model gateway.
+- **Groq** — the conversational model gateway.
 
 Substitute frameworks, UI kits, backends, databases, and unnecessary runtime dependencies are out of scope.
 
@@ -53,7 +53,7 @@ npm install
 npm run dev
 ```
 
-The complete GulfLink golden path works without external credentials. External failures retain the deterministic fixture and are identified in the UI.
+The GulfLink workspace and real artifacts work without external credentials. Live conversation and buyer testing require Groq through Convex; missing configuration is identified clearly and never replaced with fake AI.
 
 ## Enable Live Services
 
@@ -61,12 +61,11 @@ Start and configure Convex:
 
 ```bash
 npm run convex:dev
-npx convex env set OPENROUTER_API_KEY
+npx convex env set GROQ_API_KEY
 npx convex env set CONTEXT_DEV_API_KEY
-npx convex env set SITE_URL http://localhost:3000
 ```
 
-`convex dev` writes the local deployment values used by the browser. OpenRouter powers account conversation through `openrouter/free`; Context.dev powers public-web company intelligence. Both calls execute only in Convex actions.
+`convex dev` writes the local deployment values used by the browser. Groq powers the Solutions Engineer and buyer tester through separate model roles; Context.dev powers public-web company intelligence. Both providers are called only from Convex actions.
 
 ## Verify
 

@@ -29,13 +29,23 @@ The hackathon proves only this loop:
 → `demo strategy`
 → `personalized interactive demo`
 
-The product UI has three surfaces.
+The product UI has four persistent zones. The center remains dominant.
+
+### Far Left — Workspace / Artifacts
+
+Global account conversations and real generated work product for the opportunity.
+
+Examples:
+
+- Personalized Interactive Demo;
+- Meeting Brief / PDF;
+- Executive Presentation;
+- HTML / Microsite;
+- ROI Model.
 
 ### Left — Context / Sources
 
-Everything the agent knows.
-
-Two conceptual groups:
+Everything the agent knows, grouped as:
 
 **OUR COMPANY**
 
@@ -45,7 +55,7 @@ Two conceptual groups:
 - demo/product information;
 - approved context.
 
-**THEIR COMPANY**
+**PROSPECT**
 
 - prospect website;
 - public research;
@@ -55,26 +65,11 @@ Two conceptual groups:
 
 ### Center — AI Solutions Engineer
 
-Where the user:
+A real grounded conversation where the user investigates, challenges assumptions, reviews research, gets strategy recommendations, and creates presales outputs.
 
-- investigates;
-- discusses;
-- challenges assumptions;
-- reviews research;
-- gets strategy recommendations;
-- approves what should be created.
+### Right — Testing Lab
 
-### Right — Account Outputs
-
-Real generated work product for the opportunity.
-
-Examples:
-
-- Personalized Interactive Demo;
-- Meeting Brief / PDF;
-- Executive Presentation;
-- HTML / Microsite;
-- ROI Model.
+An adversarial buyer simulation where the user tests strategy and artifacts against account-aware personas such as CEO and CFO, then receives objections, missing proof, a score, and prioritized improvements.
 
 For the hackathon:
 
