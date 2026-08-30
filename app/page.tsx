@@ -11,7 +11,7 @@ export default function Home() {
   return (
     <main className="landing-page">
       <header className="landing-header">
-        <div className="landing-brand"><span>C</span>ContextSE</div>
+        <div className="landing-brand">ContextSE</div>
         <Link href="/demo" className="landing-header-link">Hackathon demo <span>→</span></Link>
       </header>
 
