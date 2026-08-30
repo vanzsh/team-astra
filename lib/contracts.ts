@@ -45,6 +45,7 @@ export type DemoException = {
   route: string;
   eta: string;
   impact: string;
+  shipmentId: string;
   severity: "critical" | "warning" | "stable";
 };
 
@@ -55,6 +56,9 @@ export type DemoShipment = {
   destination: string;
   eta: string;
   status: string;
+  currentLocation: string;
+  exception: string;
+  latestUpdate: string;
 };
 
 export type DemoConfig = {

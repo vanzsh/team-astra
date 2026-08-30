@@ -14,7 +14,7 @@ const capabilities = [
 ];
 
 async function askGroq(model: string, system: string, messages: { role: "user" | "assistant"; content: string }[]) {
-  if (!env.GROQ_API_KEY) return { error: "GROQ_API_KEY is not configured in Convex." };
+  if (!env.GROQ_API_KEY) return { error: "The AI service is not configured." };
   try {
     const response = await fetch(GROQ_CHAT_URL, {
       method: "POST",
@@ -27,11 +27,11 @@ async function askGroq(model: string, system: string, messages: { role: "user" |
       }),
       signal: AbortSignal.timeout(20000),
     });
-    if (!response.ok) return { error: `Groq returned ${response.status}. Check the API key and model access.` };
+    if (!response.ok) return { error: `The AI service returned ${response.status}. Please try again.` };
     const data = await response.json();
     return { value: JSON.parse(data.choices?.[0]?.message?.content ?? "{}") as Record<string, unknown> };
   } catch {
-    return { error: "Groq could not be reached. Try again." };
+    return { error: "The AI service could not be reached. Try again." };
   }
 }
 
@@ -68,7 +68,7 @@ export const converse = action({
     if (result.error) return { answer: result.error, citations: [], action: { type: "none" } as const, live: false, error: result.error };
     const value = result.value ?? {};
     return {
-      answer: typeof value.answer === "string" ? value.answer.slice(0, 1400) : "Groq returned an invalid response. Try again.",
+      answer: typeof value.answer === "string" ? value.answer.slice(0, 1400) : "The AI service returned an invalid response. Try again.",
       citations: strings(value.citations).filter((id) => args.sourceIds.includes(id)),
       action: safeAction(value.action),
       live: true,

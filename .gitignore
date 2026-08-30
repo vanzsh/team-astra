@@ -8,6 +8,7 @@ coverage/
 .claude/
 CLAUDE.md
 skills-lock.json
+/Context-SE-Hackathon-Pitch.pptx
 
 .env*
 !.env.example

@@ -30,7 +30,7 @@ export async function converse(workspace: AccountWorkspace, persona: string, mes
       messages: messages.map(({ role, content }) => ({ role, content })),
     });
   } catch {
-    return { answer: "Groq is unavailable. Verify the Convex deployment and GROQ_API_KEY.", citations: [], action: { type: "none" }, live: false, error: "Groq request failed." };
+    return { answer: "The AI service is unavailable. Please try again.", citations: [], action: { type: "none" }, live: false, error: "AI request failed." };
   }
 }
 
@@ -38,7 +38,7 @@ export async function testPersona(workspace: AccountWorkspace, persona: string, 
   try {
     return await client.action(api.agent.testPersona, { persona, target, context: compactAccountContext(workspace, persona) });
   } catch {
-    return { persona, target, reaction: "Groq is unavailable. Verify the Convex deployment and GROQ_API_KEY.", objections: [], missing: [], score: 0, improve: [], live: false, error: "Groq request failed." };
+    return { persona, target, reaction: "The AI service is unavailable. Please try again.", objections: [], missing: [], score: 0, improve: [], live: false, error: "AI request failed." };
   }
 }
 
