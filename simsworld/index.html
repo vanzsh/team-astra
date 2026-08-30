@@ -1,1028 +1,850 @@
 <!doctype html>
-<!--
-  Astra Rehearsal — barebones mockup.
-  Standalone product concept: SA runs a simulated persona through their own
-  product (drops, docs, demos, or a URL from the left column) and gets back
-  a stream-of-consciousness monologue plus a structured LIFT / Cialdini /
-  Fogg simulation report.
-  Serve: python3 -m http.server 8766 --directory rehearsal
--->
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Astra Rehearsal — Nova Dental Clinic</title>
+<title>SimsWorld — Nova Dental / Relay for Clinics</title>
 <style>
   :root{
-    --bg:#f6f8fc; --surface:#ffffff; --border:#e3e8f0; --border-soft:#edf1f7;
-    --text:#1f2430; --text-2:#5b6472; --text-3:#8a93a3;
+    --bg:#f6f8fc; --surface:#ffffff; --ink:#1f2430; --ink-2:#5b6472; --ink-3:#8a93a3;
+    --border:#e3e8f0; --border-soft:#edf1f7;
     --accent:#1a73e8; --accent-soft:#e8f0fe; --accent-deep:#174ea6;
     --green:#188038; --green-soft:#e6f4ea;
     --amber:#b26a00; --amber-soft:#fef3dc;
     --purple:#7c3aed; --purple-soft:#f1eafe;
-    --red:#c5221f; --red-soft:#fdecea;
+    --red:#c5221f; --red-soft:#fce8e6;
+    --teal:#0f766e; --teal-soft:#d7f0ee;
     --radius:16px;
     --shadow:0 1px 2px rgba(16,24,40,.05),0 4px 16px rgba(16,24,40,.06);
-
-    /* WhatsApp-y tones layered on top of the family palette */
-    --chat-bg:#efeae2;
-    --chat-bg-pattern:#e7e0d6;
-    --bubble-in:#ffffff;
+    /* persona colors — Aisha cobalt, Fatima amber, Omar teal */
+    --aisha-a:#1a73e8; --aisha-b:#5b8def;
+    --fatima-a:#b26a00; --fatima-b:#e0a24c;
+    --omar-a:#0f766e; --omar-b:#3aa79a;
   }
   *{box-sizing:border-box;margin:0;padding:0}
-  html,body{height:100%}
+  html,body{height:100%;overflow:hidden}
   body{
     font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
-    background:var(--bg); color:var(--text); font-size:14px; line-height:1.55;
+    background:var(--bg);color:var(--ink);font-size:14px;line-height:1.55;
     -webkit-font-smoothing:antialiased;
-    overflow:hidden;
+    display:flex;flex-direction:column;height:100vh;
   }
-  button{font-family:inherit}
 
-  /* ---------- shell ---------- */
-  .app{display:flex;flex-direction:column;height:100vh}
-
-  /* top bar */
+  /* ---------- TOP BAR ---------- */
   .topbar{
     height:54px;flex:none;display:flex;align-items:center;gap:14px;padding:0 20px;
     background:var(--surface);border-bottom:1px solid var(--border);
   }
-  .brand{display:flex;align-items:center;gap:9px;font-weight:700;font-size:15px;letter-spacing:.2px}
+  .brand{display:flex;align-items:center;gap:8px;font-weight:700;font-size:15px;letter-spacing:.2px}
   .brand .mark{
     width:26px;height:26px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;
-    background:linear-gradient(135deg,#1a73e8,#7c3aed);color:#fff;font-size:13px;font-weight:800;
+    background:linear-gradient(135deg,var(--accent),var(--purple));color:#fff;font-size:13px;font-weight:800;
   }
-  .brand .sub{color:var(--text-3);font-weight:600;font-size:11px;letter-spacing:1.2px;text-transform:uppercase}
-  .crumb{color:var(--text-3);font-size:13px}
-  .crumb b{color:var(--text-2);font-weight:600}
+  .crumb{color:var(--ink-3);font-size:13.5px;font-weight:500}
+  .crumb b{color:var(--ink-2);font-weight:600}
   .top-right{margin-left:auto;display:flex;align-items:center;gap:6px}
-  .iconbtn{
-    width:34px;height:34px;border-radius:10px;border:1px solid transparent;background:transparent;
-    display:inline-flex;align-items:center;justify-content:center;color:var(--text-2);cursor:pointer;
+  .top-right .iconbtn{
+    width:34px;height:34px;border-radius:10px;border:0;background:transparent;
+    display:inline-flex;align-items:center;justify-content:center;color:var(--ink-3);cursor:pointer;
   }
-  .iconbtn:hover{background:#f1f4f9;border-color:var(--border-soft);color:var(--text)}
-  .iconbtn svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-  .avatar-btn{
-    margin-left:6px;width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#1a73e8,#7c3aed);
-    color:#fff;display:inline-flex;align-items:center;justify-content:center;font-weight:700;font-size:12.5px;cursor:pointer;
-  }
-
-  /* 3-col grid */
-  .grid{
-    flex:1;display:grid;grid-template-columns:280px 1fr 300px;gap:12px;padding:12px;min-height:0;
-  }
-  .panel{
-    background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);
-    display:flex;flex-direction:column;min-height:0;overflow:hidden;
-  }
-  .panel-h{
-    padding:14px 16px 8px;font-size:11px;font-weight:800;letter-spacing:1.4px;color:var(--text-3);flex:none;
-    display:flex;align-items:center;justify-content:space-between;
-  }
-  .panel-body{flex:1;overflow-y:auto;padding:0 10px 12px;min-height:0}
-
-  /* ---------- left: sources ---------- */
-  .url-row{
-    margin:2px 10px 10px;padding:12px 12px 10px;background:#fbfcfe;border:1px solid var(--border-soft);
-    border-radius:12px;
-  }
-  .url-row .label{
-    font-size:11px;font-weight:700;color:var(--text-2);margin-bottom:6px;letter-spacing:.2px;
-  }
-  .url-row .row{display:flex;gap:6px}
-  .url-row input{
-    flex:1;padding:7px 10px;border:1px solid var(--border);border-radius:8px;font-size:12.5px;
-    font-family:inherit;color:var(--text);background:#fff;outline:none;min-width:0;
-  }
-  .url-row input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
-  .url-row .load{
-    padding:7px 12px;border:0;border-radius:8px;background:var(--accent);color:#fff;
-    font-size:12px;font-weight:600;cursor:pointer;flex:none;
-  }
-  .url-row .load:hover{background:var(--accent-deep)}
-
-  .drop{
-    margin:2px 10px 10px;padding:18px 10px;border:1.5px dashed #c9d3e0;border-radius:14px;
-    text-align:center;color:var(--text-3);font-size:12.5px;background:#fbfcfe;transition:all .15s;
-  }
-  .drop.over{border-color:var(--accent);background:var(--accent-soft);color:var(--accent-deep)}
-  .drop .drop-ic{
-    width:32px;height:32px;margin:0 auto 6px;border-radius:10px;background:#eef2f8;color:var(--text-2);
-    display:flex;align-items:center;justify-content:center;
-  }
-  .drop .drop-ic svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-  .drop .drop-t{color:var(--text-2);font-weight:600;font-size:12.5px;margin-bottom:2px}
-  .drop input[type=file]{display:none}
-  .add-btn{
-    margin:6px auto 0;display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:999px;
-    background:#fff;border:1px solid var(--border);color:var(--accent);font-weight:600;font-size:12px;cursor:pointer;
-  }
-  .add-btn:hover{background:var(--accent-soft);border-color:var(--accent-soft)}
-
-  .src-group{margin:6px 6px 14px}
-  .src-group .gname{
-    font-size:10.5px;font-weight:800;color:var(--text-3);letter-spacing:1.2px;padding:0 10px;margin:8px 0 4px;
-  }
-  .src{
-    display:flex;align-items:center;gap:9px;padding:7px 8px;border-radius:10px;font-size:13px;color:var(--text);
-    cursor:default;
-  }
-  .src:hover{background:#f3f6fb}
-  .src:hover .rm{opacity:1}
-  .src .ico{
-    flex:none;width:22px;height:22px;border-radius:6px;background:#eef2f8;display:flex;align-items:center;justify-content:center;
-    font-size:9.5px;font-weight:800;color:var(--text-2);letter-spacing:.3px;
-  }
-  .src .ico.pdf{background:#fdecea;color:#c5221f}
-  .src .ico.mp4{background:#e8f0fe;color:var(--accent-deep)}
-  .src .ico.mp3{background:#f1eafe;color:var(--purple)}
-  .src .ico.web{background:#e6f4ea;color:var(--green)}
-  .src .ico.url{background:#e6f4ea;color:var(--green)}
-  .src .ico.li{background:#e8f0fe;color:#0a66c2}
-  .src .name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12.5px}
-  .src .rm{
-    flex:none;opacity:0;transition:opacity .15s;width:18px;height:18px;border-radius:50%;
-    display:flex;align-items:center;justify-content:center;color:var(--text-3);cursor:pointer;background:transparent;border:0;
-  }
-  .src .rm:hover{background:#f1f4f9;color:var(--text-2)}
-
-  /* ---------- middle: simulation transcript ---------- */
-  .chat-panel{background:var(--chat-bg);padding:0;border-radius:var(--radius);position:relative;overflow:hidden}
-  .chat-header{
-    flex:none;display:flex;align-items:center;gap:12px;padding:10px 16px;
-    background:#f5f0e8;border-bottom:1px solid #d9d1c3;
-  }
-  .chat-header .avatar{
-    width:40px;height:40px;border-radius:50%;color:#fff;font-weight:700;font-size:15px;
-    display:flex;align-items:center;justify-content:center;
-  }
-  .chat-header .name-block{flex:1;min-width:0}
-  .chat-header .name{font-weight:600;font-size:14.5px;color:var(--text);display:flex;align-items:center;gap:8px}
-  .chat-header .role{font-size:12px;color:var(--text-3);margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .chat-header .chip-row{display:flex;align-items:center;gap:6px;margin-top:4px}
-  .sim-chip{
-    display:inline-flex;align-items:center;gap:5px;font-size:9.5px;font-weight:800;letter-spacing:.8px;
-    padding:3px 8px;border-radius:999px;background:var(--amber-soft);color:var(--amber);
-  }
-  .sim-chip::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--amber)}
-  .sim-chip .prod{color:var(--amber);font-weight:800}
-  .run-new-btn{
-    margin-left:auto;display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border-radius:10px;
-    background:var(--accent);color:#fff;font-weight:600;font-size:12px;cursor:pointer;border:0;
-    box-shadow:0 1px 2px rgba(26,115,232,.3);
-  }
-  .run-new-btn:hover{background:var(--accent-deep)}
-  .run-new-btn:disabled{opacity:.6;cursor:not-allowed}
-  .run-new-btn .tri{font-size:9px}
-
-  /* chat body with subtle pattern */
-  .chat-body{
-    flex:1;overflow-y:auto;padding:14px 6% 12px;min-height:0;
-    background:
-      radial-gradient(circle at 20% 30%, rgba(255,255,255,.35) 0%, transparent 40%),
-      radial-gradient(circle at 80% 70%, rgba(255,255,255,.25) 0%, transparent 45%),
-      var(--chat-bg);
-  }
-  .day-sep{
-    text-align:center;margin:4px auto 12px;
-    background:#e2dcd0;color:var(--text-2);font-size:10.5px;font-weight:600;letter-spacing:.4px;
-    padding:3px 12px;border-radius:8px;display:inline-block;box-shadow:0 1px 1px rgba(0,0,0,.04);
-  }
-  .day-wrap{text-align:center}
-
-  .time-stamp{
-    text-align:center;font-size:10.5px;color:var(--text-3);margin:6px 0 4px;font-weight:500;
-    letter-spacing:.3px;
+  .top-right .iconbtn:hover{background:#f0f3f8;color:var(--ink-2)}
+  .top-right svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  .avatar-me{
+    width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#0f9d58,#188038);
+    color:#fff;display:inline-flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;
+    margin-left:6px;cursor:pointer;
   }
 
-  .bubble-row{display:flex;margin-bottom:5px;justify-content:flex-start}
+  /* ---------- MAIN LAYOUT ---------- */
+  .main{
+    flex:1;display:grid;grid-template-columns:minmax(0,3fr) minmax(0,2fr);
+    gap:14px;padding:14px;min-height:0;
+  }
+
+  /* ---------- STAGE (left) ---------- */
+  .stage{display:flex;flex-direction:column;min-height:0;gap:10px}
+  .browser{
+    flex:1;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+    box-shadow:var(--shadow);display:flex;flex-direction:column;overflow:hidden;min-height:0;
+  }
+  .chrome{
+    height:40px;flex:none;display:flex;align-items:center;gap:10px;padding:0 12px;
+    background:#eef1f6;border-bottom:1px solid var(--border);
+  }
+  .dots{display:flex;gap:6px}
+  .dots span{width:12px;height:12px;border-radius:50%;display:inline-block}
+  .dots span:nth-child(1){background:#ff5f57}
+  .dots span:nth-child(2){background:#febc2e}
+  .dots span:nth-child(3){background:#28c840}
+  .urlbar{
+    flex:1;height:26px;background:#fbfcfe;border:1px solid #dde3ec;border-radius:8px;
+    display:flex;align-items:center;gap:8px;padding:0 10px;font-size:12px;color:var(--ink-2);
+  }
+  .urlbar .lock{color:var(--green);font-size:11px}
+  .urlbar .host{color:var(--ink-2)}
+  .urlbar .path{color:var(--ink-3)}
+  .refresh{
+    width:26px;height:26px;border-radius:50%;border:1px solid #dde3ec;background:#fff;
+    display:inline-flex;align-items:center;justify-content:center;color:var(--ink-2);cursor:pointer;
+  }
+  .refresh svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+  .viewport{position:relative;flex:1;overflow:hidden;background:#fbfcfe}
+
+  /* fake Relay for Clinics dashboard */
+  .product{position:absolute;inset:0;overflow-y:auto;padding:0 0 24px}
+  .r-header{
+    display:flex;align-items:center;gap:14px;padding:14px 22px;
+    background:#fff;border-bottom:1px solid var(--border-soft);position:sticky;top:0;z-index:2;
+  }
+  .r-logo{display:flex;align-items:center;gap:8px;font-weight:700;font-size:14px;color:var(--ink)}
+  .r-logo .mk{
+    width:22px;height:22px;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;
+    background:#0e7c66;color:#fff;font-size:11px;font-weight:800;
+  }
+  .r-clinic{
+    display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border-radius:8px;
+    background:#f2f5fa;border:1px solid var(--border-soft);font-size:12.5px;color:var(--ink-2);cursor:pointer;
+  }
+  .r-clinic .caret{color:var(--ink-3);font-size:10px}
+  .r-nav{margin-left:auto;display:flex;gap:14px;font-size:12.5px;color:var(--ink-3);font-weight:500}
+  .r-nav a{color:inherit;text-decoration:none;padding:4px 2px}
+  .r-nav a.active{color:var(--ink);border-bottom:2px solid #0e7c66;padding-bottom:2px}
+
+  .r-page-h{padding:22px 22px 6px}
+  .r-page-h h2{font-size:19px;font-weight:700;color:var(--ink)}
+  .r-page-h .sub{font-size:12.5px;color:var(--ink-3);margin-top:2px}
+
+  .r-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding:14px 22px}
+  .kpi{background:#fff;border:1px solid var(--border-soft);border-radius:12px;padding:14px}
+  .kpi .l{font-size:10.5px;letter-spacing:1px;font-weight:700;color:var(--ink-3)}
+  .kpi .v{font-size:24px;font-weight:700;color:var(--ink);margin-top:6px;line-height:1.05}
+  .kpi .d{font-size:11px;color:var(--ink-3);margin-top:4px}
+  .kpi .up{color:var(--green)}
+  .kpi .down{color:var(--red)}
+
+  /* pricing zone — Aisha will hover this */
+  .r-pricing{
+    margin:6px 22px 0;padding:14px 16px;border:1px dashed var(--border);border-radius:12px;
+    background:#fafcff;display:flex;justify-content:space-between;align-items:center;gap:10px;
+  }
+  .r-pricing .txt .l{font-size:10.5px;letter-spacing:1px;font-weight:700;color:var(--ink-3)}
+  .r-pricing .txt .h{font-size:14px;font-weight:600;color:var(--ink);margin-top:3px}
+  .r-pricing .txt .p{font-size:12px;color:var(--ink-3);margin-top:2px}
+  .r-pricing .tiers{display:flex;gap:10px}
+  .tier{padding:8px 12px;border:1px solid var(--border-soft);border-radius:10px;background:#fff;font-size:11.5px;color:var(--ink-2);min-width:98px;text-align:center}
+  .tier b{display:block;font-weight:700;color:var(--ink);font-size:13px}
+  .tier.hot{border-color:var(--accent);background:var(--accent-soft);color:var(--accent-deep)}
+
+  /* schedule zone — Fatima hovers */
+  .r-schedule{margin:14px 22px 0}
+  .r-schedule h3{font-size:12.5px;font-weight:700;color:var(--ink-2);margin-bottom:8px;letter-spacing:.4px}
+  .appt-list{background:#fff;border:1px solid var(--border-soft);border-radius:12px;overflow:hidden}
+  .appt{display:grid;grid-template-columns:70px 1fr auto auto;gap:12px;align-items:center;padding:10px 14px;border-bottom:1px solid var(--border-soft);font-size:12.5px}
+  .appt:last-child{border-bottom:0}
+  .appt .t{font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums;font-size:12px}
+  .appt .who{color:var(--ink)}
+  .appt .who .p{font-size:11px;color:var(--ink-3)}
+  .appt .prov{font-size:11px;color:var(--ink-3)}
+  .appt .st{font-size:10.5px;font-weight:700;letter-spacing:.6px;padding:2px 8px;border-radius:999px}
+  .st.conf{background:var(--green-soft);color:var(--green)}
+  .st.wait{background:var(--amber-soft);color:var(--amber)}
+  .st.risk{background:var(--red-soft);color:var(--red)}
+  .st.recov{background:var(--accent-soft);color:var(--accent-deep)}
+
+  /* integrations zone — Omar hovers */
+  .r-integ{margin:14px 22px 0;padding:14px 16px;background:#fff;border:1px solid var(--border-soft);border-radius:12px}
+  .r-integ h3{font-size:12.5px;font-weight:700;color:var(--ink-2);margin-bottom:8px;letter-spacing:.4px}
+  .r-integ .row{display:flex;flex-wrap:wrap;gap:8px}
+  .pill{padding:6px 12px;border-radius:999px;background:#f2f5fa;border:1px solid var(--border-soft);font-size:11.5px;color:var(--ink-2)}
+  .pill.ok::before{content:"✓ ";color:var(--green);font-weight:800}
+
+  /* cursor overlay */
+  .cursor-layer{position:absolute;inset:0;pointer-events:none;z-index:5}
+  .cursor{position:absolute;left:0;top:0;display:flex;align-items:flex-start;gap:6px;transform:translate(0,0);will-change:transform}
+  .cursor .arrow{
+    width:16px;height:16px;filter:drop-shadow(0 1px 2px rgba(0,0,0,.18));
+  }
+  .cursor .label{
+    background:rgba(255,255,255,.98);border:1px solid var(--border);border-radius:6px;
+    padding:2px 8px;font-size:10.5px;font-weight:700;letter-spacing:.2px;color:var(--ink);
+    box-shadow:0 2px 6px rgba(16,24,40,.08);white-space:nowrap;transform:translateY(2px);
+  }
+  .cursor.aisha .label{background:var(--accent-soft);color:var(--accent-deep);border-color:#c9dcfa}
+  .cursor.fatima .label{background:var(--amber-soft);color:var(--amber);border-color:#eed6a3}
+  .cursor.omar .label{background:var(--teal-soft);color:var(--teal);border-color:#a9d8d3}
+
+  .cursor.aisha{animation:pathAisha 12s ease-in-out infinite}
+  .cursor.fatima{animation:pathFatima 14s ease-in-out infinite}
+  .cursor.omar{animation:pathOmar 13s ease-in-out infinite}
+
+  @keyframes pathAisha{
+    0%   {transform:translate(38%,10%)}
+    15%  {transform:translate(60%,20%)}
+    30%  {transform:translate(70%,28%)}
+    45%  {transform:translate(52%,44%)}   /* pricing zone */
+    60%  {transform:translate(64%,50%)}
+    80%  {transform:translate(30%,22%)}
+    100% {transform:translate(38%,10%)}
+  }
+  @keyframes pathFatima{
+    0%   {transform:translate(22%,60%)}
+    15%  {transform:translate(45%,68%)}   /* schedule */
+    30%  {transform:translate(60%,72%)}
+    45%  {transform:translate(72%,66%)}
+    60%  {transform:translate(38%,74%)}
+    80%  {transform:translate(20%,64%)}
+    100% {transform:translate(22%,60%)}
+  }
+  @keyframes pathOmar{
+    0%   {transform:translate(48%,86%)}   /* integrations */
+    15%  {transform:translate(68%,88%)}
+    30%  {transform:translate(74%,80%)}
+    45%  {transform:translate(30%,90%)}
+    60%  {transform:translate(20%,84%)}
+    80%  {transform:translate(58%,82%)}
+    100% {transform:translate(48%,86%)}
+  }
+
+  /* stage footer strip */
+  .stage-foot{
+    flex:none;background:var(--surface);border:1px solid var(--border);border-radius:12px;
+    box-shadow:var(--shadow);padding:9px 14px;display:flex;align-items:center;gap:14px;
+    font-size:11.5px;color:var(--ink-3);letter-spacing:.4px;
+  }
+  .stage-foot .live{display:inline-flex;align-items:center;gap:6px;font-weight:800;color:var(--ink-2);letter-spacing:1px}
+  .stage-foot .live .rd{width:8px;height:8px;border-radius:50%;background:var(--red);box-shadow:0 0 0 0 rgba(197,34,31,.7);animation:blink 1.4s ease-in-out infinite}
+  @keyframes blink{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(197,34,31,.55)}50%{opacity:.55;box-shadow:0 0 0 6px rgba(197,34,31,0)}}
+  .phases{display:flex;align-items:center;gap:10px;color:var(--ink-3);font-weight:600}
+  .phase{display:inline-flex;align-items:center;gap:6px}
+  .phase .pd{width:7px;height:7px;border-radius:50%;background:#c9d3e0}
+  .phase.done .pd{background:var(--green)}
+  .phase.current{color:var(--ink)}
+  .phase.current .pd{background:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+  .phases .sep{color:var(--ink-3);opacity:.5}
+
+  /* ---------- ROOM (right) ---------- */
+  .room{display:grid;grid-template-rows:minmax(0,3fr) minmax(0,2fr);gap:10px;min-height:0}
+
+  .tiles{
+    display:grid;grid-template-rows:1fr 1fr 1fr;gap:10px;min-height:0;
+  }
+  .tile{
+    background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+    box-shadow:var(--shadow);padding:12px 14px;display:grid;
+    grid-template-columns:auto 1fr;grid-template-rows:auto auto;gap:8px 14px;
+    align-items:center;min-height:0;position:relative;overflow:hidden;
+    transition:border-color .3s,box-shadow .3s,transform .35s cubic-bezier(.34,1.56,.64,1);
+  }
+  .tile[data-active="true"]{border-color:#c9dcfa;box-shadow:0 6px 20px rgba(26,115,232,.08),0 1px 2px rgba(16,24,40,.05)}
+  .tile.bounce{animation:bounceTile .55s cubic-bezier(.34,1.56,.64,1)}
+  @keyframes bounceTile{
+    0%{transform:translateY(0)}
+    35%{transform:translateY(-12px)}
+    65%{transform:translateY(2px)}
+    100%{transform:translateY(0)}
+  }
+
+  .avwrap{position:relative;width:58px;height:58px;grid-row:1 / span 2;align-self:start;margin-top:2px}
+  .av{
+    width:58px;height:58px;border-radius:50%;color:#fff;display:flex;align-items:center;justify-content:center;
+    font-weight:800;font-size:19px;letter-spacing:.3px;position:relative;
+    animation:bob 3s ease-in-out infinite;
+  }
+  .av.aisha{background:linear-gradient(135deg,var(--aisha-a),var(--aisha-b));box-shadow:0 6px 18px rgba(26,115,232,.28)}
+  .av.fatima{background:linear-gradient(135deg,var(--fatima-a),var(--fatima-b));box-shadow:0 6px 18px rgba(178,106,0,.28)}
+  .av.omar{background:linear-gradient(135deg,var(--omar-a),var(--omar-b));box-shadow:0 6px 18px rgba(15,118,110,.28)}
+  @keyframes bob{
+    0%,100%{transform:translateY(0)}
+    50%{transform:translateY(-4px)}
+  }
+  .ring{
+    position:absolute;inset:-6px;border-radius:50%;pointer-events:none;opacity:0;
+    box-shadow:0 0 0 3px rgba(26,115,232,.35);
+    animation:none;
+  }
+  .tile[data-active="true"] .ring{opacity:1;animation:pulseRing 1.6s ease-out infinite}
+  .tile[data-persona="aisha"] .ring{box-shadow:0 0 0 3px rgba(26,115,232,.4)}
+  .tile[data-persona="fatima"] .ring{box-shadow:0 0 0 3px rgba(178,106,0,.4)}
+  .tile[data-persona="omar"] .ring{box-shadow:0 0 0 3px rgba(15,118,110,.4)}
+  @keyframes pulseRing{
+    0%{opacity:.65;transform:scale(1)}
+    100%{opacity:0;transform:scale(1.25)}
+  }
+
+  .who-h{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;min-width:0}
+  .who-h .n{font-size:14px;font-weight:700;color:var(--ink);letter-spacing:.1px}
+  .who-h .r{font-size:11.5px;color:var(--ink-3);font-weight:500}
+  .who-h .simtag{
+    font-size:9.5px;font-weight:800;letter-spacing:.8px;padding:2px 6px;border-radius:999px;
+    background:var(--purple-soft);color:var(--purple);margin-left:auto;
+  }
+  .status{
+    font-size:11.5px;color:var(--ink-2);display:flex;align-items:center;gap:6px;
+    grid-column:2;grid-row:2;margin-top:-2px;
+  }
+  .status .live-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:blink 1.6s infinite}
+  .status .txt{transition:opacity .25s}
+
+  /* speech bubble — spans below both cols */
   .bubble{
-    position:relative;max-width:76%;padding:8px 12px 10px;border-radius:10px;font-size:13.8px;
-    box-shadow:0 1px .5px rgba(11,20,26,.13);animation:pop .18s ease;line-height:1.44;
-    word-wrap:break-word;background:var(--bubble-in);color:var(--text);
-    border-top-left-radius:2px;
+    grid-column:1 / span 2;grid-row:3;position:relative;margin-top:8px;
+    background:#f7f9fd;border:1px solid var(--border-soft);border-radius:12px;
+    padding:9px 12px;font-size:12.5px;color:var(--ink);line-height:1.45;
+    transition:opacity .25s;
   }
-  @keyframes pop{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
   .bubble::before{
-    content:"";position:absolute;left:-6px;top:0;
-    border:6px solid transparent;border-right-color:var(--bubble-in);border-top-color:var(--bubble-in);
-    border-left:0;border-bottom:0;
+    content:"";position:absolute;left:22px;top:-6px;width:10px;height:10px;background:#f7f9fd;
+    border-left:1px solid var(--border-soft);border-top:1px solid var(--border-soft);
+    transform:rotate(45deg);
   }
-  .bubble .text{display:block}
-  .bubble .fw-tag{
-    display:inline-flex;align-items:center;margin-top:6px;padding:2px 7px;border-radius:6px;
-    font-size:10.5px;font-weight:700;letter-spacing:.2px;
-  }
-  .fw-tag.lift{background:var(--accent-soft);color:var(--accent-deep)}
-  .fw-tag.cialdini{background:var(--purple-soft);color:var(--purple)}
-  .fw-tag.fogg{background:var(--amber-soft);color:var(--amber)}
-  .fw-tag .fw-name{font-weight:800;margin-right:4px}
-  .fw-tag .fw-note{opacity:.85;font-weight:600}
+  .bubble .q{color:var(--ink)}
+  .tile{grid-template-rows:auto auto auto}
 
-  /* typing indicator */
-  .typing-bubble{
-    background:var(--bubble-in);border-top-left-radius:2px;border-radius:10px;padding:12px 14px;
-    display:inline-flex;gap:4px;box-shadow:0 1px .5px rgba(11,20,26,.13);position:relative;
+  /* insights feed */
+  .feed-panel{
+    background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+    box-shadow:var(--shadow);display:flex;flex-direction:column;min-height:0;overflow:hidden;
   }
-  .typing-bubble::before{
-    content:"";position:absolute;left:-6px;top:0;
-    border:6px solid transparent;border-right-color:var(--bubble-in);border-top-color:var(--bubble-in);
-    border-left:0;border-bottom:0;
+  .feed-h{
+    padding:11px 14px;font-size:10.5px;font-weight:800;letter-spacing:1.3px;color:var(--ink-3);
+    border-bottom:1px solid var(--border-soft);display:flex;align-items:center;gap:8px;flex:none;
   }
-  .typing-bubble span{width:7px;height:7px;border-radius:50%;background:#b9c3d3;animation:blink 1.2s infinite}
-  .typing-bubble span:nth-child(2){animation-delay:.2s}
-  .typing-bubble span:nth-child(3){animation-delay:.4s}
-  @keyframes blink{0%,80%,100%{opacity:.3}40%{opacity:1}}
+  .feed-h .rec{width:6px;height:6px;border-radius:50%;background:var(--red);animation:blink 1.4s infinite}
+  .feed-h .n{margin-left:auto;color:var(--ink-2);font-weight:700}
+  .feed{flex:1;overflow-y:auto;padding:6px 8px 10px}
+  .insight{
+    display:grid;grid-template-columns:auto auto 1fr;gap:8px 10px;align-items:start;
+    padding:9px 8px;border-radius:10px;font-size:12.5px;color:var(--ink);
+    animation:fadein .35s ease;
+  }
+  .insight:hover{background:#f4f7fc}
+  @keyframes fadein{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+  .insight .dot{width:8px;height:8px;border-radius:50%;margin-top:6px}
+  .insight[data-p="aisha"] .dot{background:var(--aisha-a)}
+  .insight[data-p="fatima"] .dot{background:var(--fatima-a)}
+  .insight[data-p="omar"] .dot{background:var(--omar-a)}
+  .insight .meta{font-size:10.5px;color:var(--ink-3);white-space:nowrap;margin-top:2px;font-variant-numeric:tabular-nums}
+  .insight .meta b{color:var(--ink-2);font-weight:700}
+  .insight .body{grid-column:3;font-size:12.5px;line-height:1.5;color:var(--ink)}
+  .insight .fw{
+    display:inline-block;font-size:9.5px;font-weight:800;letter-spacing:.7px;padding:2px 7px;
+    border-radius:999px;margin-left:6px;vertical-align:1px;
+  }
+  .fw.lift{background:var(--accent-soft);color:var(--accent-deep)}
+  .fw.cial{background:var(--purple-soft);color:var(--purple)}
+  .fw.fogg{background:var(--amber-soft);color:var(--amber)}
+  .fw.ability{background:var(--red-soft);color:var(--red)}
+  .insight.hot{background:#fffbf4;border:1px solid #f3e2b8}
+  .insight.hot .body::before{content:"⚑ ";color:var(--amber);font-weight:800;margin-right:2px}
 
-  /* ---------- simulation report ---------- */
-  .sim-report{
-    flex:none;background:#fbfaf7;border-top:1px solid #d9d1c3;
-    max-height:38vh;overflow-y:auto;
+  /* ---------- CONTROL BAR ---------- */
+  .control{
+    height:64px;flex:none;background:var(--surface);border-top:1px solid var(--border);
+    display:flex;align-items:center;gap:12px;padding:0 16px;
   }
-  .sim-report .rh{
-    display:flex;align-items:center;gap:10px;padding:10px 16px;cursor:pointer;
-    background:#f5f0e8;border-bottom:1px solid #e5dcc9;position:sticky;top:0;z-index:1;
+  .control .grp{display:flex;align-items:center;gap:10px}
+  .control label{font-size:11px;font-weight:700;letter-spacing:.6px;color:var(--ink-3);text-transform:uppercase}
+  .control select{
+    height:38px;padding:0 32px 0 12px;border:1px solid var(--border);border-radius:10px;
+    background:#fbfcfe url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none'><path d='M2 4l4 4 4-4' stroke='%235b6472' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'/></svg>") no-repeat right 10px center;
+    -webkit-appearance:none;appearance:none;font-size:13px;color:var(--ink);cursor:pointer;font-weight:500;
   }
-  .sim-report .rh .icon-report{
-    width:22px;height:22px;flex:none;border-radius:6px;background:var(--accent-soft);
-    display:flex;align-items:center;justify-content:center;color:var(--accent-deep);
+  .control input[type="text"]{
+    flex:1;height:38px;padding:0 14px;border:1px solid var(--border);border-radius:10px;
+    background:#fbfcfe;font-size:13px;color:var(--ink);outline:none;
   }
-  .sim-report .rh .icon-report svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
-  .sim-report .rh .rh-title{font-size:11px;font-weight:800;letter-spacing:1.4px;color:var(--text-2);flex:1}
-  .sim-report .rh .rh-title b{color:var(--text);font-weight:800;letter-spacing:.4px;text-transform:none;font-size:12.5px;margin-left:6px}
-  .sim-report .rh .chev{transition:transform .18s;color:var(--text-3)}
-  .sim-report.collapsed .rh .chev{transform:rotate(-90deg)}
-  .sim-report.collapsed .rb{display:none}
-
-  .rb{padding:10px 16px 14px}
-  .rb .rsec{margin-top:6px}
-  .rb .rsec:first-child{margin-top:0}
-  .rb .rsec-h{
-    display:flex;align-items:center;gap:6px;font-size:10.5px;font-weight:800;letter-spacing:1.1px;
-    color:var(--text-3);margin:8px 0 4px;
+  .control input[type="text"]:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+  .runbtn{
+    height:38px;padding:0 18px;border:0;border-radius:10px;cursor:pointer;
+    background:var(--accent);color:#fff;font-size:13px;font-weight:600;letter-spacing:.2px;
+    display:inline-flex;align-items:center;gap:8px;transition:background .12s,transform .05s;
   }
-  .rb .rsec-h .dot{width:6px;height:6px;border-radius:50%}
-  .rb .rsec.friction .dot{background:var(--red)}
-  .rb .rsec.friction .rsec-h{color:var(--red)}
-  .rb .rsec.missing .dot{background:var(--amber)}
-  .rb .rsec.missing .rsec-h{color:var(--amber)}
-  .rb .rsec.worked .dot{background:var(--green)}
-  .rb .rsec.worked .rsec-h{color:var(--green)}
-  .rb .rsec.decision .dot{background:var(--accent)}
-  .rb .rsec.decision .rsec-h{color:var(--accent-deep)}
-
-  .r-item{
-    display:flex;align-items:flex-start;gap:8px;padding:7px 8px;border-radius:8px;
-    font-size:13px;color:var(--text);cursor:pointer;transition:background .12s;
-  }
-  .r-item:hover{background:#f1eee6}
-  .r-item .r-body{flex:1;min-width:0}
-  .r-item .r-text{color:var(--text);line-height:1.42}
-  .r-item .r-fw{
-    display:inline-block;margin-top:3px;font-size:10px;font-weight:800;letter-spacing:.4px;
-    padding:1.5px 6px;border-radius:5px;
-  }
-  .r-item .r-fw.lift{background:var(--accent-soft);color:var(--accent-deep)}
-  .r-item .r-fw.cialdini{background:var(--purple-soft);color:var(--purple)}
-  .r-item .r-fw.fogg{background:var(--amber-soft);color:var(--amber)}
-  .r-item .r-see{
-    flex:none;color:var(--text-3);opacity:.6;font-size:11px;display:flex;align-items:center;gap:2px;
-    padding-top:2px;
-  }
-  .r-item:hover .r-see{opacity:1;color:var(--accent-deep)}
-  .r-item .r-see svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-
-  .r-decision{
-    padding:9px 10px;background:var(--accent-soft);border-radius:8px;font-size:13px;line-height:1.5;
-    color:var(--text);border-left:3px solid var(--accent);
+  .runbtn:hover{background:var(--accent-deep)}
+  .runbtn:active{transform:scale(.99)}
+  .runbtn .play{
+    width:16px;height:16px;border-radius:50%;background:rgba(255,255,255,.22);
+    display:inline-flex;align-items:center;justify-content:center;font-size:9px;
   }
 
-  /* ---------- run bar (was composer) ---------- */
-  .runbar{
-    flex:none;display:flex;align-items:center;gap:8px;padding:10px 12px;background:#f5f0e8;
-    border-top:1px solid #d9d1c3;
-  }
-  .runbar .source-select{
-    display:inline-flex;align-items:center;gap:6px;padding:8px 10px;background:#fff;
-    border:1px solid var(--border);border-radius:10px;font-size:12.5px;color:var(--text-2);flex:none;
-  }
-  .runbar .source-select .label{color:var(--text-3);font-weight:600;font-size:11.5px}
-  .runbar select{
-    border:0;background:transparent;font-size:12.5px;color:var(--text);font-weight:600;
-    font-family:inherit;cursor:pointer;outline:none;padding-right:2px;
-  }
-  .runbar .ctx-input{
-    flex:1;padding:9px 12px;border:1px solid var(--border);border-radius:10px;font-size:13px;
-    outline:none;background:#fff;color:var(--text);min-width:0;
-  }
-  .runbar .ctx-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
-  .runbar .ctx-input::placeholder{color:var(--text-3)}
-  .runbar .run-btn{
-    display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:10px;
-    background:var(--accent);color:#fff;font-weight:600;font-size:13px;cursor:pointer;border:0;
-    box-shadow:0 1px 2px rgba(26,115,232,.3);flex:none;
-  }
-  .runbar .run-btn:hover{background:var(--accent-deep)}
-  .runbar .run-btn:disabled{opacity:.6;cursor:not-allowed}
-  .runbar .run-btn .tri{font-size:10px}
+  /* scrollbars — subtle */
+  ::-webkit-scrollbar{width:10px;height:10px}
+  ::-webkit-scrollbar-thumb{background:#dbe2ec;border-radius:6px;border:2px solid transparent;background-clip:content-box}
+  ::-webkit-scrollbar-thumb:hover{background:#c5cfdd;background-clip:content-box}
 
-  /* ---------- right: personas ---------- */
-  .persona-list{padding:4px 6px}
-  .prow{
-    display:flex;align-items:center;gap:11px;padding:10px 10px;border-radius:12px;cursor:pointer;
-    border-left:3px solid transparent;transition:background .12s;
+  @media (max-width:1180px){
+    .r-kpis{grid-template-columns:repeat(2,1fr)}
   }
-  .prow:hover{background:#f3f6fb}
-  .prow.active{background:var(--accent-soft);border-left-color:var(--accent)}
-  .prow .avatar{
-    width:44px;height:44px;flex:none;border-radius:50%;color:#fff;font-weight:700;font-size:16px;
-    display:flex;align-items:center;justify-content:center;
-  }
-  .prow .body{flex:1;min-width:0}
-  .prow .top{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
-  .prow .name{font-weight:600;font-size:14px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .prow .time{font-size:10.5px;color:var(--text-3);flex:none}
-  .prow .role{font-size:11.5px;color:var(--text-3);margin-top:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .prow .snip{font-size:12.5px;color:var(--text-2);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-style:italic}
-
-  /* coaching card */
-  .coach{
-    margin:10px 10px 8px;padding:12px 14px;background:linear-gradient(135deg, var(--amber-soft), #fff);
-    border:1px solid #f2e2c0;border-radius:14px;
-  }
-  .coach .ch{
-    font-size:10.5px;font-weight:800;letter-spacing:1.2px;color:var(--amber);margin-bottom:8px;
-    display:flex;align-items:center;gap:6px;
-  }
-  .coach .ch svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2}
-  .coach .line{font-size:12.5px;color:var(--text);margin-bottom:5px;display:flex;align-items:flex-start;gap:8px;line-height:1.4}
-  .coach .line .n{
-    flex:none;background:#fff;color:var(--amber);font-weight:800;font-size:11px;
-    width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;
-    border:1px solid #f2e2c0;
-  }
-  .coach .cta-review{
-    margin-top:8px;font-size:11.5px;font-weight:600;color:var(--accent-deep);cursor:pointer;
-    background:none;border:0;padding:0;
-  }
-  .coach .cta-review:hover{text-decoration:underline}
-
-  /* avatar palette */
-  .av-aisha{background:linear-gradient(135deg,#7c3aed,#1a73e8)}
-  .av-fatima{background:linear-gradient(135deg,#188038,#34a853)}
-  .av-omar{background:linear-gradient(135deg,#b26a00,#e37400)}
-
-  /* scrollbar polish */
-  .panel-body::-webkit-scrollbar,.chat-body::-webkit-scrollbar,.sim-report::-webkit-scrollbar{width:10px}
-  .panel-body::-webkit-scrollbar-thumb,.chat-body::-webkit-scrollbar-thumb,.sim-report::-webkit-scrollbar-thumb{background:#d4dbe6;border-radius:10px;border:2px solid transparent;background-clip:padding-box}
-  .chat-body::-webkit-scrollbar-thumb{background:#c8bfb0;border-radius:10px;border:2px solid transparent;background-clip:padding-box}
 </style>
 </head>
 <body>
 
-<div class="app">
-
-  <!-- ============ TOP BAR ============ -->
-  <div class="topbar">
-    <div class="brand">
-      <span class="mark">A</span>
-      Astra <span class="sub">Rehearsal</span>
-    </div>
-    <div class="crumb">/ <b>Nova Dental Clinic</b> — Pilot Rehearsal</div>
-    <div class="top-right">
-      <button class="iconbtn" title="Share">
-        <svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="10.5" x2="15.4" y2="6.5"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"/></svg>
-      </button>
-      <button class="iconbtn" title="Notifications">
-        <svg viewBox="0 0 24 24"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10 21a2 2 0 0 0 4 0"/></svg>
-      </button>
-      <button class="iconbtn" title="Settings">
-        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
-      </button>
-      <div class="avatar-btn" title="Sarah Chen">SC</div>
-    </div>
-  </div>
-
-  <!-- ============ 3-COLUMN GRID ============ -->
-  <div class="grid">
-
-    <!-- =========== LEFT: SOURCES =========== -->
-    <div class="panel">
-      <div class="panel-h"><span>YOUR PRODUCT</span></div>
-      <div class="panel-body">
-
-        <div class="url-row">
-          <div class="label">Or paste a product URL to simulate against</div>
-          <div class="row">
-            <input id="url-input" type="url" placeholder="https://relayforclinics.com" autocomplete="off">
-            <button class="load" id="url-load-btn">Load</button>
-          </div>
-        </div>
-
-        <div class="drop" id="drop">
-          <div class="drop-ic">
-            <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-          </div>
-          <div class="drop-t">Drop demos, decks, transcripts</div>
-          <div style="font-size:11px;color:var(--text-3);margin-top:2px">or</div>
-          <label class="add-btn" for="fileinput">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            Add
-          </label>
-          <input id="fileinput" type="file" multiple>
-        </div>
-
-        <div class="src-group" id="your-materials-list">
-          <!-- seeded chips inserted below -->
-        </div>
-
-        <div class="src-group">
-          <div class="gname">ACCOUNT SOURCES</div>
-          <div class="src"><span class="ico web">WEB</span><span class="name">novadentalclinic.ae</span></div>
-          <div class="src"><span class="ico mp3">MP3</span><span class="name">Discovery Call.mp3</span></div>
-          <div class="src"><span class="ico web">GOO</span><span class="name">Google Reviews (312)</span></div>
-          <div class="src"><span class="ico li">IN</span><span class="name">LinkedIn — Dr. Aisha Rashid</span></div>
-          <div class="src"><span class="ico li">IN</span><span class="name">LinkedIn — Fatima Hassan</span></div>
-          <div class="src"><span class="ico li">IN</span><span class="name">LinkedIn — Dr. Omar Al Farsi</span></div>
-        </div>
-
-      </div>
-    </div>
-
-    <!-- =========== MIDDLE: SIMULATION =========== -->
-    <div class="panel chat-panel">
-
-      <div class="chat-header">
-        <div class="avatar" id="chdr-avatar">A</div>
-        <div class="name-block">
-          <div class="name">
-            <span id="chdr-name">Dr. Aisha Rashid</span>
-          </div>
-          <div class="role">
-            <span id="chdr-role">Practice Owner · Nova Dental Clinic</span>
-          </div>
-          <div class="chip-row">
-            <span class="sim-chip" title="Astra is running a grounded persona simulation against your product.">SIMULATING · <span class="prod">Relay for Clinics</span></span>
-          </div>
-        </div>
-        <button class="run-new-btn" id="run-new-btn" title="Start a fresh simulation for this persona">
-          <span class="tri">▶</span> Run new simulation
-        </button>
-      </div>
-
-      <div class="chat-body" id="chat-body">
-        <!-- populated by JS from PERSONAS[current].seed -->
-      </div>
-
-      <!-- SIMULATION REPORT -->
-      <div class="sim-report" id="sim-report">
-        <div class="rh" id="report-toggle">
-          <span class="icon-report">
-            <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/></svg>
-          </span>
-          <div class="rh-title">SIMULATION REPORT<b id="report-persona-name">Dr. Aisha Rashid</b></div>
-          <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-        </div>
-        <div class="rb" id="report-body">
-          <!-- filled by JS -->
-        </div>
-      </div>
-
-      <!-- RUN BAR (replaces composer) -->
-      <div class="runbar" id="runbar">
-        <div class="source-select">
-          <span class="label">Simulate using:</span>
-          <select id="source-select">
-            <option value="Homepage">Homepage</option>
-            <option value="Pricing Page">Pricing Page</option>
-            <option value="Demo Video">Demo Video</option>
-            <option value="Case Study PDF">Case Study PDF</option>
-          </select>
-        </div>
-        <input id="ctx-input" class="ctx-input" type="text" placeholder="Any additional context for this run (e.g. 'They mentioned budget concerns in discovery')" autocomplete="off">
-        <button class="run-btn" id="run-btn" title="Run simulation">
-          <span class="tri">▶</span> Run
-        </button>
-      </div>
-
-    </div>
-
-    <!-- =========== RIGHT: PERSONAS =========== -->
-    <div class="panel">
-      <div class="panel-h"><span>THE ROOM</span><span style="color:var(--text-3);font-weight:600;letter-spacing:.6px">3 personas</span></div>
-      <div class="panel-body">
-
-        <div class="persona-list" id="persona-list">
-          <!-- rows generated by JS -->
-        </div>
-
-        <div class="coach">
-          <div class="ch">
-            <svg viewBox="0 0 24 24"><path d="M12 2v4M12 18v4M4.9 4.9l2.8 2.8M16.3 16.3l2.8 2.8M2 12h4M18 12h4M4.9 19.1l2.8-2.8M16.3 7.7l2.8-2.8"/></svg>
-            PATTERNS ACROSS PERSONAS
-          </div>
-          <div class="line"><span class="n">3</span><span>personas asked about pricing structure / multi-location tiering.</span></div>
-          <div class="line"><span class="n">2</span><span>mentioned integration gaps (Dentray, insurance providers).</span></div>
-          <div class="line"><span class="n">1</span><span>flagged clinical safety (procedure-block protection).</span></div>
-          <button class="cta-review">Compare all three reports →</button>
-        </div>
-
-      </div>
-    </div>
-
+<!-- ============ TOP BAR ============ -->
+<div class="topbar">
+  <div class="brand"><span class="mark">S</span> SimsWorld</div>
+  <div class="crumb">/ <b>Nova Dental Clinic</b> — Relay for Clinics Simulation</div>
+  <div class="top-right">
+    <button class="iconbtn" title="Share">
+      <svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 10.5l6.8-4"/><path d="M8.6 13.5l6.8 4"/></svg>
+    </button>
+    <button class="iconbtn" title="History">
+      <svg viewBox="0 0 24 24"><path d="M12 8v4l3 2"/><circle cx="12" cy="12" r="9"/></svg>
+    </button>
+    <button class="iconbtn" title="Settings">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.34 1.87l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.7 1.7 0 00-1.87-.34 1.7 1.7 0 00-1 1.55V21a2 2 0 11-4 0v-.09a1.7 1.7 0 00-1.11-1.55 1.7 1.7 0 00-1.87.34l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.7 1.7 0 00.34-1.87 1.7 1.7 0 00-1.55-1H3a2 2 0 110-4h.09a1.7 1.7 0 001.55-1.11 1.7 1.7 0 00-.34-1.87l-.06-.06a2 2 0 112.83-2.83l.06.06a1.7 1.7 0 001.87.34H9a1.7 1.7 0 001-1.55V3a2 2 0 114 0v.09a1.7 1.7 0 001 1.55 1.7 1.7 0 001.87-.34l.06-.06a2 2 0 112.83 2.83l-.06.06a1.7 1.7 0 00-.34 1.87V9a1.7 1.7 0 001.55 1H21a2 2 0 110 4h-.09a1.7 1.7 0 00-1.55 1z"/></svg>
+    </button>
+    <span class="avatar-me">SA</span>
   </div>
 </div>
 
-<script>
-/* ------------------------------------------------------------------
-   Astra Rehearsal — mockup logic
-   Pure vanilla JS, no external deps. All state lives in memory.
-   Middle column = product simulation transcript + structured report.
------------------------------------------------------------------- */
+<!-- ============ MAIN ============ -->
+<div class="main">
 
-/* ---------- PRODUCT under simulation ---------- */
-const PRODUCT_NAME = "Relay for Clinics";
-
-/* ---------- PERSONAS ----------
-   Each persona holds:
-     seed   — initial "Homepage" simulation transcript (persona bubbles only, LEFT side)
-     report — structured LIFT/Cialdini/Fogg findings
-     runs   — additional bubble sets keyed by source (Pricing Page, Demo Video, Case Study PDF)
------------------------------------------------------------------- */
-const PERSONAS = {
-  aisha: {
-    id:"aisha",
-    name:"Dr. Aisha Rashid",
-    initial:"A",
-    role:"Practice Owner · Nova Dental Clinic",
-    avatarClass:"av-aisha",
-    snippet:"Where's the price? Where's Dentray?",
-    lastTime:"now",
-    seed:[
-      {time:"10:02", text:"Ok, opened Relay for Clinics. First fold says 'AI-powered no-show recovery.' Fine. But where's the price?", tag:{fw:"LIFT", note:"value prop unclear"}},
-      {time:"10:02", text:"Scrolling past testimonials. Yes yes, everyone loves you. Show me the number."},
-      {time:"10:03", text:"Case study — 40% no-show reduction in 90 days. Sample size of one clinic in Chicago. That's not my market.", tag:{fw:"Cialdini", note:"authority weak"}},
-      {time:"10:03", text:"Pricing page finally. Per-chair per-month. We have 12 chairs across 3 clinics. That's AED 4,800/mo. For no-show recovery alone."},
-      {time:"10:04", text:"Where's the integration with Dentray? Or CareStack? I'm using Dentray. If this doesn't sync, I'm not putting my team through another data-entry job.", tag:{fw:"Fogg", note:"ability low"}},
-      {time:"10:04", text:"No mention of a multi-location tier. No mention of insurance provider hooks — Daman, Thiqa. That's my compliance load, not a nice-to-have.", tag:{fw:"LIFT", note:"relevance low"}},
-      {time:"10:05", text:"Their 'Book a demo' CTA is a Calendly link. I want a POC on my own data, not a canned walkthrough.", tag:{fw:"Fogg", note:"motivation low"}}
-    ],
-    report:{
-      friction:[
-        {text:"Pricing not visible in first 3 folds — buyer with CPA background reads that as evasive.", fw:"LIFT: Clarity"},
-        {text:"Integration with Dentray (her PMS) not mentioned anywhere on site.", fw:"Fogg: Ability"},
-        {text:"ROI claim (40% no-show reduction) grounded in single-clinic Chicago sample.", fw:"Cialdini: Authority"}
-      ],
-      missing:[
-        {text:"No pricing tier or consolidated-billing model for multi-location practices.", fw:"LIFT: Relevance"},
-        {text:"No mention of Arabic-language patient SMS templates.", fw:"LIFT: Relevance"},
-        {text:"No mention of UAE insurance provider integrations (Daman, Thiqa, ADNIC).", fw:"LIFT: Relevance"}
-      ],
-      worked:[
-        {text:"The '40% no-show reduction' headline number lands — it's specific and repeatable.", fw:"Cialdini: Social Proof"},
-        {text:"Case study screenshot shows real product UI (not a mockup) — builds credibility.", fw:"Cialdini: Authority"}
-      ],
-      decision:"Would ask for a proof-of-concept run against her Dentray data before signing anything. Would not commit today. Would circulate a one-pager to Fatima and Omar first."
-    },
-    runs:{
-      "Pricing Page":[
-        {time:"11:14", text:"Alright, opened the pricing page. Three tiers: Solo, Practice, Enterprise. Solo starts at $99/chair. That's roughly AED 365. Ouch.", tag:{fw:"LIFT", note:"anxiety high"}},
-        {time:"11:15", text:"'Practice' tier has 'multi-location support' — but what does that actually mean? Consolidated billing? Consolidated reporting? Or literally 'the software runs in more than one place'?", tag:{fw:"LIFT", note:"clarity low"}},
-        {time:"11:15", text:"Enterprise is 'contact us.' Always the same trick. If I'm a 12-chair operation I don't want a sales call — I want a number I can put in a spreadsheet.", tag:{fw:"Cialdini", note:"authority weak"}},
-        {time:"11:16", text:"Add-ons: 'AI concierge' extra $29/chair. 'Insurance auto-verify' extra $19/chair. So my $99 becomes $147 by Tuesday. Show me the total upfront."}
-      ],
-      "Demo Video":[
-        {time:"11:20", text:"OK, four-minute demo. First 40 seconds is a logo animation and mission statement. Skip.", tag:{fw:"LIFT", note:"distraction high"}},
-        {time:"11:21", text:"1:20 — actual product. That's the receptionist screen. Looks clean. But I noticed the patient list is 5 rows — I want to see it with 200."},
-        {time:"11:22", text:"3:10 — 'and that's how easy it is.' No mention of what happens with a Dentray-native chart export. That's my day-one migration.", tag:{fw:"Fogg", note:"ability low"}},
-        {time:"11:22", text:"Voiceover is American. Patient names in the demo are Emily, Jason, Sarah. Zero Arabic names. That signals which market they built for.", tag:{fw:"LIFT", note:"relevance low"}}
-      ],
-      "Case Study PDF":[
-        {time:"11:28", text:"Case Study PDF is 6 pages. Page 1: hero stat, '40% no-show reduction.' Same one as the site."},
-        {time:"11:29", text:"Page 3: 'over 12 weeks, at a 3-location Chicago DSO.' 3 locations! Now we're closer to my footprint. Good.", tag:{fw:"LIFT", note:"relevance up"}},
-        {time:"11:30", text:"Page 4 shows the baseline: their prior no-show rate was 22%. Ours is 14%. So their headline win is against a much worse baseline. Won't play as well on my P&L.", tag:{fw:"Cialdini", note:"authority weak"}},
-        {time:"11:31", text:"Page 6 has a signed testimonial from the DSO's COO. Full name, full title, LinkedIn-checkable. That's the credibility I actually needed.", tag:{fw:"Cialdini", note:"authority strong"}}
-      ]
-    }
-  },
-
-  fatima:{
-    id:"fatima",
-    name:"Fatima Hassan",
-    initial:"F",
-    role:"Office Manager · Nova Dental Clinic",
-    avatarClass:"av-fatima",
-    snippet:"Whose 30 minutes? Mine, or theirs?",
-    lastTime:"2m",
-    seed:[
-      {time:"10:12", text:"Opening Relay. First screen says 'runs alongside your PMS.' Alongside how — separate tab, embedded, browser extension? Big difference to my team.", tag:{fw:"LIFT", note:"clarity low"}},
-      {time:"10:13", text:"Screenshot in the hero has three panels. Which one is what the receptionist sees at 8am on a Monday? That's my real test."},
-      {time:"10:13", text:"Onboarding page — 'live in 30 minutes.' Sure. Whose 30 minutes? Mine, or the front desk lead's? Because those are different budgets.", tag:{fw:"LIFT", note:"anxiety high"}},
-      {time:"10:14", text:"No mention of what happens when someone types a phone number wrong. Or when the SMS bounces. I need to know the failure states, not the happy path.", tag:{fw:"LIFT", note:"anxiety high"}},
-      {time:"10:14", text:"The 'Support' link goes to a docs site. Not a phone number, not an on-call rota. When it breaks at 7am, who am I calling?", tag:{fw:"Cialdini", note:"authority weak"}},
-      {time:"10:15", text:"The demo video is 4 minutes and stars a product manager. I want to see a receptionist do a real reschedule, live. Warts and all.", tag:{fw:"Cialdini", note:"liking low"}},
-      {time:"10:15", text:"Nothing about permissions — can I stop a locum from overriding the appointment lock? That's a governance question, not a feature question.", tag:{fw:"Fogg", note:"ability low"}}
-    ],
-    report:{
-      friction:[
-        {text:"'Live in 30 minutes' onboarding claim isn't qualified by role (owner vs. receptionist vs. locum).", fw:"LIFT: Clarity"},
-        {text:"No failure-state documentation — SMS bounces, wrong numbers, timeouts, PMS downtime.", fw:"LIFT: Anxiety"},
-        {text:"Support = docs site, not a staffed on-call channel. Nothing for 7am outages.", fw:"Cialdini: Authority"}
-      ],
-      missing:[
-        {text:"No role-based permission matrix (locum vs full-time vs owner).", fw:"Fogg: Ability"},
-        {text:"No workflow shown for the receptionist during a peak-hour walk-in.", fw:"Fogg: Ability"},
-        {text:"No mention of what happens on wifi drop or PMS downtime.", fw:"LIFT: Anxiety"}
-      ],
-      worked:[
-        {text:"'Runs alongside your PMS' framing lands — no second login sounds real.", fw:"Fogg: Ability"},
-        {text:"30-minute onboarding claim is bold and memorable, even if unqualified.", fw:"LIFT: Urgency"}
-      ],
-      decision:"Would forward the pricing page to Aisha but block endorsement until she sees a live receptionist demo with her own front-desk team, not a product manager."
-    },
-    runs:{
-      "Pricing Page":[
-        {time:"11:14", text:"Pricing page has zero mention of training or onboarding cost. Is a CSM included in every tier? Or is that another add-on?", tag:{fw:"LIFT", note:"anxiety high"}},
-        {time:"11:15", text:"The 'AI concierge' add-on is a subscription per chair — so does it grow linearly if I expand? What if I hire a locum for a month?", tag:{fw:"Fogg", note:"ability low"}},
-        {time:"11:15", text:"No mention of a sandbox. I want to break it before I trust it with real appointments. That's the ops-manager way.", tag:{fw:"LIFT", note:"anxiety high"}},
-        {time:"11:16", text:"Cancellation policy: '30 days notice.' Fine. But no mention of data export at churn. Do I get my patient interactions back as a CSV?"}
-      ],
-      "Demo Video":[
-        {time:"11:20", text:"Demo opens with a founder. I want to see a receptionist. Skipping.", tag:{fw:"Cialdini", note:"liking low"}},
-        {time:"11:21", text:"Product shot at 2:00 — receptionist reschedules an appointment. But I notice she's using the mouse only. My team is 80% keyboard. Does it have shortcuts?", tag:{fw:"Fogg", note:"ability low"}},
-        {time:"11:22", text:"The 'confirm and send SMS' step is one click. But nothing shows what SMS text was sent. That's my most common support ticket — 'what did we actually send them?'", tag:{fw:"LIFT", note:"anxiety high"}},
-        {time:"11:22", text:"Ends with 'schedule your setup call.' I want a self-serve trial, not a sales dance.", tag:{fw:"Fogg", note:"motivation low"}}
-      ],
-      "Case Study PDF":[
-        {time:"11:28", text:"Case study is heavy on the metrics: '18% booking uplift, 22% fewer no-shows.' Fine. But I want the operational cost — hours saved on my team's calendars.", tag:{fw:"LIFT", note:"relevance low"}},
-        {time:"11:29", text:"Page 4 mentions 'front desk saved 12 hours per week.' That's real. That's what I show Aisha.", tag:{fw:"Cialdini", note:"social proof strong"}},
-        {time:"11:30", text:"But it doesn't say how they trained the team. That's the story I need — the training arc, not just the outcome.", tag:{fw:"Fogg", note:"ability low"}},
-        {time:"11:30", text:"Testimonial is from the practice owner. Not the office manager. I don't trust it — the owner never has to deal with the 7am 'the system is stuck' call.", tag:{fw:"Cialdini", note:"authority weak"}}
-      ]
-    }
-  },
-
-  omar:{
-    id:"omar",
-    name:"Dr. Omar Al Farsi",
-    initial:"O",
-    role:"Clinical Lead · Nova Dental Clinic",
-    avatarClass:"av-omar",
-    snippet:"Where's the audit log? DHA compliance?",
-    lastTime:"7m",
-    seed:[
-      {time:"10:24", text:"Opened Relay. It talks about 'filling empty chairs.' My concern is the opposite — chairs getting filled with the wrong patient at the wrong time.", tag:{fw:"LIFT", note:"relevance low"}},
-      {time:"10:25", text:"Where's the data privacy section? Patient names, phone numbers, appointment histories — that's PHI. Where does it live? Whose servers?", tag:{fw:"LIFT", note:"anxiety high"}},
-      {time:"10:25", text:"No mention of DHA compliance. No mention of MOH data residency requirements. This looks written for a US clinic.", tag:{fw:"LIFT", note:"relevance low"}},
-      {time:"10:26", text:"The 'algorithm' fills slots. Fills them how? Can it book a walk-in cleaning into a slot I've held for a root canal review?", tag:{fw:"Fogg", note:"motivation low"}},
-      {time:"10:26", text:"The 'guardrails' section talks about calendar rules. Fine. But what happens when the receptionist overrides them under pressure from a walk-in?", tag:{fw:"LIFT", note:"anxiety high"}},
-      {time:"10:27", text:"No audit log mentioned. When something books wrong, I need to see who changed what and when — from the receptionist, from the algorithm, from the patient.", tag:{fw:"Cialdini", note:"authority weak"}},
-      {time:"10:27", text:"The case studies are all about revenue. Zero about clinical outcomes. Where's the 'zero missed follow-ups' claim? That's what I actually care about.", tag:{fw:"LIFT", note:"relevance low"}}
-    ],
-    report:{
-      friction:[
-        {text:"No data privacy or PHI-handling section visible anywhere on the homepage.", fw:"LIFT: Anxiety"},
-        {text:"No DHA / MOH data-residency compliance mentioned — reads as US-only.", fw:"LIFT: Relevance"},
-        {text:"No audit log or override-tracking mentioned in the guardrails section.", fw:"Cialdini: Authority"}
-      ],
-      missing:[
-        {text:"No procedure-block protection called out (RCT, crown prep, extractions).", fw:"Fogg: Motivation"},
-        {text:"No mention of automated follow-up scheduling for post-op patients.", fw:"LIFT: Relevance"},
-        {text:"No clinical-outcome case studies — every case study is revenue-framed.", fw:"Cialdini: Authority"}
-      ],
-      worked:[
-        {text:"'Guardrails' language shows some awareness of clinical constraints.", fw:"LIFT: Clarity"},
-        {text:"Manual override requiring a reason code is a reasonable pattern.", fw:"Fogg: Ability"}
-      ],
-      decision:"Would block the deal until a data-processing agreement, DHA residency proof, and a live audit-log demo are on the table. Would ask to speak to the chief dentist of a reference customer, not the practice owner."
-    },
-    runs:{
-      "Pricing Page":[
-        {time:"11:14", text:"The pricing page has no mention of clinical governance features. Guardrails, audit logs, override protection — where are they? Priced in? Enterprise-only?", tag:{fw:"LIFT", note:"relevance low"}},
-        {time:"11:15", text:"Enterprise tier says 'custom SLAs.' Custom means we negotiate. That's fine. But list what's actually negotiable.", tag:{fw:"Cialdini", note:"authority weak"}},
-        {time:"11:15", text:"No mention of a data-processing agreement. That's a mandatory ask for a DHA-regulated practice. Not an add-on.", tag:{fw:"LIFT", note:"anxiety high"}},
-        {time:"11:16", text:"No mention of a BAA-equivalent. Not everything has US framing but PHI handling does. This page has no PHI section at all.", tag:{fw:"LIFT", note:"anxiety high"}}
-      ],
-      "Demo Video":[
-        {time:"11:20", text:"Demo skips the calendar entirely for the first 90 seconds. That's my main concern — I don't care about the marketing UI, I care about the schedule engine.", tag:{fw:"LIFT", note:"relevance low"}},
-        {time:"11:21", text:"2:40 — algorithm 'suggests' filling a slot. It shows a green banner. Does the receptionist have to approve, or does it auto-accept if she doesn't respond?", tag:{fw:"Fogg", note:"motivation low"}},
-        {time:"11:22", text:"3:20 — treatment block visible on calendar but not visually distinguished. Cleaning slot is same color as RCT slot. That's a clinical safety issue, not a UI nit.", tag:{fw:"LIFT", note:"anxiety high"}},
-        {time:"11:23", text:"Ends without ever showing what happens on an override. That was the one thing I needed to see.", tag:{fw:"LIFT", note:"anxiety high"}}
-      ],
-      "Case Study PDF":[
-        {time:"11:28", text:"Case study lead metric is revenue. Fine for Aisha, but where's the clinical story?", tag:{fw:"LIFT", note:"relevance low"}},
-        {time:"11:29", text:"Page 3: '0 double-bookings in 12 weeks.' That number I care about. Is it audited by the clinic or self-reported by Relay?", tag:{fw:"Cialdini", note:"authority weak"}},
-        {time:"11:30", text:"Page 4: 'zero missed post-op follow-ups.' If that's true, that's the strongest clinical claim in this whole pitch. Where was this on the homepage?", tag:{fw:"Cialdini", note:"social proof strong"}},
-        {time:"11:31", text:"Testimonial is from a practice owner. Not a clinical lead. I'd want to talk to their chief dentist before I trust the guardrails.", tag:{fw:"Cialdini", note:"authority weak"}}
-      ]
-    }
-  }
-};
-
-let currentId = "aisha";
-
-/* ---------- DOM refs ---------- */
-const chatBody = document.getElementById("chat-body");
-const personaList = document.getElementById("persona-list");
-const chdrAvatar = document.getElementById("chdr-avatar");
-const chdrName   = document.getElementById("chdr-name");
-const chdrRole   = document.getElementById("chdr-role");
-const reportBody = document.getElementById("report-body");
-const reportPersonaName = document.getElementById("report-persona-name");
-const simReport = document.getElementById("sim-report");
-const reportToggle = document.getElementById("report-toggle");
-const sourceSelect = document.getElementById("source-select");
-const ctxInput = document.getElementById("ctx-input");
-const runBtn = document.getElementById("run-btn");
-const runNewBtn = document.getElementById("run-new-btn");
-
-/* ---------- helpers ---------- */
-function fwClass(fwName){
-  const n = (fwName || "").toLowerCase();
-  if(n.startsWith("lift")) return "lift";
-  if(n.startsWith("cialdini")) return "cialdini";
-  if(n.startsWith("fogg")) return "fogg";
-  return "lift";
-}
-
-function buildBubble(b){
-  const row = document.createElement("div");
-  row.className = "bubble-row";
-
-  const bubble = document.createElement("div");
-  bubble.className = "bubble";
-
-  const text = document.createElement("div");
-  text.className = "text";
-  text.textContent = b.text;
-  bubble.appendChild(text);
-
-  if(b.tag){
-    const tag = document.createElement("span");
-    tag.className = "fw-tag " + fwClass(b.tag.fw);
-    tag.innerHTML = `<span class="fw-name">${b.tag.fw}:</span><span class="fw-note">${b.tag.note}</span>`;
-    bubble.appendChild(tag);
-  }
-
-  row.appendChild(bubble);
-  return row;
-}
-
-function buildTimestamp(time){
-  const t = document.createElement("div");
-  t.className = "time-stamp";
-  t.textContent = time;
-  return t;
-}
-
-function appendBubblesWithTiming(bubbles, callback){
-  // renders bubbles one at a time with a typing indicator + 1.5s delay each
-  let i = 0;
-  runBtn.disabled = true;
-  runNewBtn.disabled = true;
-
-  function next(){
-    if(i >= bubbles.length){
-      runBtn.disabled = false;
-      runNewBtn.disabled = false;
-      if(callback) callback();
-      return;
-    }
-    const b = bubbles[i];
-
-    const typingRow = document.createElement("div");
-    typingRow.className = "bubble-row";
-    typingRow.innerHTML = `<div class="typing-bubble"><span></span><span></span><span></span></div>`;
-    chatBody.appendChild(typingRow);
-    chatBody.scrollTop = chatBody.scrollHeight;
-
-    setTimeout(()=>{
-      typingRow.remove();
-      if(b.time){
-        const ts = buildTimestamp(b.time);
-        chatBody.appendChild(ts);
-      }
-      chatBody.appendChild(buildBubble(b));
-      chatBody.scrollTop = chatBody.scrollHeight;
-      i++;
-      setTimeout(next, 300);
-    }, 1500);
-  }
-  next();
-}
-
-/* ---------- rendering ---------- */
-function renderSimulationSeed(){
-  const persona = PERSONAS[currentId];
-  chatBody.innerHTML = "";
-
-  // day separator
-  const sepWrap = document.createElement("div");
-  sepWrap.className = "day-wrap";
-  const sep = document.createElement("div");
-  sep.className = "day-sep";
-  sep.textContent = "TODAY · SIMULATION RUN · SOURCE: HOMEPAGE";
-  sepWrap.appendChild(sep);
-  chatBody.appendChild(sepWrap);
-
-  let prevTime = null;
-  persona.seed.forEach(b => {
-    if(b.time && b.time !== prevTime){
-      chatBody.appendChild(buildTimestamp(b.time));
-      prevTime = b.time;
-    }
-    chatBody.appendChild(buildBubble(b));
-  });
-  chatBody.scrollTop = chatBody.scrollHeight;
-
-  // header
-  chdrAvatar.textContent = persona.initial;
-  chdrAvatar.className = "avatar " + persona.avatarClass;
-  chdrName.textContent = persona.name;
-  chdrRole.textContent = persona.role;
-}
-
-function renderReport(){
-  const persona = PERSONAS[currentId];
-  reportPersonaName.textContent = persona.name;
-  const r = persona.report;
-
-  function sectionRows(items){
-    return items.map(it => {
-      const cls = fwClass(it.fw);
-      return `
-        <div class="r-item" title="See in transcript">
-          <div class="r-body">
-            <div class="r-text">${it.text}</div>
-            <span class="r-fw ${cls}">${it.fw}</span>
-          </div>
-          <div class="r-see">See in transcript
-            <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
-          </div>
+  <!-- ---------- STAGE (left, 60%) ---------- -->
+  <section class="stage">
+    <div class="browser">
+      <div class="chrome">
+        <div class="dots"><span></span><span></span><span></span></div>
+        <div class="urlbar">
+          <span class="lock">●</span>
+          <span class="host">nova-dental.relay.app</span><span class="path">/dashboard</span>
         </div>
-      `;
-    }).join("");
-  }
-
-  reportBody.innerHTML = `
-    <div class="rsec friction">
-      <div class="rsec-h"><span class="dot"></span>CRITICAL FRICTION · ${r.friction.length}</div>
-      ${sectionRows(r.friction)}
-    </div>
-    <div class="rsec missing">
-      <div class="rsec-h"><span class="dot"></span>MISSING CRITERIA · ${r.missing.length}</div>
-      ${sectionRows(r.missing)}
-    </div>
-    <div class="rsec worked">
-      <div class="rsec-h"><span class="dot"></span>WHAT WORKED · ${r.worked.length}</div>
-      ${sectionRows(r.worked)}
-    </div>
-    <div class="rsec decision">
-      <div class="rsec-h"><span class="dot"></span>PERSONA'S LIKELY DECISION</div>
-      <div class="r-decision">${r.decision}</div>
-    </div>
-  `;
-}
-
-function renderPersonaList(){
-  personaList.innerHTML = "";
-  Object.values(PERSONAS).forEach(p => {
-    const row = document.createElement("div");
-    row.className = "prow" + (p.id === currentId ? " active" : "");
-    row.innerHTML = `
-      <div class="avatar ${p.avatarClass}">${p.initial}</div>
-      <div class="body">
-        <div class="top">
-          <div class="name">${p.name}</div>
-          <div class="time">${p.lastTime}</div>
-        </div>
-        <div class="role">${p.role.split(" · ")[0]}</div>
-        <div class="snip">${p.snippet}</div>
+        <button class="refresh" title="Refresh">
+          <svg viewBox="0 0 24 24"><path d="M21 12a9 9 0 11-3.5-7.1"/><path d="M21 4v5h-5"/></svg>
+        </button>
       </div>
-    `;
-    row.addEventListener("click", ()=>{
-      currentId = p.id;
-      renderPersonaList();
-      renderSimulationSeed();
-      renderReport();
-    });
-    personaList.appendChild(row);
-  });
-}
 
-/* ---------- run bar ---------- */
-function runSimulation(){
-  const persona = PERSONAS[currentId];
-  const source = sourceSelect.value;
-  const ctx = ctxInput.value.trim();
+      <div class="viewport">
+        <div class="product">
+          <!-- product header -->
+          <div class="r-header">
+            <div class="r-logo"><span class="mk">R</span> Relay for Clinics</div>
+            <div class="r-clinic">Nova Dental · JLT <span class="caret">▾</span></div>
+            <nav class="r-nav">
+              <a href="#" class="active">Dashboard</a>
+              <a href="#">Schedule</a>
+              <a href="#">Waitlist</a>
+              <a href="#">Campaigns</a>
+              <a href="#">Reports</a>
+            </nav>
+          </div>
 
-  // fresh day-sep for this run
-  const sepWrap = document.createElement("div");
-  sepWrap.className = "day-wrap";
-  const sep = document.createElement("div");
-  sep.className = "day-sep";
-  sep.textContent = `NEW RUN · SOURCE: ${source.toUpperCase()}${ctx ? " · +CONTEXT" : ""}`;
-  sepWrap.appendChild(sep);
-  chatBody.appendChild(sepWrap);
-  chatBody.scrollTop = chatBody.scrollHeight;
+          <div class="r-page-h">
+            <h2>Today · Sunday, 30 Aug</h2>
+            <div class="sub">Live snapshot across JLT · Marina · Downtown</div>
+          </div>
 
-  // pick bubbles from runs[source], falling back to first 4 of seed
-  const bubbles = (persona.runs && persona.runs[source]) ? persona.runs[source] : persona.seed.slice(0, 4);
+          <!-- KPI row -->
+          <div class="r-kpis">
+            <div class="kpi">
+              <div class="l">CHAIR UTILIZATION</div>
+              <div class="v">68<span style="font-size:14px;color:var(--ink-3);font-weight:500">%</span></div>
+              <div class="d"><span class="up">▲ 4pts</span> vs last week</div>
+            </div>
+            <div class="kpi">
+              <div class="l">NO-SHOW RATE</div>
+              <div class="v">22<span style="font-size:14px;color:var(--ink-3);font-weight:500">%</span></div>
+              <div class="d"><span class="down">▲ 3pts</span> vs last week</div>
+            </div>
+            <div class="kpi">
+              <div class="l">SLOTS RECOVERED · TODAY</div>
+              <div class="v">7</div>
+              <div class="d">of 12 waitlist offers sent</div>
+            </div>
+            <div class="kpi">
+              <div class="l">WAITLIST DEPTH</div>
+              <div class="v">31</div>
+              <div class="d">across 3 clinics</div>
+            </div>
+          </div>
 
-  appendBubblesWithTiming(bubbles, ()=>{
-    ctxInput.value = "";
-  });
-}
+          <!-- pricing zone (Aisha) -->
+          <div class="r-pricing" id="zone-pricing">
+            <div class="txt">
+              <div class="l">YOUR PLAN</div>
+              <div class="h">Growth · 3 locations</div>
+              <div class="p">AED 14,400/mo billed annually · renews 12 Feb 2027</div>
+            </div>
+            <div class="tiers">
+              <div class="tier">Starter<b>AED 2,400</b>per location</div>
+              <div class="tier hot">Growth<b>AED 4,800</b>per location</div>
+              <div class="tier">Enterprise<b>Custom</b>contact us</div>
+            </div>
+          </div>
 
-runBtn.addEventListener("click", runSimulation);
-runNewBtn.addEventListener("click", ()=>{
-  renderSimulationSeed();
-  runSimulation();
-});
-ctxInput.addEventListener("keydown", e=>{
-  if(e.key === "Enter"){
-    e.preventDefault();
-    runSimulation();
+          <!-- schedule (Fatima) -->
+          <div class="r-schedule" id="zone-schedule">
+            <h3>Today's schedule · JLT</h3>
+            <div class="appt-list">
+              <div class="appt">
+                <div class="t">09:00</div>
+                <div class="who">Mrs. Al Mansouri <span class="p">Hygiene · 45 min</span></div>
+                <div class="prov">Dr. Omar</div>
+                <div class="st conf">CONFIRMED</div>
+              </div>
+              <div class="appt">
+                <div class="t">10:00</div>
+                <div class="who">Rahul Menon <span class="p">Implant consult · 45 min</span></div>
+                <div class="prov">Dr. Omar</div>
+                <div class="st wait">UNCONFIRMED</div>
+              </div>
+              <div class="appt">
+                <div class="t">11:00</div>
+                <div class="who">Sara Fahmy <span class="p">Filling · 30 min</span></div>
+                <div class="prov">Dr. Iman</div>
+                <div class="st recov">RECOVERED · waitlist</div>
+              </div>
+              <div class="appt">
+                <div class="t">13:30</div>
+                <div class="who">Emirates Aviation grp. <span class="p">Cleaning ×3 · 90 min</span></div>
+                <div class="prov">Dr. Iman</div>
+                <div class="st conf">CONFIRMED</div>
+              </div>
+              <div class="appt">
+                <div class="t">14:30</div>
+                <div class="who">Youssef Halabi <span class="p">Implant + recovery · 4 hr</span></div>
+                <div class="prov">Dr. Omar</div>
+                <div class="st risk">AT RISK · no reply</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- integrations (Omar) -->
+          <div class="r-integ" id="zone-integ">
+            <h3>Integrations</h3>
+            <div class="row">
+              <span class="pill ok">Google Calendar</span>
+              <span class="pill ok">Twilio SMS</span>
+              <span class="pill ok">Stripe</span>
+              <span class="pill ok">Mailchimp</span>
+              <span class="pill">Dentrix (US only)</span>
+              <span class="pill">Open Dental</span>
+              <span class="pill">Curve Hero</span>
+              <span class="pill">+ 12 more</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- cursor overlay (persona hovers) -->
+        <div class="cursor-layer">
+          <div class="cursor aisha">
+            <svg class="arrow" viewBox="0 0 16 16" fill="#1a73e8"><path d="M0 0l16 8-7 1.5-2 6.5z"/></svg>
+            <span class="label">Aisha</span>
+          </div>
+          <div class="cursor fatima">
+            <svg class="arrow" viewBox="0 0 16 16" fill="#b26a00"><path d="M0 0l16 8-7 1.5-2 6.5z"/></svg>
+            <span class="label">Fatima</span>
+          </div>
+          <div class="cursor omar">
+            <svg class="arrow" viewBox="0 0 16 16" fill="#0f766e"><path d="M0 0l16 8-7 1.5-2 6.5z"/></svg>
+            <span class="label">Omar</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- stage footer -->
+    <div class="stage-foot">
+      <span class="live"><span class="rd"></span> SIMULATING</span>
+      <div class="phases" id="phases">
+        <span class="phase done"><span class="pd"></span>Homepage</span>
+        <span class="sep">→</span>
+        <span class="phase current"><span class="pd"></span>Pricing</span>
+        <span class="sep">→</span>
+        <span class="phase"><span class="pd"></span>Case Study</span>
+      </div>
+      <span style="margin-left:auto;font-size:11px;color:var(--ink-3)">Run <b style="color:var(--ink-2)"><span id="run-n">1</span></b> · 3 personas · grounded on 7 sources</span>
+    </div>
+  </section>
+
+  <!-- ---------- ROOM (right, 40%) ---------- -->
+  <aside class="room">
+
+    <!-- persona tiles -->
+    <div class="tiles">
+
+      <div class="tile" data-persona="aisha" data-active="true">
+        <div class="avwrap">
+          <div class="av aisha">AR</div>
+          <div class="ring"></div>
+        </div>
+        <div class="who-h">
+          <span class="n">Dr. Aisha Rashid</span>
+          <span class="r">Practice Owner · CPA</span>
+          <span class="simtag">SIMULATED</span>
+        </div>
+        <div class="status"><span class="live-dot"></span><span class="txt" data-role="status">Reading hero copy…</span></div>
+        <div class="bubble"><span class="q" data-role="quote">"So you're saying 40% lift. On what base?"</span></div>
+      </div>
+
+      <div class="tile" data-persona="fatima" data-active="false">
+        <div class="avwrap">
+          <div class="av fatima">FH</div>
+          <div class="ring"></div>
+        </div>
+        <div class="who-h">
+          <span class="n">Fatima Hassan</span>
+          <span class="r">Office Manager · Dentrix Ascend owner</span>
+          <span class="simtag">SIMULATED</span>
+        </div>
+        <div class="status"><span class="live-dot"></span><span class="txt" data-role="status">Skimming features</span></div>
+        <div class="bubble"><span class="q" data-role="quote">"honestly nothing here about training. that's a training tax on ME lol"</span></div>
+      </div>
+
+      <div class="tile" data-persona="omar" data-active="false">
+        <div class="avwrap">
+          <div class="av omar">OA</div>
+          <div class="ring"></div>
+        </div>
+        <div class="who-h">
+          <span class="n">Dr. Omar Al Farsi</span>
+          <span class="r">Clinical Lead · Implant specialty</span>
+          <span class="simtag">SIMULATED</span>
+        </div>
+        <div class="status"><span class="live-dot"></span><span class="txt" data-role="status">Reading slide 3</span></div>
+        <div class="bubble"><span class="q" data-role="quote">"Slide 3 says 'treatment-block scheduling.' Prove it."</span></div>
+      </div>
+
+    </div>
+
+    <!-- insights feed -->
+    <div class="feed-panel">
+      <div class="feed-h">
+        <span class="rec"></span> LIVE INSIGHTS · SIMULATION <span id="sim-n">1</span>
+        <span class="n"><span id="insight-count">5</span> so far</span>
+      </div>
+      <div class="feed" id="feed"><!-- populated by JS --></div>
+    </div>
+
+  </aside>
+</div>
+
+<!-- ============ CONTROL BAR ============ -->
+<div class="control">
+  <div class="grp">
+    <label for="src">Simulate</label>
+    <select id="src">
+      <option>Homepage</option>
+      <option selected>Pricing Page</option>
+      <option>Demo Video</option>
+      <option>Case Study PDF</option>
+    </select>
+  </div>
+  <input type="text" placeholder="Any extra context for this run… (e.g. 'push harder on the FX/insurance-mix question')">
+  <button class="runbtn" id="run">
+    <span class="play">▶</span> Run new simulation
+  </button>
+</div>
+
+<script>
+  // ---------- persona scripts ----------
+  // Round 1 = Homepage (initial, seeded already)
+  // Round 2 = Pricing (triggered by Run)
+
+  const rounds = {
+    1: {
+      label: "Homepage",
+      statuses: {
+        aisha:  ["Reading hero copy…", "Skeptical", "Skimming ROI claim", "Comparing case studies"],
+        fatima: ["Skimming features", "Looking for WhatsApp", "Frowning at training", "Voice-note incoming"],
+        omar:   ["Reading slide 3", "Checking integrations", "Silent", "Fatal-flaw mode"],
+      },
+      quotes: {
+        aisha:  "“So you're saying 40% lift. On what base?”",
+        fatima: "“honestly nothing here about training. that's a training tax on ME lol”",
+        omar:   "“Slide 3 says 'treatment-block scheduling.' Prove it.”",
+      },
+      insights: [
+        {p:"aisha",  t:"10:42", body:"No pricing visible in first fold — CTA is 'Book a demo' with no price anchor.", fw:"lift", label:"LIFT: clarity"},
+        {p:"fatima", t:"10:42", body:"Copy is US-centric — no mention of WhatsApp, Arabic, or Gulf market anywhere on hero.", fw:"lift", label:"LIFT: relevance"},
+        {p:"omar",   t:"10:43", body:"Integration list shows Dentrix (US only), Open Dental, Curve Hero. No Dentrix <b>Ascend</b>. That's the one Nova runs.", fw:"ability", label:"Ability blocker", hot:true},
+        {p:"aisha",  t:"10:43", body:"'40% no-show reduction' cited without denominator or clinic count. Single-anchor claim.", fw:"cial", label:"Cialdini: authority weak"},
+        {p:"fatima", t:"10:44", body:"'Automated confirmations' feature card doesn't specify SMS vs WhatsApp vs voice. Green vendor tell.", fw:"fogg", label:"Fogg: ambiguity"},
+      ],
+    },
+    2: {
+      label: "Pricing Page",
+      statuses: {
+        aisha:  ["Doing the math", "Payback calc", "Silent", "Writing it down"],
+        fatima: ["Adding up hours", "Counting new hires", "Skeptical", "Voice-note draft"],
+        omar:   ["Per-seat check", "Reading fine print", "Frowning", "Fatal-flaw mode"],
+      },
+      quotes: {
+        aisha:  "“At AED 4,800 a location I need to recover 38 visits a month, per location, just to break even. Show me the math.”",
+        fatima: "“45 min per receptionist onboarding? For Rina who still calls me about reschedules? yaani.”",
+        omar:   "“On Growth tier, is there a per-provider seat cap? Or does one implant chair count as one seat?”",
+      },
+      insights: [
+        {p:"aisha",  t:"10:47", body:"AED 4,800/loc × 3 = AED 14,400/mo. At Nova's AED 380 avg ticket + <5% no-show base, needs 38 recovered visits/mo/loc to break even.", fw:"lift", label:"LIFT: cost", hot:true},
+        {p:"omar",   t:"10:47", body:"Growth tier doesn't clarify per-provider seat limits. Implant blocks are 4× hygiene blocks — cost accounting is wrong if seat = chair.", fw:"lift", label:"LIFT: clarity", hot:true},
+        {p:"fatima", t:"10:48", body:"'45-min onboarding per receptionist' is the admin number from the case study. Real cost is 2 weeks of Fatima answering questions.", fw:"fogg", label:"Fogg: ability"},
+        {p:"aisha",  t:"10:48", body:"'Custom' on Enterprise tier — every 'custom' has meant 'more expensive' to her. Ask for the number in the room.", fw:"cial", label:"Cialdini: authority"},
+        {p:"omar",   t:"10:49", body:"No mention of Dentrix Ascend post-op observation tag protection. Default to 'block over 2h = unavailable' is the safe ask.", fw:"ability", label:"Ability blocker"},
+      ],
+    },
+  };
+
+  // ---------- STATE ----------
+  let currentRound = 1;
+  let statusIdx = { aisha:0, fatima:0, omar:0 };
+  let quoteIdx  = { aisha:0, fatima:0, omar:0 };
+  const feedEl  = document.getElementById("feed");
+  const insightCountEl = document.getElementById("insight-count");
+  const simNEl  = document.getElementById("sim-n");
+  const runNEl  = document.getElementById("run-n");
+  const phasesEl = document.getElementById("phases");
+
+  function personaTiles() {
+    return {
+      aisha:  document.querySelector('.tile[data-persona="aisha"]'),
+      fatima: document.querySelector('.tile[data-persona="fatima"]'),
+      omar:   document.querySelector('.tile[data-persona="omar"]'),
+    };
   }
-});
 
-/* ---------- collapsible report ---------- */
-reportToggle.addEventListener("click", ()=>{
-  simReport.classList.toggle("collapsed");
-});
+  // ---------- FEED ----------
+  function addInsight(ins, delay) {
+    setTimeout(() => {
+      const row = document.createElement("div");
+      row.className = "insight" + (ins.hot ? " hot" : "");
+      row.dataset.p = ins.p;
+      const nm = { aisha:"Aisha", fatima:"Fatima", omar:"Omar" }[ins.p];
+      row.innerHTML = `
+        <span class="dot"></span>
+        <span class="meta">${ins.t} · <b>${nm}</b></span>
+        <span class="body">${ins.body}<span class="fw ${ins.fw}">${ins.label}</span></span>
+      `;
+      // insert at the top so most-recent is first
+      feedEl.insertBefore(row, feedEl.firstChild);
+      insightCountEl.textContent = feedEl.children.length;
 
-/* ---------- drag-drop / file input ---------- */
-const drop = document.getElementById("drop");
-const fileInput = document.getElementById("fileinput");
-const materialsList = document.getElementById("your-materials-list");
+      // hot take → bounce the persona tile + brief active-ring
+      if (ins.hot) {
+        const tile = personaTiles()[ins.p];
+        if (tile) {
+          tile.classList.remove("bounce");
+          void tile.offsetWidth; // reflow to restart animation
+          tile.classList.add("bounce");
+          tile.dataset.active = "true";
+          setTimeout(() => { tile.classList.remove("bounce"); }, 620);
+        }
+      }
+      // Any insight → briefly light up that persona's tile
+      const tile = personaTiles()[ins.p];
+      if (tile) {
+        tile.dataset.active = "true";
+        clearTimeout(tile._dimT);
+        tile._dimT = setTimeout(() => {
+          // only dim if not the "current speaker" this cycle
+          if (currentSpeaker !== ins.p) tile.dataset.active = "false";
+        }, 2400);
+      }
+    }, delay);
+  }
 
-const seedMaterials = [
-  {name:"Relay for Clinics — Homepage", type:"web"},
-  {name:"Relay Product Demo.mp4", type:"mp4"},
-  {name:"Case Studies — Dental.pdf", type:"pdf"},
-  {name:"Pricing One-Pager.pdf", type:"pdf"}
-];
+  function streamRound(n) {
+    const r = rounds[n];
+    // clear feed
+    feedEl.innerHTML = "";
+    insightCountEl.textContent = "0";
+    simNEl.textContent = n;
+    runNEl.textContent = n;
+    // update phases
+    updatePhases(n);
+    // update quotes/statuses immediately with round-fresh content
+    updateStatusesAndQuotes(true);
+    // stream insights with staggered delay
+    r.insights.forEach((ins, i) => addInsight(ins, 500 + i * 850));
+  }
 
-function typeFromName(name){
-  const ext = (name.split(".").pop() || "").toLowerCase();
-  if(ext === "pdf") return "pdf";
-  if(["mp4","mov","webm"].includes(ext)) return "mp4";
-  if(["mp3","m4a","wav"].includes(ext)) return "mp3";
-  return "";
-}
+  function updatePhases(n) {
+    // Round 1 = Homepage phase current; Round 2 = Pricing phase current
+    const phases = phasesEl.querySelectorAll(".phase");
+    // Reset
+    phases.forEach(p => { p.classList.remove("done","current"); });
+    if (n === 1) {
+      phases[0].classList.add("current");
+    } else if (n === 2) {
+      phases[0].classList.add("done");
+      phases[1].classList.add("current");
+    } else {
+      phases[0].classList.add("done");
+      phases[1].classList.add("done");
+      phases[2].classList.add("current");
+    }
+  }
 
-function addMaterial(name, type){
-  type = type || typeFromName(name);
-  const row = document.createElement("div");
-  row.className = "src";
-  const label = type === "web" ? "URL" : (type ? type.toUpperCase().slice(0,3) : "DOC");
-  row.innerHTML = `
-    <span class="ico ${type}">${label}</span>
-    <span class="name" title="${name}">${name}</span>
-    <button class="rm" title="Remove">
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="6" y1="18" x2="18" y2="6"/></svg>
-    </button>
-  `;
-  row.querySelector(".rm").addEventListener("click", ()=> row.remove());
-  materialsList.appendChild(row);
-}
+  // ---------- STATUS + QUOTE ROTATION ----------
+  let currentSpeaker = "aisha";
+  const speakerCycle = ["aisha","fatima","omar"];
+  let speakerIdx = 0;
 
-seedMaterials.forEach(m => addMaterial(m.name, m.type));
+  function updateStatusesAndQuotes(forceReset) {
+    const r = rounds[currentRound];
+    const tiles = personaTiles();
 
-drop.addEventListener("dragover", e => { e.preventDefault(); drop.classList.add("over"); });
-drop.addEventListener("dragleave", () => drop.classList.remove("over"));
-drop.addEventListener("drop", e => {
-  e.preventDefault();
-  drop.classList.remove("over");
-  const files = Array.from(e.dataTransfer.files || []);
-  files.forEach(f => addMaterial(f.name));
-});
-fileInput.addEventListener("change", e => {
-  const files = Array.from(e.target.files || []);
-  files.forEach(f => addMaterial(f.name));
-  e.target.value = "";
-});
+    // Rotate status for each persona independently
+    ["aisha","fatima","omar"].forEach(p => {
+      if (forceReset) statusIdx[p] = 0;
+      const arr = r.statuses[p];
+      const txtEl = tiles[p].querySelector('[data-role="status"]');
+      txtEl.style.opacity = 0;
+      setTimeout(() => {
+        txtEl.textContent = arr[statusIdx[p] % arr.length];
+        txtEl.style.opacity = 1;
+      }, 150);
+      statusIdx[p]++;
+    });
 
-/* ---------- product URL loader (chip only, no wiring) ---------- */
-const urlInput = document.getElementById("url-input");
-const urlLoadBtn = document.getElementById("url-load-btn");
-function loadUrlAsChip(){
-  const raw = urlInput.value.trim();
-  if(!raw) return;
-  let host = raw;
-  try{ host = new URL(raw.startsWith("http") ? raw : "https://" + raw).host; } catch(_){}
-  addMaterial(host, "web");
-  urlInput.value = "";
-}
-urlLoadBtn.addEventListener("click", loadUrlAsChip);
-urlInput.addEventListener("keydown", e => {
-  if(e.key === "Enter"){ e.preventDefault(); loadUrlAsChip(); }
-});
+    // Rotate speaker + refresh their bubble to round quote
+    if (forceReset) speakerIdx = 0;
+    currentSpeaker = speakerCycle[speakerIdx % speakerCycle.length];
+    speakerIdx++;
 
-/* ---------- init ---------- */
-renderPersonaList();
-renderSimulationSeed();
-renderReport();
+    // Ring all tiles off, current speaker on
+    ["aisha","fatima","omar"].forEach(p => {
+      tiles[p].dataset.active = (p === currentSpeaker) ? "true" : "false";
+    });
+
+    // Refresh bubble for current speaker (rotates through 1 per round — grounded)
+    const bq = tiles[currentSpeaker].querySelector('[data-role="quote"]');
+    bq.style.opacity = 0;
+    setTimeout(() => {
+      bq.innerHTML = r.quotes[currentSpeaker];
+      bq.style.opacity = 1;
+    }, 150);
+  }
+
+  // ---------- SEED ROUND 1 ----------
+  function seedRound1() {
+    const r = rounds[1];
+    r.insights.forEach((ins, i) => addInsight(ins, 300 + i * 500));
+  }
+
+  seedRound1();
+  setInterval(updateStatusesAndQuotes, 4200);
+
+  // ---------- RUN BUTTON ----------
+  document.getElementById("run").addEventListener("click", () => {
+    currentRound = currentRound === 1 ? 2 : 1;
+    // reset cursor animations by toggling class
+    document.querySelectorAll(".cursor").forEach(c => {
+      c.style.animation = "none";
+      void c.offsetWidth;
+      c.style.animation = "";
+    });
+    streamRound(currentRound);
+  });
+
+  // ---------- REFRESH BUTTON on browser chrome ----------
+  document.querySelector(".refresh").addEventListener("click", () => {
+    document.querySelectorAll(".cursor").forEach(c => {
+      c.style.animation = "none";
+      void c.offsetWidth;
+      c.style.animation = "";
+    });
+  });
 </script>
 </body>
 </html>
