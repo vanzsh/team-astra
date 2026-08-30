@@ -2,7 +2,7 @@
 
 > Turn a prospect domain into an evidence-backed sales strategy and a personalized product demo.
 
-**Live demo: [team-astra.vercel.app](https://team-astra.vercel.app)**
+**Live demo: [contextse.vercel.app](https://contextse.vercel.app)**
 
 ContextSE is an AI presales workspace for Solutions Engineers. It researches an account, determines what will resonate, creates account-relevant sales assets, and pressure-tests the pitch against buyer personas.
 
