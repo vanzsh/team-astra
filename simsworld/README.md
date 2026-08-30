@@ -16,7 +16,7 @@ Two rounds of scripted content ship in the mockup: Round 1 is a homepage-load si
 ## Serve
 
 ```
-python3 -m http.server 8766 --directory rehearsal
+python3 -m http.server 8766 --directory simsworld
 ```
 
 Open http://localhost:8766.
@@ -27,4 +27,4 @@ Open http://localhost:8766.
 - All animation is CSS keyframes (cursor paths, avatar bob, pulse ring) or short JS toggles (tile bounce, feed fade-in).
 - Aesthetic follows the v1 design tokens in `frontend/index.html` — warm off-white surfaces, near-black ink, cobalt accent, amber attention, purple synthetic tags, 14–16px radii, soft shadows. Whimsy is scoped to the persona tiles.
 
-For the full product spec see `personas-app/MASTER-PROMPT.md` on the `himanshu` branch.
+For the full product spec see `simsworld-spec/MASTER-PROMPT.md` on the `himanshu` branch.
