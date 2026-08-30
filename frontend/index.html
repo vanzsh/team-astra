@@ -103,6 +103,24 @@
   .topbar .acct{font-weight:700}
   .topbar .persona{margin-left:auto;display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--text-2)}
   .persona .pchip{background:var(--accent-soft);color:var(--accent-deep);font-weight:700;padding:4px 12px;border-radius:999px;font-size:12px}
+  /* notebook-style toolbar */
+  .nbbar{
+    height:52px;flex:none;display:flex;align-items:center;justify-content:flex-end;gap:6px;
+    padding:0 16px;background:#1f2126;border-bottom:1px solid #2a2d33;color:#e5e7eb;
+  }
+  .nbbar .nbtn{
+    display:inline-flex;align-items:center;gap:8px;height:36px;padding:0 14px;border-radius:999px;
+    background:transparent;color:#e5e7eb;font-size:13px;font-weight:500;
+    border:1px solid transparent;cursor:pointer;transition:background .15s;
+  }
+  .nbbar .nbtn:hover{background:#2a2d33}
+  .nbbar .nbtn.primary{background:#8ab4f8;color:#111827;font-weight:600;border-color:#8ab4f8}
+  .nbbar .nbtn.primary:hover{background:#a8c7fa}
+  .nbbar .divider{width:1px;height:22px;background:#3a3d44;margin:0 6px}
+  .nbbar .iconbtn{width:36px;height:36px;padding:0;justify-content:center;border-radius:999px;cursor:pointer;background:transparent;color:#e5e7eb;border:0}
+  .nbbar .iconbtn:hover{background:#2a2d33}
+  .nbbar .avatar{width:32px;height:32px;border-radius:50%;background:#0f9d58;color:#fff;display:inline-flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;margin-left:4px;cursor:pointer}
+  .nbbar svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
   .panels{flex:1;display:grid;grid-template-columns:264px 1fr 300px;gap:14px;padding:14px;min-height:0}
   .panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);
     display:flex;flex-direction:column;min-height:0;overflow:hidden}
@@ -223,13 +241,13 @@
     <p class="sub">Give Astra everything you know about the account. It figures out what will resonate and builds what you need to sell.</p>
     <div class="field">
       <label>COMPANY DOMAIN</label>
-      <input id="in-domain" value="acme.com" spellcheck="false">
+      <input id="in-domain" value="novadentalclinic.ae" spellcheck="false">
     </div>
     <div class="field">
       <label>ADDITIONAL CONTEXT</label>
       <div class="chips" id="filechips">
         <span class="chip"><span class="ok">✓</span> Discovery Call.mp3</span>
-        <span class="chip"><span class="ok">✓</span> CRM Notes.csv</span>
+        <span class="chip"><span class="ok">✓</span> Practice Ops Notes.pdf</span>
         <button class="chip add" onclick="addFile()">+ Add files</button>
       </div>
     </div>
@@ -241,7 +259,7 @@
 <div id="screen-research" class="screen hidden">
   <div class="research-card">
     <div class="orb">A</div>
-    <h2 id="research-title">Researching acme.com</h2>
+    <h2 id="research-title">Researching novadentalclinic.ae</h2>
     <div class="rsub" id="research-sub">Starting…</div>
     <div class="steps" id="steps">
       <div class="step" data-step><span class="ind"><span class="dot"></span></span>UNDERSTANDING ACCOUNT</div>
@@ -257,9 +275,37 @@
   <header class="topbar">
     <div class="brand"><span class="mark">A</span> Astra</div>
     <span class="crumb">/</span>
-    <span class="acct">Acme Corporation — Enterprise Opportunity</span>
-    <div class="persona">Target persona <span class="pchip">COO</span></div>
+    <span class="acct">Nova Dental Clinic — Pilot Opportunity</span>
+    <div class="persona">Target persona <span class="pchip">Practice Owner</span></div>
   </header>
+  <div class="nbbar">
+    <button class="nbtn primary" onclick="toast('Mockup: new notebook not wired yet')">
+      <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+      Create new notebook
+    </button>
+    <div class="divider"></div>
+    <button class="nbtn" onclick="toast('Mockup: copy not wired')">
+      <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
+      Copy
+    </button>
+    <button class="nbtn" onclick="toast('Mockup: analytics not wired')">
+      <svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M7 15l4-4 4 4 5-6"/></svg>
+      Analytics
+    </button>
+    <button class="nbtn" onclick="toast('Mockup: share not wired')">
+      <svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>
+      Share
+    </button>
+    <button class="nbtn" onclick="toast('Mockup: settings not wired')">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+      Settings
+    </button>
+    <div class="divider"></div>
+    <button class="iconbtn" title="Apps" onclick="toast('Mockup: apps grid not wired')">
+      <svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><circle cx="5" cy="5" r="1.6"/><circle cx="12" cy="5" r="1.6"/><circle cx="19" cy="5" r="1.6"/><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/><circle cx="5" cy="19" r="1.6"/><circle cx="12" cy="19" r="1.6"/><circle cx="19" cy="19" r="1.6"/></svg>
+    </button>
+    <div class="avatar" title="Account">H</div>
+  </div>
   <main class="panels">
 
     <!-- LEFT : SOURCES -->
@@ -267,19 +313,19 @@
       <div class="panel-h">SOURCES</div>
       <div class="panel-body">
         <div class="src-group">
-          <div class="gname">OUR COMPANY — FLOWPORT</div>
-          <div class="src"><span class="ico">▤</span> Product Deck <span class="ok" style="margin-left:auto">✓</span></div>
-          <div class="src"><span class="ico">▤</span> Product Documentation <span class="ok" style="margin-left:auto">✓</span></div>
-          <div class="src"><span class="ico">▤</span> Case Studies <span class="ok" style="margin-left:auto">✓</span></div>
-          <div class="src"><span class="ico">▶</span> Demo Environment <span class="ok" style="margin-left:auto">✓</span></div>
+          <div class="gname">OUR COMPANY — RELAY</div>
+          <div class="src"><span class="ico">▤</span> Product Overview <span class="ok" style="margin-left:auto">✓</span></div>
+          <div class="src"><span class="ico">▤</span> Feature Docs <span class="ok" style="margin-left:auto">✓</span></div>
+          <div class="src"><span class="ico">▤</span> Dental Case Studies <span class="ok" style="margin-left:auto">✓</span></div>
+          <div class="src"><span class="ico">▶</span> Live Product Tour <span class="ok" style="margin-left:auto">✓</span></div>
         </div>
         <div class="src-group">
-          <div class="gname">ACME</div>
-          <div class="src"><span class="ico">◉</span> acme.com <span class="ok" style="margin-left:auto">✓</span></div>
+          <div class="gname">NOVA DENTAL CLINIC</div>
+          <div class="src"><span class="ico">◉</span> novadentalclinic.ae <span class="ok" style="margin-left:auto">✓</span></div>
           <div class="src"><span class="ico">♪</span> Discovery Call <span class="ok" style="margin-left:auto">✓</span></div>
-          <div class="src"><span class="ico">▤</span> CRM Notes <span class="ok" style="margin-left:auto">✓</span></div>
-          <div class="src"><span class="ico">▤</span> Annual Report 2024 <span class="ok" style="margin-left:auto">✓</span></div>
-          <div class="src"><span class="ico">▤</span> Uploaded Requirements <span class="ok" style="margin-left:auto">✓</span></div>
+          <div class="src"><span class="ico">▤</span> Practice Ops Notes <span class="ok" style="margin-left:auto">✓</span></div>
+          <div class="src"><span class="ico">▤</span> Google Reviews (312) <span class="ok" style="margin-left:auto">✓</span></div>
+          <div class="src"><span class="ico">▤</span> Careers Page <span class="ok" style="margin-left:auto">✓</span></div>
         </div>
         <button class="addsrc" onclick="addSource()">+ Add source</button>
       </div>
@@ -303,39 +349,39 @@
       </div>
       <div class="panel-body" id="outputs">
 
-        <div class="p-card" onclick="personaFocus(this,'coo')">
+        <div class="p-card" onclick="personaFocus(this,'owner')">
           <div class="p-top">
-            <div class="p-ava a1">CO</div>
+            <div class="p-ava a1">PO</div>
             <div>
-              <div class="p-name">Chief Operating Officer</div>
-              <div class="p-role">Operational &amp; Pragmatic</div>
+              <div class="p-name">Practice Owner</div>
+              <div class="p-role">Growth &amp; Retention</div>
             </div>
           </div>
-          <div class="p-desc">Owns regional operations. Measured on on-time delivery; wants one view across all 14 markets.</div>
-          <div class="p-badges"><span class="tag seller">PRIMARY TARGET</span><span class="tag fact">FROM CRM</span></div>
+          <div class="p-desc">Owns clinic P&amp;L across 3 Dubai locations. Measured on patient retention and chair utilization; frustrated by ~22% no-show rate.</div>
+          <div class="p-badges"><span class="tag seller">PRIMARY TARGET</span><span class="tag fact">FROM DISCOVERY</span></div>
         </div>
 
-        <div class="p-card" onclick="personaFocus(this,'cfo')">
+        <div class="p-card" onclick="personaFocus(this,'manager')">
           <div class="p-top">
-            <div class="p-ava a2">CF</div>
+            <div class="p-ava a2">OM</div>
             <div>
-              <div class="p-name">Chief Financial Officer</div>
-              <div class="p-role">Strategic &amp; Analytical</div>
+              <div class="p-name">Office Manager</div>
+              <div class="p-role">Ops &amp; Scheduling</div>
             </div>
           </div>
-          <div class="p-desc">Evaluates ROI and working capital. Cares about the cost of delays, dwell time, and expediting spend.</div>
+          <div class="p-desc">Runs the front desk. Handles morning huddles, confirmation calls, waitlist juggling. Cares about staff hours saved and cancellation recovery.</div>
           <div class="p-badges"><span class="tag inf">INFERRED</span></div>
         </div>
 
-        <div class="p-card" onclick="personaFocus(this,'vpsc')">
+        <div class="p-card" onclick="personaFocus(this,'clinical')">
           <div class="p-top">
-            <div class="p-ava a3">VP</div>
+            <div class="p-ava a3">CL</div>
             <div>
-              <div class="p-name">VP Supply Chain</div>
-              <div class="p-role">Technical &amp; Hands-on</div>
+              <div class="p-name">Clinical Lead</div>
+              <div class="p-role">Care &amp; Chair Time</div>
             </div>
           </div>
-          <div class="p-desc">Runs the control-tower team daily. Cares about exception workflows, data accuracy, and integrations.</div>
+          <div class="p-desc">Senior dentist. Cares about appointment quality, chair-time gaps, and clean handoffs between hygienists and dentists.</div>
           <div class="p-badges"><span class="tag inf">INFERRED</span></div>
         </div>
 
@@ -349,20 +395,20 @@
           <div class="arow">
             <div class="aico">▶</div>
             <div>
-              <div class="aname">Personalized Demo</div>
-              <div class="ameta">FlowPort environment · Acme scenario · <span class="tag syn">SYNTHETIC DATA</span></div>
+              <div class="aname">Personalized Product Tour</div>
+              <div class="ameta">Relay reskinned for Nova Dental · <span class="tag syn">SYNTHETIC DATA</span></div>
             </div>
           </div>
-          <a class="open-link" href="templates/logistics-demo.html?mode=personalized" target="_blank">Open demo →</a>
-          <a class="ghost-link" href="templates/logistics-demo.html?mode=generic" target="_blank">Compare generic</a>
+          <a class="open-link" href="templates/product-tour.html?mode=personalized" target="_blank">Open demo →</a>
+          <a class="ghost-link" href="templates/product-tour.html?mode=generic" target="_blank">Compare generic</a>
         </div>
 
         <div class="asset hidden" id="asset-deck" onclick="toast('Mockup: deck preview not wired yet')">
           <div class="arow">
             <div class="aico">▤</div>
             <div>
-              <div class="aname">Executive Deck</div>
-              <div class="ameta">9 slides · operational visibility narrative</div>
+              <div class="aname">Pilot Pitch Deck</div>
+              <div class="ameta">7 slides · no-show recovery narrative</div>
             </div>
           </div>
         </div>
@@ -372,7 +418,7 @@
             <div class="aico">▤</div>
             <div>
               <div class="aname">ROI Model</div>
-              <div class="ameta">1-page · dwell time &amp; delay cost focus</div>
+              <div class="ameta">1-page · recovered revenue &amp; staff hours saved</div>
             </div>
           </div>
         </div>
@@ -382,7 +428,7 @@
             <div class="aico">▤</div>
             <div>
               <div class="aname">Meeting Brief</div>
-              <div class="ameta">COO prep · open discovery gaps</div>
+              <div class="ameta">Practice Owner prep · open discovery gaps</div>
             </div>
           </div>
         </div>
@@ -400,7 +446,7 @@ const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 let fileN=1;
 
 function addFile(){
-  const names=['Requirements.pdf','COO Interview.docx','RFP Response.docx','Org Chart.png'];
+  const names=['Booking Screenshots.pdf','Front-desk Interview.docx','Insurance Mix.csv','Clinic Floor Plan.png'];
   const chip=document.createElement('span');
   chip.className='chip';
   chip.innerHTML='<span class="ok">✓</span> '+names[(fileN++)%names.length];
@@ -415,13 +461,13 @@ function toast(t){
 
 /* ---------- research flow ---------- */
 const SUBS=[
-  ['Reading acme.com…','Mapping products and business units…'],
-  ['Crawling Annual Report 2024…','Extracting markets, facilities, strategic initiatives…'],
-  ['Comparing Acme priorities against FlowPort capabilities…','Scoring candidate use cases…'],
+  ['Reading novadentalclinic.ae…','Mapping services, locations, staff…'],
+  ['Crawling 312 Google reviews…','Extracting patient pain themes and scheduling gaps…'],
+  ['Comparing Nova priorities against Relay capabilities…','Scoring candidate use cases…'],
   ['Selecting demo storyline and entities…','Preparing account strategy…']
 ];
 async function startResearch(){
-  const domain=$('#in-domain').value||'acme.com';
+  const domain=$('#in-domain').value||'novadentalclinic.ae';
   $('#screen-create').classList.add('hidden');
   $('#screen-research').classList.remove('hidden');
   $('#research-title').textContent='Researching '+domain;
@@ -463,111 +509,137 @@ async function openWorkspace(){
 
   await agentSay(`
     <h4>ACCOUNT SUMMARY</h4>
-    <p><b>Acme Corporation</b> is a global consumer-goods manufacturer operating across <b>14 markets</b>, currently
-    expanding distribution into Europe. Their annual report emphasizes supply-chain resilience, and your discovery
-    call flagged <b>fragmented visibility across regional operations</b> as a recurring frustration for the COO's team.</p>`,1400);
+    <p><b>Nova Dental Clinic</b> runs <b>3 locations across Dubai</b> (JLT, Marina, Downtown), staffed by 6 dentists
+    and 4 hygienists. Google reviews (312) surface two recurring themes: <b>missed appointment slots</b> and
+    <b>hard-to-reach front desk</b>. Discovery call confirmed a <b>~22% no-show rate</b> costing an estimated
+    AED 480k/year across clinics.</p>`,1400);
 
   await agentSay(`
     <h4>RECOMMENDED STRATEGY</h4>
-    <p>For this account I recommend leading with <b>cross-region shipment visibility</b> rather than inventory
-    optimization. Acme's expansion creates a stronger narrative around a single control tower across their
-    Gulf–Europe lanes.</p>
+    <p>Lead with <b>no-show recovery + waitlist auto-fill</b> — the pain is visible in their own reviews and
+    the ROI math is direct. Park the full staff-scheduling module for expansion in the second call.</p>
     <button class="why" onclick="toggleWhy(this)">WHY THIS WAS CHOSEN ▾</button>
     <div class="evidence">
-      <div class="ev"><span class="tag fact">FACT</span> Acme publicly operates across 14 markets — Annual Report 2024, p.7</div>
-      <div class="ev"><span class="tag fact">FACT</span> "We can't see regional delays until customers complain" — Discovery Call, 12:41</div>
-      <div class="ev"><span class="tag inf">INFERENCE</span> EU expansion increases exposure to port congestion on Gulf–Europe lanes</div>
-      <div class="ev"><span class="tag seller">SELLER CONTEXT</span> Multi-region visibility is FlowPort's strongest differentiator — Product Deck, slide 9</div>
+      <div class="ev"><span class="tag fact">FACT</span> 47 of 312 Google reviews mention missed or cancelled slots — Reviews scrape</div>
+      <div class="ev"><span class="tag fact">FACT</span> "We call 40 patients a day to confirm and still lose chair time" — Discovery Call, 08:22</div>
+      <div class="ev"><span class="tag inf">INFERENCE</span> 22% no-show rate × ~2000 appointments/mo × AED 900 avg = ~AED 480k/yr recoverable</div>
+      <div class="ev"><span class="tag seller">SELLER CONTEXT</span> Waitlist auto-fill is Relay's strongest differentiator — Product Overview, p.4</div>
     </div>`,1600);
 
   await agentSay(`
-    <h4>PROPOSED ASSETS</h4>
-    <p>For tomorrow's meeting with Acme's COO, I recommend preparing three things:</p>
-    <ol>
-      <li>a <b>personalized interactive demo</b> — your FlowPort environment rebuilt around Acme's lanes and entities;</li>
-      <li>a short <b>executive deck</b> focused on operational visibility;</li>
-      <li>a one-page <b>ROI model</b> quantifying delay and dwell-time costs.</li>
-    </ol>
-    <p>I can build all three.</p>
-    <div class="actions">
-      <button class="btn primary" id="btn-approve" onclick="approve()">Approve &amp; build</button>
-      <button class="btn" id="btn-adjust" onclick="adjust()">Adjust strategy</button>
-    </div>`,1600);
+    <p>Ready when you are. Tell me what to build — a demo, deck, ROI model, or meeting brief — and who it's for.
+    You can also click a persona on the right to focus on them.</p>
+    <p style="color:var(--text-3);font-size:12.5px;margin-top:6px">Example: <i>"make a 5-min interactive demo for the Practice Owner showing no-show recovery in their morning huddle"</i></p>`,1200);
 }
 
-async function approve(){
-  $('#btn-approve').disabled=true; $('#btn-adjust').disabled=true;
-  userSay('Approved — build all three.');
-  await sleep(500);
+const PERSONA_MSGS={
+  owner:`<h4>LENS · PRACTICE OWNER</h4>
+    <p>Primary target. Owns clinic P&amp;L and is the one paying for Relay. Anchor to <b>recovered revenue</b>
+    (AED 480k/yr) and chair utilization across all 3 locations. Demo should open on the multi-location
+    dashboard, not a single-clinic view.</p>`,
+  manager:`<h4>LENS · OFFICE MANAGER</h4>
+    <p>The daily user. Lead with <b>staff hours saved</b> — 40 confirmation calls/day disappears when Relay
+    handles waitlist auto-fill. Show the morning huddle screen and the exception queue. Skip the P&amp;L
+    framing, they don't own budget.</p>`,
+  clinical:`<h4>LENS · CLINICAL LEAD</h4>
+    <p>Care-quality gatekeeper. Won't approve anything that touches clinical workflow. Show the
+    <b>hygienist → dentist handoff view</b> and prove Relay never books over a treatment block. Keep the
+    revenue talk out — will read as pressure.</p>`
+};
+async function personaFocus(card,key){
+  document.querySelectorAll('.p-card').forEach(c=>c.classList.remove('sel'));
+  card.classList.add('sel');
+  const label={owner:'Practice Owner',manager:'Office Manager',clinical:'Clinical Lead'}[key];
+  $('#composer-in').value=`Refocus everything on the ${label}.`;
+  await agentSay(PERSONA_MSGS[key],900);
+}
+
+/* ---------- prompt-driven build ---------- */
+const RICH_HINTS=['demo','deck','roi','brief','tour','pitch','build','make','create','generate'];
+const PERSONA_HINTS=/(practice owner|office manager|clinical lead|owner|manager|clinician|dentist)/i;
+
+function looksRich(v){
+  const lc=v.toLowerCase();
+  const hasVerb=RICH_HINTS.some(w=>lc.includes(w));
+  const hasPersona=PERSONA_HINTS.test(v);
+  return hasVerb && (hasPersona || lc.length>60);
+}
+function looksJustDoIt(v){
+  return /^(just do it|jdi|ship it|go|build it|do it)\.?$/i.test(v.trim());
+}
+function inferredPersona(v){
+  const m=v.match(PERSONA_HINTS);
+  if(!m) return 'Practice Owner';
+  const s=m[0].toLowerCase();
+  if(s.includes('manager')) return 'Office Manager';
+  if(s.includes('clinical')||s.includes('dentist')||s.includes('clinician')) return 'Clinical Lead';
+  return 'Practice Owner';
+}
+
+let pendingBuild=null;   // holds the last user prompt when awaiting clarification
+
+async function runBuild(persona){
   const m=await agentSay(`
     <div class="build">
-      <div class="build-title">BUILDING</div>
+      <div class="build-title">BUILDING FOR ${persona.toUpperCase()}</div>
       <ul>
-        <li data-b><span class="ind"><span class="spinner"></span></span> Account narrative</li>
-        <li data-b><span class="ind"></span> Demo scenario</li>
-        <li data-b><span class="ind"></span> Synthetic account data</li>
-        <li data-b><span class="ind"></span> Executive presentation</li>
-        <li data-b><span class="ind"></span> Personalized demo</li>
+        <li data-b><span class="ind"></span> Pulling Relay product tour template</li>
+        <li data-b><span class="ind"></span> Reskinning with Nova brand + locations</li>
+        <li data-b><span class="ind"></span> Injecting patient scenarios (synthetic)</li>
+        <li data-b><span class="ind"></span> Layering ${persona} KPIs on the hero view</li>
+        <li data-b><span class="ind"></span> Wiring generic ↔ personalized toggle</li>
       </ul>
-    </div>`,900);
+    </div>`,700);
   const items=[...m.querySelectorAll('[data-b]')];
   for(let i=0;i<items.length;i++){
     items[i].querySelector('.ind').innerHTML='<span class="spinner"></span>';
-    await sleep(850);
+    await sleep(750);
     items[i].querySelector('.ind').innerHTML='<span class="check">✓</span> ';
     items[i].classList.add('done'); scrollChat();
   }
   $('#empty-out').classList.add('hidden');
   for(const id of ['#asset-demo','#asset-deck','#asset-roi','#asset-brief']){
-    $(id).classList.remove('hidden'); await sleep(350);
+    $(id).classList.remove('hidden'); await sleep(300);
   }
   await agentSay(`
-    <p>Done. All assets are attached to this account and stay reusable for the rest of the deal.</p>
-    <p>Open the <b>Personalized Demo</b> on the right — the generic FlowPort environment now shows Acme's
-    Jebel Ali → Rotterdam lanes, their containers, and a congestion scenario matched to the COO's concerns.
-    All scenario data is labeled <span class="tag syn">SYNTHETIC</span>.</p>`,1500);
+    <p>Done. Personalized product tour is ready on the right — Relay reskinned for Nova with their 3 clinics,
+    real service mix, and the no-show recovery scenario as the hero. Toggle inside the demo flips back to the
+    generic Relay so you can show the diff. All patient data is <span class="tag syn">SYNTHETIC</span>.</p>`,1300);
 }
 
-async function adjust(){
-  userSay('Adjust strategy');
-  await agentSay(`
-    <p>Tell me what to change — a different lead use case, persona focus, or constraints on which
-    capabilities to show. I will re-plan the assets before building anything.</p>`,1000);
-}
-
-const PERSONA_MSGS={
-  coo:`<h4>LENS · CHIEF OPERATING OFFICER</h4>
-    <p>The COO is our primary target — the current plan is already built around them. The demo opens on
-    regional on-time delivery and escalates the Jebel Ali congestion scenario, which mirrors the
-    frustration voiced in the discovery call.</p>`,
-  cfo:`<h4>LENS · CHIEF FINANCIAL OFFICER</h4>
-    <p>For the CFO I would lead with the <b>ROI model</b> instead of live operations: 14-hour delays at
-    Jebel Ali translate into expediting spend and safety stock. I can generate a CFO variant of the deck
-    with the business case up front — just ask.</p>`,
-  vpsc:`<h4>LENS · VP SUPPLY CHAIN</h4>
-    <p>The VP will want depth, not narrative: exception workflows, alert routing, and how FlowPort ingests
-    carrier data. I would keep the main demo unchanged and hold a technical appendix ready for their
-    questions.</p>`
-};
-async function personaFocus(card,key){
-  document.querySelectorAll('.p-card').forEach(c=>c.classList.remove('sel'));
-  card.classList.add('sel');
-  await agentSay(PERSONA_MSGS[key],900);
-}
-
-const CANNED=[
-  `<p>Good question. Based on the CRM notes, procurement raised data-residency concerns in the last cycle —
-   I'd address that proactively in the deck appendix. Want me to add a slide?</p>`,
-  `<p>From the discovery call, the COO's stated KPI is regional on-time delivery. I've centered the demo's
-   opening view on exactly that metric.</p>`,
-  `<p>In the full product I'd reason over every source on the left to answer that — here in the mockup
-   I only have a few canned replies.</p>`
-];
-let cannedI=0;
 async function sendMsg(){
   const inp=$('#composer-in'); const v=inp.value.trim(); if(!v)return;
   inp.value=''; userSay(v);
-  await agentSay(CANNED[(cannedI++)%CANNED.length],1200);
+
+  // "just do it" escape hatch — runs whatever's pending, or best-guess build
+  if(looksJustDoIt(v)){
+    const persona=pendingBuild?inferredPersona(pendingBuild):'Practice Owner';
+    pendingBuild=null;
+    await runBuild(persona);
+    return;
+  }
+
+  // rich prompt — build immediately, no clarification
+  if(looksRich(v)){
+    pendingBuild=null;
+    await runBuild(inferredPersona(v));
+    return;
+  }
+
+  // thin prompt — ONE clarifying question, then wait for reply or "just do it"
+  if(!pendingBuild){
+    pendingBuild=v;
+    await agentSay(`
+      <p>Got it. One thing before I build: <b>who's the primary audience</b> — Practice Owner, Office Manager,
+      or Clinical Lead? Each one shifts the hero view and the KPIs on top.</p>
+      <p style="color:var(--text-3);font-size:12.5px;margin-top:6px">Or say <i>just do it</i> and I'll go with Practice Owner.</p>`,1000);
+    return;
+  }
+
+  // reply to the clarifying question — treat this turn as the persona answer
+  const persona=inferredPersona(v);
+  pendingBuild=null;
+  await runBuild(persona);
 }
 </script>
 </body>
