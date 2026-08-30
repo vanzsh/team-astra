@@ -1,16 +1,17 @@
-# Frontend Mockup
+# SimsWorld Spec
 
-Static HTML mockup of Astra, the AI Presales Agent. This is the **demo-day artifact**, not the real app (that's the Next.js scaffold in `../app/`).
+Static HTML mockup + master prompt for **SimsWorld**, the v2 product from Team Astra. The mockup is the **demo-day artifact**, not the real app (that's the Next.js scaffold in `../app/`). The full product spec lives in `MASTER-PROMPT.md`.
 
 ## Files
 
+- `MASTER-PROMPT.md` — the SimsWorld master prompt. Source of truth for the v2 product.
 - `index.html` — the whole app. Three screens (create → research → workspace), single file, inline CSS + JS. Nova Dental Clinic is the scripted demo domain.
-- `templates/product-tour.html` — the artifact Astra "generates" during the demo. Relay product tour that reskins between generic and Nova Dental branding via `?mode=generic` / `?mode=personalized`. Toggle inside the page flips between them.
+- `templates/product-tour.html` — the artifact SimsWorld "generates" during the demo. Relay product tour that reskins between generic and Nova Dental branding via `?mode=generic` / `?mode=personalized`. Toggle inside the page flips between them.
 
 ## Run
 
 ```bash
-python3 -m http.server 8765 --directory frontend
+python3 -m http.server 8765 --directory simsworld-spec
 ```
 
 Open http://localhost:8765.
