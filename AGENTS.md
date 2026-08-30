@@ -41,6 +41,27 @@ Every meaningful feature should reinforce:
 
 Do not expand ContextSE into adjacent sales software.
 
+## Approved Technology Stack
+
+Application implementation is limited to:
+
+- **Next.js, React, and TypeScript** for the application;
+- **shadcn/ui** and the primitives and styling dependencies it requires;
+- browser-native APIs, HTML, and CSS for basic frontend behavior;
+- **Convex** as the only application backend, database, and state layer;
+- **Context.dev** as the public-web intelligence provider.
+
+Do not introduce:
+
+- another frontend framework or meta-framework;
+- another component library, design system, or competing CSS framework;
+- another database, backend, BaaS, ORM, or API abstraction layer;
+- another crawling, research, extraction, or company-intelligence provider;
+- unnecessary state management, queues, CMS, authentication, analytics, or infrastructure;
+- a package that duplicates an approved platform or browser capability.
+
+Packages directly required by Next.js, shadcn/ui, Convex, Context.dev, or essential build/test tooling are allowed. Any other runtime dependency requires a concrete P0 need, must materially reduce delivery risk, and must be the smallest mature option. Do not add dependencies for convenience alone.
+
 ## Mandatory Partner Stack
 
 The final product must meaningfully use all three partners.

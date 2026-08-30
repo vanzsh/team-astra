@@ -14,11 +14,15 @@ Prove one reliable golden path:
 
 The standard is one account, one excellent workflow, and one obvious before/after transformation.
 
-## Partner Stack
+## Approved Stack
 
+- **Next.js, React, and TypeScript** — application foundation;
+- **shadcn/ui** — UI components using only its required styling primitives;
 - **Devin** — substantial engineering execution;
-- **Convex** — application backend, persistent state, artifacts, and realtime updates;
-- **Context.dev** — public-web research, extraction, company intelligence, and evidence gathering.
+- **Convex** — the only application backend, database, persistent state, artifact, and realtime layer;
+- **Context.dev** — the public-web research, extraction, company-intelligence, and evidence provider.
+
+Substitute frameworks, UI kits, backends, databases, and unnecessary runtime dependencies are out of scope.
 
 ## Source of Truth
 
