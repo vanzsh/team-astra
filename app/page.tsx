@@ -18,7 +18,7 @@ export default function Home() {
       <section className="landing-hero">
         <span className="landing-eyebrow">ContextSE</span>
         <h1>Your AI Solutions Engineer for every account.</h1>
-        <p>ContextSE understands what you&apos;re selling, researches who you&apos;re selling to, determines what will resonate, and builds the demos, briefs, presentations, and sales material you need to win the conversation.</p>
+        <p>Every demo personalized. Every question anticipated.</p>
 
         <div className="landing-flow" aria-label="ContextSE product flow">
           {flow.map(([title, detail], index) => (

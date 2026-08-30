@@ -44,7 +44,7 @@ export function RelayDemo({ generic, personalized, initialMode, onClose }: Relay
           <Button variant="ghost" size="sm" onClick={onClose}><ArrowLeft /> Account workspace</Button>
           <div className="comparison-switch" aria-label="Demo comparison">
             <button className={mode === "generic" ? "active" : ""} onClick={() => changeMode("generic")}>Before · Generic</button>
-            <button className={mode === "personalized" ? "active" : ""} onClick={() => changeMode("personalized")}>After · GulfLink</button>
+            <button className={mode === "personalized" ? "active" : ""} onClick={() => changeMode("personalized")}>After · Gulf Logistics</button>
           </div>
           <div className="relay-tabs">
             <button className={view === "control" ? "active" : ""} onClick={() => setView("control")}><Map size={15} /> Control tower</button>
@@ -55,7 +55,7 @@ export function RelayDemo({ generic, personalized, initialMode, onClose }: Relay
         <main className="relay-content">
           <div className="relay-title-row">
             <div>
-              <span className="eyebrow">{mode === "personalized" ? "GULFLINK OPERATING LENS" : "GLOBAL NETWORK"}</span>
+              <span className="eyebrow">{mode === "personalized" ? "GULF LOGISTICS OPERATING LENS" : "GLOBAL NETWORK"}</span>
               <h1>{config.companyName}</h1>
               <p>{config.subtitle}</p>
             </div>

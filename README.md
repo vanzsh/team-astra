@@ -17,18 +17,18 @@ npm install
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000). The app starts in the preloaded **GulfLink Logistics** workspace. For the most reliable judging path, use this workspace before creating a new account.
+Open [http://localhost:3000](http://localhost:3000). The app starts in the preloaded **Gulf Logistics** workspace. For the most reliable judging path, use this workspace before creating a new account.
 
 ### Three-Minute Walkthrough
 
 | Step | What to do | What it proves |
 | --- | --- | --- |
-| 1. Inspect context | In **Sources**, open a Relay source and a GulfLink source. Check the visible **Provided**, **Inference**, and **Synthetic** labels. | Seller truth, prospect context, and generated demo data remain distinguishable. |
+| 1. Inspect context | In **Sources**, open a Supply X file and a Gulf Logistics file. Inspect the original document preview and source side. | The human can inspect the same source material that grounds the AI. |
 | 2. Ask the agent | Click **What should I show the CEO?** or type a question in the center composer. Open any source citation in the response. | Groq reasons from the account workspace instead of answering as a generic chatbot. |
 | 3. Review the strategy | Expand **Account brief**, inspect the objective and recommended sequence, then click **Approve strategy**. | Evidence becomes an explicit, human-approved presales plan. |
-| 4. See the hero moment | Under **Artifacts**, open **Interactive demo**. Toggle **Before · Generic** and **After · GulfLink**. | The same Relay product becomes an account-specific operating story, not just a logo swap. |
+| 4. See the hero moment | Under **Artifacts**, open **Interactive demo**. Toggle **Before · Generic** and **After · Gulf Logistics**. | The same Relay product becomes an account-specific operating story, not just a logo swap. |
 | 5. Use the demo | In the personalized view, switch between **Control tower** and **Shipments**, then select an operational exception. | The output is a working interactive artifact with relevant lanes, KPIs, scenarios, and feature ordering. |
-| 6. Open the brief | Return to the workspace and open **Meeting brief**. Try **Print / PDF** or **Download HTML**. | The shared account strategy produces another real, usable sales asset. |
+| 6. Open the brief | Return to **Gulf Logistics** sources and open **Meeting Brief.pdf**. | Generated work remains inspectable alongside the account material the AI understands. |
 | 7. Pressure-test it | In **Testing Lab**, choose **CFO**, select **Personalized demo**, and click **Test with CFO**. | A separate Groq buyer role returns a score, reaction, objections, missing proof, and improvements. |
 
 ### Optional: Show Live Research
@@ -43,7 +43,7 @@ Click **Refresh research** at the bottom of Sources. ContextSE calls Context.dev
 4. Add a source or click **Refresh research**.
 5. Ask the agent what matters and what Relay should show.
 
-The GulfLink fixture is the polished golden path; arbitrary domains demonstrate the reusable account-workspace architecture.
+The Gulf Logistics fixture is the polished golden path; arbitrary domains demonstrate the reusable account-workspace architecture.
 
 ## What to Look For
 
@@ -64,11 +64,11 @@ The four persistent workspace zones keep that loop visible:
 
 ## Demo Scenario
 
-The hackathon uses **Relay**, a fictional supply-chain visibility platform, selling to **GulfLink Logistics**, a synthetic prospect.
+The hackathon follows a Solutions Engineer at **Supply X** preparing to present **Relay**, its fictional supply-chain visibility platform, to **Gulf Logistics**, a synthetic prospect.
 
 Relay is limited to seven approved capabilities: shipment visibility, ETA monitoring, exception detection, prioritized alerts, route performance, cross-region visibility, and executive KPIs. ContextSE never invents capabilities outside that boundary.
 
-GulfLink provides a reliable before-and-after experience without presenting synthetic details as real customer facts. Every operational record in the personalized demo is visibly labeled synthetic.
+Gulf Logistics provides a reliable before-and-after experience without presenting synthetic details as real customer facts. Every operational record in the personalized demo is visibly labeled synthetic.
 
 ## Built With
 

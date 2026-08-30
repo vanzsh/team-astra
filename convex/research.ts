@@ -37,9 +37,12 @@ export const researchProspect = action({
         source: {
           id: `context-${domain}`,
           group: "prospect",
-          title: brand.title ?? domain,
+          title: `${brand.title ?? domain} Website.txt`,
+          filename: `${brand.title ?? domain} Website.txt`,
+          format: "text",
           detail: "Context.dev public-web intelligence",
           truth: "FACT",
+          content: [brand.description, brand.slogan].filter(Boolean).join("\n\n").slice(0, 4000),
           excerpt: [brand.description, brand.slogan].filter(Boolean).join(" ").slice(0, 800),
           url: `https://${brand.domain ?? domain}`,
         },

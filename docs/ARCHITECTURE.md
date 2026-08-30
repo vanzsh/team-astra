@@ -2,7 +2,7 @@
 
 ## Runtime Shape
 
-ContextSE is one Next.js application. The frontend renders a shared `AccountWorkspace` contract with a deterministic GulfLink fallback. Convex is the backend/state boundary. Context.dev and Groq are called only from Convex actions, where secrets remain server-side.
+ContextSE is one Next.js application. The frontend renders a shared `AccountWorkspace` contract with a deterministic Gulf Logistics fallback. Convex is the backend/state boundary. Context.dev and Groq are called only from Convex actions, where secrets remain server-side.
 
 ```text
 Sources and user context
@@ -25,7 +25,7 @@ Owns persisted account state, external research, grounded context construction, 
 
 ## Reliability
 
-The GulfLink fixture remains the last-known-good context and artifact state. Missing credentials return explicit configuration errors; they never produce fake live AI responses. Context.dev failure preserves fixture research.
+The Gulf Logistics fixture remains the last-known-good context and artifact state. Missing credentials return explicit configuration errors; they never produce fake live AI responses. Context.dev failure preserves fixture research.
 
 ## Security
 

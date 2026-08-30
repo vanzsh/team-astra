@@ -5,8 +5,11 @@ export type Source = {
   id: string;
   group: SourceGroup;
   title: string;
+  filename: string;
+  format: "pdf" | "html" | "markdown" | "text" | "image";
   detail: string;
   truth: TruthKind;
+  content: string;
   excerpt: string;
   url?: string;
 };
@@ -68,7 +71,7 @@ export type DemoConfig = {
 
 export type Artifact = {
   id: string;
-  type: "interactive_demo" | "meeting_brief";
+  type: "interactive_demo" | "meeting_brief" | "demo_script";
   title: string;
   status: "recommended" | "generating" | "ready" | "error";
   updatedAt: string;
@@ -117,6 +120,7 @@ export type AccountWorkspace = {
   name: string;
   domain: string;
   region: string;
+  sellerCompany: string;
   sellerProduct: string;
   researchStatus: "fixture" | "researching" | "live" | "unavailable";
   sources: Source[];

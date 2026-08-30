@@ -4,11 +4,11 @@ The TypeScript source of truth is `lib/contracts.ts`. Frontend and backend chang
 
 ## AccountWorkspace
 
-Contains account identity, seller product, sources, research summary, strategy, artifacts, and demo configuration. Renderers must not depend on raw provider responses.
+Contains prospect identity, seller company and product, sources, research summary, strategy, artifacts, and demo configuration. Renderers must not depend on raw provider responses.
 
 ## Source
 
-A source has an ID, seller/prospect group, title, detail, truth classification, excerpt, and optional URL. Claims and model citations retain source IDs.
+A source retains its original filename, format, full preview content, seller/prospect side, truth classification, extracted context excerpt, and optional URL. The original document remains human-inspectable while the excerpt is the compact AI context. Claims and model citations retain source IDs.
 
 ## AgentResponse
 
@@ -24,7 +24,7 @@ Strategies may reference only approved Relay capabilities. Demo configuration co
 
 ## Artifact
 
-Artifacts are `interactive_demo` or `meeting_brief` with a status. `ready` means the item opens a working renderer or downloadable document.
+Artifacts are `interactive_demo`, `meeting_brief`, or `demo_script` with a status. `ready` means the item opens a working live or document preview.
 
 ## Integration Results
 

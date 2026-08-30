@@ -19,7 +19,7 @@ export default defineSchema({
   }).index("by_account", ["accountSlug"]),
   artifacts: defineTable({
     accountSlug: v.string(),
-    type: v.union(v.literal("interactive_demo"), v.literal("meeting_brief")),
+    type: v.union(v.literal("interactive_demo"), v.literal("meeting_brief"), v.literal("demo_script")),
     status: v.union(v.literal("recommended"), v.literal("generating"), v.literal("ready"), v.literal("error")),
     updatedAt: v.number(),
   }).index("by_account", ["accountSlug"]),

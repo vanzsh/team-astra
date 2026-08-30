@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
 export const metadata: Metadata = {
-  title: "ContextSE · GulfLink Logistics",
+  title: "ContextSE · Supply X → Gulf Logistics",
   description: "Account-native AI presales workspace",
 };
 

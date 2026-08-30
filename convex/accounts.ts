@@ -29,6 +29,7 @@ export const approveStrategy = mutation({
       await Promise.all([
         ctx.db.insert("artifacts", { accountSlug: args.slug, type: "interactive_demo", status: "ready", updatedAt: now }),
         ctx.db.insert("artifacts", { accountSlug: args.slug, type: "meeting_brief", status: "ready", updatedAt: now }),
+        ctx.db.insert("artifacts", { accountSlug: args.slug, type: "demo_script", status: "ready", updatedAt: now }),
       ]);
     } else {
       await Promise.all(artifacts.map((artifact) => ctx.db.patch(artifact._id, { status: "ready", updatedAt: now })));

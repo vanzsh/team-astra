@@ -98,7 +98,7 @@ The intended transformation is not merely visual rebranding. It is a shift from 
 
 ## Hackathon Demo Product
 
-For the demo, the seller product is a fictional enterprise logistics SaaS product called **Relay**.
+For the demo, the Solutions Engineer works for the fictional seller **Supply X**, whose enterprise logistics SaaS product is called **Relay**.
 
 Relay is a **Supply Chain Visibility / Operations Control Tower**.
 
@@ -118,7 +118,7 @@ No generated demo may imply Relay supports capabilities outside this list.
 
 Do not hard-code the hackathon around a real customer. The foundation can use a fictional company fixture:
 
-# GulfLink Logistics
+# Gulf Logistics
 
 Synthetic profile:
 
@@ -130,7 +130,7 @@ Synthetic profile:
 - cross-region shipment visibility challenges;
 - operational exception-management needs.
 
-GulfLink is entirely synthetic. It exists only so the frontend can demonstrate the system before live Context.dev integration exists. Every GulfLink detail must be treated as synthetic demo context.
+Gulf Logistics is entirely synthetic. It exists only so the frontend can demonstrate the system before live Context.dev integration exists. Every Gulf Logistics detail must be treated as synthetic demo context.
 
 The eventual system must accept arbitrary real prospect domains. Its conceptual flow is:
 

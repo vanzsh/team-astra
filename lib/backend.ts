@@ -11,11 +11,12 @@ export const backendMode = process.env.NEXT_PUBLIC_CONVEX_URL ? "convex" : "demo
 export function compactAccountContext(workspace: AccountWorkspace, persona: string) {
   return JSON.stringify({
     account: { name: workspace.name, domain: workspace.domain, region: workspace.region, truth: "SYNTHETIC" },
-    sellerProduct: workspace.sellerProduct,
-    persona,
+    seller: { company: workspace.sellerCompany, product: workspace.sellerProduct },
+    opportunity: `${workspace.sellerCompany} is preparing to present ${workspace.sellerProduct} to ${workspace.name}`,
+    persona: `${persona} at ${workspace.name}`,
     insights: workspace.insights,
     strategy: { ...workspace.strategy, persona },
-    sources: workspace.sources.map(({ id, title, truth, excerpt }) => ({ id, title, truth, excerpt })),
+    sources: workspace.sources.map(({ id, filename, truth, excerpt }) => ({ id, filename, truth, excerpt })),
     artifacts: workspace.artifacts,
   });
 }

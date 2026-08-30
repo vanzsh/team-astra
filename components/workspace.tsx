@@ -1,24 +1,24 @@
 "use client";
 
 import { type CSSProperties, FormEvent, useEffect, useMemo, useRef, useState } from "react";
-import { ArrowUp, Bot, Check, ChevronDown, ChevronLeft, ChevronRight, FileText, Globe2, LoaderCircle, MessageSquare, MonitorPlay, Plus, ShieldCheck, TestTube2, X } from "lucide-react";
+import { ArrowUp, Bot, Check, ChevronDown, ChevronLeft, ChevronRight, FileCode2, FileText, Globe2, LoaderCircle, MessageSquare, MonitorPlay, Plus, ShieldCheck, TestTube2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { DocumentPreview } from "@/components/document-preview";
 import { MeetingBrief } from "@/components/meeting-brief";
 import { RelayDemo } from "@/components/relay-demo";
 import { backendMode, converse, persistApproval, researchProspect, testPersona } from "@/lib/backend";
-import type { AccountWorkspace, AgentAction, ConversationMessage, PersonaTestResult, Source, SourceGroup, TruthKind } from "@/lib/contracts";
-import { gulfLinkWorkspace } from "@/lib/fixtures";
+import type { AccountWorkspace, AgentAction, Artifact, ConversationMessage, PersonaTestResult, Source, SourceGroup } from "@/lib/contracts";
+import { gulfLogisticsWorkspace } from "@/lib/fixtures";
 
-type Modal = "new" | "source" | "demo" | "brief" | null;
+type Modal = "new" | "source" | "demo" | "brief" | "script" | null;
 
 const prompts = ["What matters most here?", "What should I show the CEO?", "What evidence supports this?", "Test this with the CFO"];
-const truthLabels: Record<TruthKind, string> = { FACT: "Fact", SELLER_CONTEXT: "Provided", INFERENCE: "Inference", SYNTHETIC: "Synthetic" };
 
-function TruthTag({ value }: { value: TruthKind }) {
-  return <span className={`truth-tag ${value.toLowerCase()}`}>{truthLabels[value]}</span>;
+function isDemoIntent(text: string) {
+  const normalized = text.toLowerCase().replace(/[’']/g, "'");
+  return (/\b(give|show|open|see|view)\b.*\bdemo\b/.test(normalized) || /\bdemo\b.*\b(open|show|see|view)\b/.test(normalized) || /what (we|we'd|we would) (present|show)/.test(normalized));
 }
-
-function GlobalRail({ accountName, artifactsReady, collapsed, onToggle, onNew, onDemo, onBrief }: { accountName: string; artifactsReady: boolean; collapsed: boolean; onToggle: () => void; onNew: () => void; onDemo: () => void; onBrief: () => void }) {
+function GlobalRail({ accountName, artifacts, collapsed, onToggle, onNew, onArtifact }: { accountName: string; artifacts: Artifact[]; collapsed: boolean; onToggle: () => void; onNew: () => void; onArtifact: (type: Artifact["type"]) => void }) {
   return (
     <aside className={`global-rail ${collapsed ? "collapsed" : ""}`}>
       <div className="brand">{!collapsed && <><span>C</span><strong>ContextSE</strong></>}<button className="collapse-control" onClick={onToggle} aria-label={collapsed ? "Expand workspace rail" : "Collapse workspace rail"}>{collapsed ? <ChevronRight /> : <ChevronLeft />}</button></div>
@@ -29,26 +29,25 @@ function GlobalRail({ accountName, artifactsReady, collapsed, onToggle, onNew, o
       </section>
       <section className="global-section artifacts-section">
         <h2>Artifacts</h2>
-        <button className="artifact-row" onClick={onDemo} disabled={!artifactsReady}><MonitorPlay /><span><strong>Interactive demo</strong><small>{artifactsReady ? "Ready" : "Not generated"}</small></span></button>
-        <button className="artifact-row" onClick={onBrief} disabled={!artifactsReady}><FileText /><span><strong>Meeting brief</strong><small>{artifactsReady ? "PDF · HTML" : "Not generated"}</small></span></button>
+        {artifacts.map((artifact) => <button className="artifact-row" key={artifact.id} onClick={() => onArtifact(artifact.type)} disabled={artifact.status !== "ready"}>{artifact.type === "interactive_demo" ? <MonitorPlay /> : artifact.type === "demo_script" ? <FileCode2 /> : <FileText />}<span><strong>{artifact.title}</strong><small>{artifact.status === "ready" ? "Ready to preview" : "Not generated"}</small></span></button>)}
       </section></>}
       <div className="rail-foot"><ShieldCheck />{!collapsed && <span>Truth-aware workspace</span>}</div>
     </aside>
   );
 }
 
-function SourcesPane({ sources, status, collapsed, onToggle, onSelect, onAdd, onResearch }: { sources: Source[]; status: string; collapsed: boolean; onToggle: () => void; onSelect: (source: Source) => void; onAdd: () => void; onResearch: () => void }) {
+function SourcesPane({ sources, status, sellerCompany, prospectName, collapsed, onToggle, onSelect, onAdd, onResearch }: { sources: Source[]; status: string; sellerCompany: string; prospectName: string; collapsed: boolean; onToggle: () => void; onSelect: (source: Source) => void; onAdd: () => void; onResearch: () => void }) {
   return (
     <aside className={`sources-pane ${collapsed ? "collapsed" : ""}`}>
       <div className="pane-header">{!collapsed && <div><strong>Sources</strong><span>{sources.length}</span></div>}<div className="pane-actions">{!collapsed && <Button variant="ghost" size="icon-sm" onClick={onAdd} aria-label="Add source"><Plus /></Button>}<Button variant="ghost" size="icon-sm" onClick={onToggle} aria-label={collapsed ? "Expand sources" : "Collapse sources"}>{collapsed ? <ChevronRight /> : <ChevronLeft />}</Button></div></div>
       {!collapsed && <><div className="source-list">
         {(["seller", "prospect"] as SourceGroup[]).map((group) => (
           <section key={group}>
-            <h2>{group === "seller" ? "Our company" : "Prospect"}</h2>
+            <h2>{group === "seller" ? sellerCompany : prospectName}</h2>
             {sources.filter((source) => source.group === group).map((source) => (
               <button className="source-row" key={source.id} onClick={() => onSelect(source)}>
                 <span className="source-type">{source.url ? <Globe2 /> : <FileText />}</span>
-                <span><strong>{source.title}</strong><small>{source.detail}</small><TruthTag value={source.truth} /></span>
+                <span><strong>{source.filename}</strong><small>{source.detail}</small></span>
                 <ChevronRight />
               </button>
             ))}
@@ -106,7 +105,7 @@ function TestingLab({ workspace, persona, setPersona, request, collapsed, onTogg
 }
 
 export function Workspace() {
-  const [workspace, setWorkspace] = useState(gulfLinkWorkspace);
+  const [workspace, setWorkspace] = useState(gulfLogisticsWorkspace);
   const [modal, setModal] = useState<Modal>(null);
   const [demoMode, setDemoMode] = useState<"generic" | "personalized">("personalized");
   const [selectedSource, setSelectedSource] = useState<Source | null>(null);
@@ -122,16 +121,22 @@ export function Workspace() {
   const [testingCollapsed, setTestingCollapsed] = useState(false);
   const messageId = useRef(0);
   const sourceById = useMemo(() => new Map(workspace.sources.map((source) => [source.id, source])), [workspace.sources]);
-  const artifactsReady = workspace.artifacts.every((artifact) => artifact.status === "ready");
   const layoutStyle = {
     "--global-width": globalCollapsed ? "52px" : "200px",
     "--sources-width": sourcesCollapsed ? "52px" : "270px",
     "--testing-width": testingCollapsed ? "52px" : "320px",
   } as CSSProperties;
+  const demoScript = `# ${workspace.name} × Relay demo script\n\n## Audience\n${persona} at ${workspace.name}\n\n## Opening\n${workspace.strategy.thesis}\n\n## Sequence\n${workspace.strategy.moments.map((moment, index) => `${index + 1}. ${moment.title}\n   ${moment.why}`).join("\n")}\n\n## Truth note\n${workspace.name} and all operational records are synthetic. Relay capabilities come from Supply X approved source material.`;
 
   function openDemo(mode: "generic" | "personalized" = "personalized") {
     setDemoMode(mode);
     setModal("demo");
+  }
+
+  function openArtifact(type: Artifact["type"]) {
+    if (type === "interactive_demo") openDemo();
+    if (type === "meeting_brief") setModal("brief");
+    if (type === "demo_script") setModal("script");
   }
 
   async function runResearch() {
@@ -159,8 +164,14 @@ export function Workspace() {
     const value = text.trim();
     if (!value || sending) return;
     const userMessage: ConversationMessage = { id: `user-${messageId.current++}`, role: "user", content: value };
-    setMessages((current) => [...current, userMessage]);
     setInput("");
+    if (isDemoIntent(value)) {
+      const assistantMessage: ConversationMessage = { id: `assistant-${messageId.current++}`, role: "assistant", content: "I've prepared the interactive demo around the account strategy. Opening it now.", live: false };
+      setMessages((current) => [...current, userMessage, assistantMessage]);
+      openDemo();
+      return;
+    }
+    setMessages((current) => [...current, userMessage]);
     setSending(true);
     const response = await converse(workspace, persona, messages, value);
     setMessages((current) => [...current, { id: `assistant-${messageId.current++}`, role: "assistant", content: response.answer, citations: response.citations, live: response.live, error: Boolean(response.error) }]);
@@ -174,10 +185,10 @@ export function Workspace() {
   }
 
   function createWorkspace(website: string, material: string, objective: string) {
-    const domain = website.trim().replace(/^https?:\/\//, "").replace(/\/$/, "") || gulfLinkWorkspace.domain;
-    const isFixture = domain.includes("gulflink");
-    const provided: Source = { id: `provided-${Date.now()}`, group: "prospect", title: domain, detail: "User-provided account context", truth: "SELLER_CONTEXT", excerpt: material.trim() || "Website provided for account research.", url: `https://${domain}` };
-    setWorkspace({ ...gulfLinkWorkspace, id: domain.replace(/\W/g, "-"), name: isFixture ? gulfLinkWorkspace.name : domain, domain, region: isFixture ? gulfLinkWorkspace.region : "New account · research pending", sources: [...gulfLinkWorkspace.sources.filter((source) => source.group === "seller"), ...(isFixture ? gulfLinkWorkspace.sources.filter((source) => source.group === "prospect") : [provided])], insights: isFixture ? gulfLinkWorkspace.insights : [], strategy: isFixture ? gulfLinkWorkspace.strategy : { ...gulfLinkWorkspace.strategy, objective: objective.trim() || "Understand this account and determine the strongest truthful Relay story.", thesis: "Research this account before recommending a demo strategy.", moments: [], sourceIds: ["relay-capabilities"], status: "recommended" }, artifacts: isFixture ? gulfLinkWorkspace.artifacts : gulfLinkWorkspace.artifacts.map((artifact) => ({ ...artifact, status: "recommended" })) });
+    const domain = website.trim().replace(/^https?:\/\//, "").replace(/\/$/, "") || gulfLogisticsWorkspace.domain;
+    const isFixture = domain.includes("gulflogistics");
+    const provided: Source = { id: `provided-${Date.now()}`, group: "prospect", title: `${domain} Website.txt`, filename: `${domain} Website.txt`, format: "text", detail: `${domain} · user-provided account context`, truth: "SELLER_CONTEXT", content: material.trim() || `Website supplied for research: https://${domain}`, excerpt: material.trim() || "Website provided for account research.", url: `https://${domain}` };
+    setWorkspace({ ...gulfLogisticsWorkspace, id: domain.replace(/\W/g, "-"), name: isFixture ? gulfLogisticsWorkspace.name : domain, domain, region: isFixture ? gulfLogisticsWorkspace.region : "New account · research pending", sources: [...gulfLogisticsWorkspace.sources.filter((source) => source.group === "seller"), ...(isFixture ? gulfLogisticsWorkspace.sources.filter((source) => source.group === "prospect") : [provided])], insights: isFixture ? gulfLogisticsWorkspace.insights : [], strategy: isFixture ? gulfLogisticsWorkspace.strategy : { ...gulfLogisticsWorkspace.strategy, objective: objective.trim() || "Understand this account and determine the strongest truthful Relay story.", thesis: "Research this account before recommending a demo strategy.", moments: [], sourceIds: ["relay-capabilities"], status: "recommended" }, artifacts: isFixture ? gulfLogisticsWorkspace.artifacts : gulfLogisticsWorkspace.artifacts.map((artifact) => ({ ...artifact, status: "recommended" })) });
     setMessages([]);
     setStrategyApproved(false);
     setModal(null);
@@ -192,13 +203,13 @@ export function Workspace() {
 
   return (
     <div className="workspace-shell" style={layoutStyle}>
-      <GlobalRail accountName={workspace.name} artifactsReady={artifactsReady} collapsed={globalCollapsed} onToggle={() => setGlobalCollapsed((value) => !value)} onNew={() => setModal("new")} onDemo={() => openDemo()} onBrief={() => setModal("brief")} />
-      <SourcesPane sources={workspace.sources} status={sourceStatus} collapsed={sourcesCollapsed} onToggle={() => setSourcesCollapsed((value) => !value)} onSelect={setSelectedSource} onAdd={() => setModal("source")} onResearch={() => void runResearch()} />
+      <GlobalRail accountName={workspace.name} artifacts={workspace.artifacts} collapsed={globalCollapsed} onToggle={() => setGlobalCollapsed((value) => !value)} onNew={() => setModal("new")} onArtifact={openArtifact} />
+      <SourcesPane sources={workspace.sources} status={sourceStatus} sellerCompany={workspace.sellerCompany} prospectName={workspace.name} collapsed={sourcesCollapsed} onToggle={() => setSourcesCollapsed((value) => !value)} onSelect={setSelectedSource} onAdd={() => setModal("source")} onResearch={() => void runResearch()} />
       <main className="agent-pane">
-        <header className="agent-header"><div><span className="agent-mark"><Bot /></span><span><strong>AI Solutions Engineer</strong><small>{workspace.name} · {workspace.sources.length} sources</small></span></div><span className={`connection ${backendMode}`}><i />{backendMode === "convex" ? "Groq via Convex" : "Groq demo backend"}</span></header>
+        <header className="agent-header"><div><span className="agent-mark"><Bot /></span><span><strong>AI Solutions Engineer</strong><small>{workspace.sellerCompany} → {workspace.name} · {workspace.sources.length} files</small></span></div><span className={`connection ${backendMode}`}><i />{backendMode === "convex" ? "Groq via Convex" : "Groq demo backend"}</span></header>
         <div className="conversation-scroll">
           <details className="account-brief"><summary><span><strong>Account brief</strong><small>{workspace.strategy.thesis}</small></span><ChevronDown /></summary><div className="brief-content"><div><span>Audience</span><strong>{persona}</strong></div><div><span>Objective</span><p>{workspace.strategy.objective}</p></div>{workspace.strategy.moments.length > 0 && <ol>{workspace.strategy.moments.map((moment, index) => <li key={moment.title}><b>{index + 1}</b><span><strong>{moment.title}</strong><small>{moment.capability}</small></span></li>)}</ol>}<Button variant="outline" size="sm" onClick={approveStrategy} disabled={strategyApproved}>{strategyApproved ? <><Check />Approved</> : "Approve strategy"}</Button></div></details>
-          {messages.length === 0 ? <div className="conversation-empty"><span className="empty-mark"><Bot /></span><h1>Work through the {workspace.name} opportunity.</h1><p>I’ll reason from the sources in this workspace, surface assumptions, and create what you need for the meeting.</p><div>{prompts.map((prompt) => <button key={prompt} onClick={() => void sendPrompt(prompt)}>{prompt}<ChevronRight /></button>)}</div></div> : <div className="messages">{messages.map((message) => <article className={`${message.role} ${message.error ? "error" : ""}`} key={message.id}><div><strong>{message.role === "assistant" ? "ContextSE" : "You"}</strong>{message.role === "assistant" && <span>{message.live ? "Groq" : "Configuration"}</span>}</div><p>{message.content}</p>{message.citations && message.citations.length > 0 && <footer>{message.citations.map((id) => <button key={id} onClick={() => setSelectedSource(sourceById.get(id) ?? null)}>{sourceById.get(id)?.title ?? id}</button>)}</footer>}</article>)}</div>}
+          {messages.length === 0 ? <div className="conversation-empty"><span className="empty-mark"><Bot /></span><h1>Work through the {workspace.name} opportunity.</h1><p>I’ll reason from the sources in this workspace, surface assumptions, and create what you need for the meeting.</p><div>{prompts.map((prompt) => <button key={prompt} onClick={() => void sendPrompt(prompt)}>{prompt}<ChevronRight /></button>)}</div></div> : <div className="messages">{messages.map((message) => <article className={`${message.role} ${message.error ? "error" : ""}`} key={message.id}><div><strong>{message.role === "assistant" ? "ContextSE" : "You"}</strong>{message.role === "assistant" && <span>{message.error ? "Configuration" : message.live ? "Groq" : "Action"}</span>}</div><p>{message.content}</p>{message.citations && message.citations.length > 0 && <footer>{message.citations.map((id) => <button key={id} onClick={() => setSelectedSource(sourceById.get(id) ?? null)}>{sourceById.get(id)?.title ?? id}</button>)}</footer>}</article>)}</div>}
           {sending && <div className="agent-working"><LoaderCircle className="spin" />Groq is reasoning from this workspace…</div>}
         </div>
         <form className="agent-composer" onSubmit={submit}><textarea value={input} onChange={(event) => setInput(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter" && !event.shiftKey) { event.preventDefault(); void sendPrompt(input); } }} placeholder="Ask about the account or create an artifact…" rows={2} /><div><span><ShieldCheck />Grounded in workspace sources</span><Button type="submit" size="icon" disabled={!input.trim() || sending} aria-label="Send"><ArrowUp /></Button></div></form>
@@ -207,15 +218,16 @@ export function Workspace() {
 
       {modal === "new" && <NewWorkspaceModal onClose={() => setModal(null)} onCreate={createWorkspace} />}
       {modal === "source" && <AddSourceModal onClose={() => setModal(null)} onAdd={addSource} />}
-      {selectedSource && <SourceDrawer source={selectedSource} onClose={() => setSelectedSource(null)} />}
+      {selectedSource && <DocumentPreview filename={selectedSource.filename} format={selectedSource.format} side={selectedSource.group === "seller" ? workspace.sellerCompany : workspace.name} content={selectedSource.content} truth={selectedSource.truth} url={selectedSource.url} onClose={() => setSelectedSource(null)} />}
       {modal === "demo" && <RelayDemo generic={workspace.demo.generic} personalized={workspace.demo.personalized} initialMode={demoMode} onClose={() => setModal(null)} />}
       {modal === "brief" && <MeetingBrief workspace={workspace} persona={persona} onClose={() => setModal(null)} />}
+      {modal === "script" && <DocumentPreview filename="Demo Script.md" format="markdown" side={`${workspace.sellerCompany} → ${workspace.name}`} content={demoScript} onClose={() => setModal(null)} />}
     </div>
   );
 }
 
 function NewWorkspaceModal({ onClose, onCreate }: { onClose: () => void; onCreate: (website: string, material: string, objective: string) => void }) {
-  const [website, setWebsite] = useState("gulflink.example");
+  const [website, setWebsite] = useState("gulflogistics.example");
   const [material, setMaterial] = useState("Dubai-based logistics operator coordinating GCC warehousing and Europe-bound freight from Jebel Ali.");
   const [objective, setObjective] = useState("Prepare the strongest COO demo narrative.");
   return <div className="modal-layer"><form className="setup-modal" onSubmit={(event) => { event.preventDefault(); onCreate(website, material, objective); }}><header><div><span>New chat</span><h2>Prepare a new account</h2><p>Start with what you know. Add more sources from the workspace.</p></div><Button type="button" variant="ghost" size="icon" onClick={onClose}><X /></Button></header><label>Website<input value={website} onChange={(event) => setWebsite(event.target.value)} placeholder="company.com" required /></label><label>Add material<textarea value={material} onChange={(event) => setMaterial(event.target.value)} rows={5} placeholder="Paste discovery notes, requirements, or meeting context…" /></label><label>Meeting objective<input value={objective} onChange={(event) => setObjective(event.target.value)} /></label><footer><Button type="button" variant="outline" onClick={onClose}>Cancel</Button><Button type="submit">Create workspace</Button></footer></form></div>;
@@ -226,9 +238,5 @@ function AddSourceModal({ onClose, onAdd }: { onClose: () => void; onAdd: (sourc
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [url, setUrl] = useState("");
-  return <div className="modal-layer"><form className="setup-modal compact" onSubmit={(event) => { event.preventDefault(); onAdd({ id: `source-${Date.now()}`, group, title: title.trim() || url.trim(), detail: url ? "User-provided website" : "Pasted account material", truth: "SELLER_CONTEXT", excerpt: content.trim() || "Provided for account research.", url: url.trim() || undefined }); }}><header><div><span>Workspace context</span><h2>Add source</h2><p>Add one useful URL or piece of material.</p></div><Button type="button" variant="ghost" size="icon" onClick={onClose}><X /></Button></header><label>Context group<select value={group} onChange={(event) => setGroup(event.target.value as SourceGroup)}><option value="prospect">Prospect</option><option value="seller">Our company</option></select></label><label>Title<input value={title} onChange={(event) => setTitle(event.target.value)} placeholder="Discovery notes" required={!url} /></label><label>Website URL<input value={url} onChange={(event) => setUrl(event.target.value)} placeholder="https://company.com/about" /></label><label>Pasted material<textarea value={content} onChange={(event) => setContent(event.target.value)} rows={5} placeholder="Paste notes or relevant source text…" /></label><footer><Button type="button" variant="outline" onClick={onClose}>Cancel</Button><Button type="submit" disabled={!title.trim() && !url.trim()}>Add to sources</Button></footer></form></div>;
-}
-
-function SourceDrawer({ source, onClose }: { source: Source; onClose: () => void }) {
-  return <div className="drawer-layer"><button className="drawer-backdrop" onClick={onClose} aria-label="Close source" /><article><header><strong>Source</strong><Button variant="ghost" size="icon" onClick={onClose}><X /></Button></header><div><TruthTag value={source.truth} /><h2>{source.title}</h2><p>{source.detail}</p><blockquote>{source.excerpt}</blockquote>{source.url && <a href={source.url} target="_blank" rel="noreferrer">Open source <ChevronRight /></a>}<div className="integrity-note"><ShieldCheck /><span><strong>{source.truth === "SYNTHETIC" ? "Synthetic demo context" : "Workspace context"}</strong><small>{source.truth === "SYNTHETIC" ? "Never present this as a real prospect fact." : "Use within its stated evidence boundary."}</small></span></div></div></article></div>;
+  return <div className="modal-layer"><form className="setup-modal compact" onSubmit={(event) => { event.preventDefault(); onAdd({ id: `source-${Date.now()}`, group, title: title.trim() || `${url.trim()} Website.txt`, filename: title.trim() || `${url.trim()} Website.txt`, format: "text", detail: url ? "User-provided website" : "Pasted account material", truth: "SELLER_CONTEXT", content: content.trim() || `Source URL: ${url.trim()}`, excerpt: content.trim() || "Provided for account research.", url: url.trim() || undefined }); }}><header><div><span>Workspace context</span><h2>Add source</h2><p>Add one useful URL or piece of material.</p></div><Button type="button" variant="ghost" size="icon" onClick={onClose}><X /></Button></header><label>Context group<select value={group} onChange={(event) => setGroup(event.target.value as SourceGroup)}><option value="prospect">Prospect</option><option value="seller">Our company</option></select></label><label>Title<input value={title} onChange={(event) => setTitle(event.target.value)} placeholder="Discovery notes" required={!url} /></label><label>Website URL<input value={url} onChange={(event) => setUrl(event.target.value)} placeholder="https://company.com/about" /></label><label>Pasted material<textarea value={content} onChange={(event) => setContent(event.target.value)} rows={5} placeholder="Paste notes or relevant source text…" /></label><footer><Button type="button" variant="outline" onClick={onClose}>Cancel</Button><Button type="submit" disabled={!title.trim() && !url.trim()}>Add to sources</Button></footer></form></div>;
 }
