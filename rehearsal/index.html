@@ -1,8 +1,9 @@
 <!doctype html>
 <!--
   Astra Rehearsal — barebones mockup.
-  Standalone product concept: SA rehearses upcoming meeting against
-  simulated versions of real humans in the buying committee.
+  Standalone product concept: SA runs simulated persona reactions to their
+  own product/site. Middle column is a single interleaved group-chat feed
+  where three grounded personas contribute simultaneously.
   Not v2 of the frontend/ mockup — different product.
   Serve: python3 -m http.server 8766 --directory rehearsal
 -->
@@ -22,13 +23,15 @@
     --radius:16px;
     --shadow:0 1px 2px rgba(16,24,40,.05),0 4px 16px rgba(16,24,40,.06);
 
-    /* WhatsApp-y tones layered on top of the family palette */
+    /* group chat surface */
     --chat-bg:#efeae2;
     --chat-bg-pattern:#e7e0d6;
     --bubble-in:#ffffff;
-    --bubble-out:var(--accent);
-    --bubble-out-ink:#ffffff;
-    --tick:#8fbcff;
+
+    /* per-persona palette (blue / purple / teal) */
+    --p-aisha:#1a73e8;      --p-aisha-soft:#e8f0fe;   --p-aisha-deep:#174ea6;
+    --p-fatima:#7c3aed;     --p-fatima-soft:#f1eafe;  --p-fatima-deep:#5b21b6;
+    --p-omar:#0d9488;       --p-omar-soft:#e0f5f2;    --p-omar-deep:#0f766e;
   }
   *{box-sizing:border-box;margin:0;padding:0}
   html,body{height:100%}
@@ -70,7 +73,7 @@
 
   /* 3-col grid */
   .grid{
-    flex:1;display:grid;grid-template-columns:280px 1fr 300px;gap:12px;padding:12px;min-height:0;
+    flex:1;display:grid;grid-template-columns:290px 1fr 320px;gap:12px;padding:12px;min-height:0;
   }
   .panel{
     background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);
@@ -83,8 +86,32 @@
   .panel-body{flex:1;overflow-y:auto;padding:0 10px 12px;min-height:0}
 
   /* ---------- left: sources ---------- */
+  .url-row{
+    margin:2px 10px 12px;padding:12px;border:1px solid var(--border);border-radius:14px;background:#fbfcfe;
+  }
+  .url-row .lbl{
+    font-size:10.5px;font-weight:800;letter-spacing:1.2px;color:var(--text-3);margin-bottom:6px;
+    display:flex;align-items:center;gap:6px;
+  }
+  .url-row .lbl svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  .url-input-wrap{display:flex;gap:6px}
+  .url-input-wrap input{
+    flex:1;min-width:0;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:12.5px;
+    background:#fff;color:var(--text);outline:none;
+  }
+  .url-input-wrap input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+  .url-go{
+    flex:none;padding:0 12px;border-radius:8px;background:var(--accent);color:#fff;border:0;font-weight:600;
+    font-size:12px;cursor:pointer;
+  }
+  .url-go:hover{background:var(--accent-deep)}
+  .url-loaded{
+    margin-top:8px;display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--green);font-weight:600;
+  }
+  .url-loaded .dot{width:6px;height:6px;border-radius:50%;background:var(--green)}
+
   .drop{
-    margin:2px 10px 10px;padding:20px 10px;border:1.5px dashed #c9d3e0;border-radius:14px;
+    margin:2px 10px 10px;padding:18px 10px;border:1.5px dashed #c9d3e0;border-radius:14px;
     text-align:center;color:var(--text-3);font-size:12.5px;background:#fbfcfe;transition:all .15s;
   }
   .drop.over{border-color:var(--accent);background:var(--accent-soft);color:var(--accent-deep)}
@@ -127,15 +154,18 @@
   }
   .src .rm:hover{background:#f1f4f9;color:var(--text-2)}
 
-  /* ---------- middle: WhatsApp chat ---------- */
+  /* ---------- middle: group-chat ---------- */
   .chat-panel{background:var(--chat-bg);padding:0;border-radius:var(--radius);position:relative;overflow:hidden}
   .chat-header{
     flex:none;display:flex;align-items:center;gap:12px;padding:10px 16px;
     background:#f5f0e8;border-bottom:1px solid #d9d1c3;
   }
-  .chat-header .avatar{
-    width:40px;height:40px;border-radius:50%;color:#fff;font-weight:700;font-size:15px;
-    display:flex;align-items:center;justify-content:center;
+  .chat-header .stack-av{
+    display:flex;flex-direction:row-reverse;margin-right:4px;
+  }
+  .chat-header .stack-av .a-mini{
+    width:32px;height:32px;border-radius:50%;color:#fff;font-weight:700;font-size:12.5px;
+    display:flex;align-items:center;justify-content:center;border:2px solid #f5f0e8;margin-left:-8px;
   }
   .chat-header .name-block{flex:1;min-width:0}
   .chat-header .name{font-weight:600;font-size:14.5px;color:var(--text);display:flex;align-items:center;gap:8px}
@@ -148,59 +178,72 @@
     padding:3px 8px;border-radius:999px;background:var(--amber-soft);color:var(--amber);
   }
   .sim-chip::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--amber)}
-  .chat-header .hbtns{display:flex;gap:2px;margin-left:auto}
-  .chat-header .iconbtn:hover{background:#e7dfd0;border-color:transparent}
+
+  /* filter chip row inside chat header */
+  .filter-row{
+    flex:none;display:flex;align-items:center;gap:6px;padding:8px 16px;
+    background:#f5f0e8;border-bottom:1px solid #d9d1c3;overflow-x:auto;
+  }
+  .filter-row .lbl{
+    font-size:10.5px;font-weight:800;letter-spacing:1px;color:var(--text-3);margin-right:2px;flex:none;
+  }
+  .fchip{
+    flex:none;display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:999px;
+    background:#fff;border:1px solid #e2dcd0;font-size:11.5px;font-weight:600;color:var(--text-2);cursor:pointer;
+    transition:all .12s;
+  }
+  .fchip .cdot{width:7px;height:7px;border-radius:50%;background:var(--text-3)}
+  .fchip.active{background:var(--text);color:#fff;border-color:var(--text)}
+  .fchip.active .cdot{background:#fff}
+  .fchip:hover:not(.active){background:#fff;border-color:#c9c1b0}
 
   /* chat body with subtle pattern */
   .chat-body{
-    flex:1;overflow-y:auto;padding:18px 6% 14px;min-height:0;
+    flex:1;overflow-y:auto;padding:16px 5.5% 14px;min-height:0;
     background:
       radial-gradient(circle at 20% 30%, rgba(255,255,255,.35) 0%, transparent 40%),
       radial-gradient(circle at 80% 70%, rgba(255,255,255,.25) 0%, transparent 45%),
       var(--chat-bg);
   }
   .day-sep{
-    text-align:center;margin:4px auto 14px;
-    background:#e2dcd0;color:var(--text-2);font-size:10.5px;font-weight:600;letter-spacing:.4px;
-    padding:3px 12px;border-radius:8px;display:inline-block;box-shadow:0 1px 1px rgba(0,0,0,.04);
+    text-align:center;margin:14px auto 12px;
+    background:#e2dcd0;color:var(--text-2);font-size:10.5px;font-weight:700;letter-spacing:.6px;
+    padding:4px 14px;border-radius:8px;display:inline-block;box-shadow:0 1px 1px rgba(0,0,0,.04);
   }
   .day-wrap{text-align:center}
+  .day-wrap:first-child .day-sep{margin-top:0}
 
-  .bubble-row{display:flex;margin-bottom:6px}
-  .bubble-row.in{justify-content:flex-start}
-  .bubble-row.out{justify-content:flex-end}
+  /* group-chat bubble — everyone left-aligned */
+  .bubble-row{display:flex;gap:8px;margin-bottom:8px;align-items:flex-start;transition:opacity .18s}
+  .bubble-row.dim{opacity:.28}
+  .bubble-row .b-av{
+    flex:none;width:30px;height:30px;border-radius:50%;color:#fff;font-weight:700;font-size:12px;
+    display:flex;align-items:center;justify-content:center;margin-top:4px;
+  }
   .bubble{
-    position:relative;max-width:75%;padding:6px 10px 20px;border-radius:8px;font-size:13.8px;
+    position:relative;max-width:78%;padding:6px 12px 22px 12px;border-radius:10px;font-size:13.7px;
     box-shadow:0 1px .5px rgba(11,20,26,.13);animation:pop .18s ease;line-height:1.42;
-    word-wrap:break-word;
+    word-wrap:break-word;background:var(--bubble-in);border-top-left-radius:2px;
+    border-left:3px solid var(--bubble-accent, transparent);
   }
   @keyframes pop{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
-  .bubble.in{
-    background:var(--bubble-in);color:var(--text);border-top-left-radius:2px;
-  }
-  .bubble.out{
-    background:var(--bubble-out);color:var(--bubble-out-ink);border-top-right-radius:2px;
-  }
-  .bubble.in::before{
-    content:"";position:absolute;left:-6px;top:0;
-    border:6px solid transparent;border-right-color:var(--bubble-in);border-top-color:var(--bubble-in);
-    border-left:0;border-bottom:0;
-  }
-  .bubble.out::after{
-    content:"";position:absolute;right:-6px;top:0;
-    border:6px solid transparent;border-left-color:var(--bubble-out);border-top-color:var(--bubble-out);
-    border-right:0;border-bottom:0;
-  }
   .bubble .sender{
-    font-size:12px;font-weight:600;margin-bottom:2px;
+    font-size:12.2px;font-weight:700;margin-bottom:3px;color:var(--bubble-accent-deep, var(--text));
+    display:flex;align-items:center;gap:8px;
   }
+  .bubble .sender .role-mini{font-weight:500;color:var(--text-3);font-size:10.5px;letter-spacing:.2px}
+  .bubble .body-t{color:var(--text)}
   .bubble .meta{
     position:absolute;bottom:4px;right:10px;font-size:10.5px;color:var(--text-3);
     display:flex;align-items:center;gap:3px;
   }
-  .bubble.out .meta{color:rgba(255,255,255,.75)}
-  .bubble.out .meta svg{width:14px;height:11px;fill:none;stroke:var(--tick);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-
+  .bubble .tag{
+    display:inline-block;margin-top:6px;padding:2px 8px;border-radius:6px;
+    background:#eef2f8;color:var(--text-2);font-size:10.5px;font-weight:700;letter-spacing:.3px;
+    font-variant:small-caps;
+  }
+  .bubble .tag.crit{background:#fdecea;color:#c5221f}
+  .bubble .tag.warn{background:var(--amber-soft);color:var(--amber)}
   .bubble .cite{
     text-decoration:underline;text-decoration-style:dotted;text-decoration-color:var(--text-3);
     text-underline-offset:2px;font-style:italic;cursor:help;position:relative;
@@ -210,82 +253,90 @@
   .cite .tip{
     position:absolute;bottom:100%;left:50%;transform:translate(-50%,0);opacity:0;pointer-events:none;
     background:#1f2430;color:#fff;font-size:11px;font-style:normal;font-weight:500;padding:6px 10px;border-radius:8px;
-    white-space:nowrap;transition:all .18s;box-shadow:0 4px 12px rgba(0,0,0,.2);z-index:5;
+    white-space:normal;width:220px;text-align:center;transition:all .18s;box-shadow:0 4px 12px rgba(0,0,0,.2);z-index:5;
   }
   .cite .tip::after{content:"";position:absolute;top:100%;left:50%;transform:translateX(-50%);border:4px solid transparent;border-top-color:#1f2430}
 
-  /* voice note bubble */
-  .voice{
-    display:flex;align-items:center;gap:10px;padding:4px 4px 4px 2px;min-width:220px;
-  }
-  .voice .play{
-    flex:none;width:34px;height:34px;border-radius:50%;background:rgba(0,0,0,.05);color:var(--text);
-    display:flex;align-items:center;justify-content:center;border:0;cursor:pointer;transition:background .15s;
-  }
-  .voice .play:hover{background:rgba(0,0,0,.1)}
-  .voice .play svg{width:14px;height:14px;fill:currentColor;stroke:none}
-  .voice .play .ic-pause{display:none}
-  .voice.playing .play .ic-play{display:none}
-  .voice.playing .play .ic-pause{display:block}
-  .wave{
-    flex:1;display:flex;align-items:center;gap:2px;height:26px;
-  }
-  .wave span{
-    flex:1;background:#b6b0a5;border-radius:2px;height:30%;min-width:2px;
-    transition:height .2s ease;
-  }
-  .wave span.hi{height:65%}
-  .wave span.mid{height:45%}
-  .wave span.tall{height:85%}
-  .voice.playing .wave span{
-    animation:vwave 1s ease-in-out infinite;background:var(--accent);
-  }
-  .voice.playing .wave span:nth-child(2n){animation-delay:.1s}
-  .voice.playing .wave span:nth-child(3n){animation-delay:.2s}
-  .voice.playing .wave span:nth-child(4n){animation-delay:.3s}
-  .voice.playing .wave span:nth-child(5n){animation-delay:.4s}
-  @keyframes vwave{
-    0%,100%{height:20%}
-    50%{height:90%}
-  }
-  .voice .dur{font-size:11.5px;color:var(--text-3);font-variant-numeric:tabular-nums;padding-right:4px}
+  /* per-persona accents */
+  .p-aisha  { --bubble-accent: var(--p-aisha);  --bubble-accent-deep: var(--p-aisha-deep);  }
+  .p-fatima { --bubble-accent: var(--p-fatima); --bubble-accent-deep: var(--p-fatima-deep); }
+  .p-omar   { --bubble-accent: var(--p-omar);   --bubble-accent-deep: var(--p-omar-deep);   }
+  .av-aisha  { background:linear-gradient(135deg, #1a73e8, #4285f4); }
+  .av-fatima { background:linear-gradient(135deg, #7c3aed, #a855f7); }
+  .av-omar   { background:linear-gradient(135deg, #0d9488, #14b8a6); }
 
   /* typing indicator */
   .typing-bubble{
-    background:var(--bubble-in);border-top-left-radius:2px;border-radius:8px;padding:12px 14px;
+    background:var(--bubble-in);border-top-left-radius:2px;border-radius:10px;padding:12px 14px;
     display:inline-flex;gap:4px;box-shadow:0 1px .5px rgba(11,20,26,.13);
+    border-left:3px solid var(--bubble-accent, transparent);
   }
   .typing-bubble span{width:7px;height:7px;border-radius:50%;background:#b9c3d3;animation:blink 1.2s infinite}
   .typing-bubble span:nth-child(2){animation-delay:.2s}
   .typing-bubble span:nth-child(3){animation-delay:.4s}
   @keyframes blink{0%,80%,100%{opacity:.3}40%{opacity:1}}
 
-  /* composer */
-  .composer{
-    flex:none;display:flex;align-items:center;gap:8px;padding:10px 14px;background:#f5f0e8;
+  /* simulation report card (below chat body, inside body scroll) */
+  .sim-report{
+    background:#fff;border:1px solid var(--border);border-radius:14px;
+    margin:14px 0 6px;padding:14px 16px;box-shadow:0 1px .5px rgba(11,20,26,.08);
+    animation:pop .2s ease;
+  }
+  .sim-report .rh{
+    display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;
+    padding-bottom:8px;border-bottom:1px solid var(--border-soft);
+  }
+  .sim-report .rh .rt{font-size:11px;font-weight:800;letter-spacing:1.2px;color:var(--text-3)}
+  .sim-report .rh .rn{font-size:13.5px;font-weight:700;color:var(--text)}
+  .sim-report .sec{margin-bottom:10px}
+  .sim-report .sec:last-child{margin-bottom:0}
+  .sim-report .sh{
+    font-size:10.5px;font-weight:800;letter-spacing:1px;color:var(--text-3);margin-bottom:5px;
+    display:flex;align-items:center;gap:7px;
+  }
+  .sim-report .sh .kind{color:#c5221f;font-weight:800}
+  .sim-report .sh .kind.share{color:var(--purple)}
+  .sim-report .sh .who{
+    display:inline-flex;align-items:center;gap:4px;padding:1px 7px;border-radius:6px;
+    color:#fff;font-size:9.5px;font-weight:800;letter-spacing:.4px;
+  }
+  .sim-report .sh .who.a{background:var(--p-aisha)}
+  .sim-report .sh .who.f{background:var(--p-fatima)}
+  .sim-report .sh .who.o{background:var(--p-omar)}
+  .sim-report .row{
+    font-size:12.5px;color:var(--text-2);padding:4px 0;padding-left:14px;position:relative;line-height:1.4;
+  }
+  .sim-report .row::before{
+    content:"";position:absolute;left:2px;top:11px;width:5px;height:5px;border-radius:50%;background:#c9d3e0;
+  }
+  .sim-report .row.pattern::before{background:var(--purple)}
+  .sim-report .row b{color:var(--text);font-weight:600}
+
+  /* simulation control bar (replaces composer) */
+  .simbar{
+    flex:none;display:flex;align-items:center;gap:10px;padding:10px 14px;background:#f5f0e8;
     border-top:1px solid #d9d1c3;
   }
-  .composer .cbtn{
-    width:38px;height:38px;flex:none;border-radius:50%;background:transparent;border:0;color:var(--text-2);
-    display:flex;align-items:center;justify-content:center;cursor:pointer;
+  .simbar .simsel{
+    display:flex;align-items:center;gap:6px;padding:6px 10px;background:#fff;border:1px solid #d9d1c3;
+    border-radius:10px;font-size:12px;color:var(--text-2);flex:1;min-width:0;
   }
-  .composer .cbtn:hover{background:#e7dfd0;color:var(--text)}
-  .composer .cbtn svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-  .composer input{
-    flex:1;padding:10px 14px;border:1px solid transparent;border-radius:22px;font-size:14px;outline:none;
-    background:#fff;color:var(--text);
+  .simbar .simsel .lbl{font-size:10px;font-weight:800;letter-spacing:.8px;color:var(--text-3)}
+  .simbar .simsel select{
+    flex:1;border:0;background:transparent;font-size:12.5px;color:var(--text);font-weight:600;outline:none;cursor:pointer;
   }
-  .composer input:focus{border-color:var(--border)}
-  .composer .send{
-    width:42px;height:42px;flex:none;border-radius:50%;background:var(--accent);color:#fff;
-    display:flex;align-items:center;justify-content:center;cursor:pointer;border:0;transition:background .15s;
+  .simbar .runbtn{
+    flex:none;display:flex;align-items:center;gap:7px;padding:9px 16px;border-radius:10px;background:var(--accent);
+    color:#fff;border:0;font-weight:700;font-size:12.5px;letter-spacing:.2px;cursor:pointer;transition:background .12s;
   }
-  .composer .send:hover{background:var(--accent-deep)}
-  .composer .send svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
-  .composer .mic{display:flex}
-  .composer.has-text .mic{display:none}
-  .composer.has-text .send{display:flex}
-  .composer:not(.has-text) .send{display:none}
+  .simbar .runbtn:hover{background:var(--accent-deep)}
+  .simbar .runbtn:disabled{background:#c9d3e0;cursor:not-allowed}
+  .simbar .runbtn svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+  .simbar .stopbtn{
+    flex:none;padding:9px 12px;border-radius:10px;background:#fff;border:1px solid #d9d1c3;color:var(--text-2);
+    font-weight:600;font-size:12.5px;cursor:pointer;
+  }
+  .simbar .stopbtn:hover{border-color:var(--text-3);color:var(--text)}
 
   /* ---------- right: personas ---------- */
   .persona-list{padding:4px 6px}
@@ -294,7 +345,9 @@
     border-left:3px solid transparent;transition:background .12s;
   }
   .prow:hover{background:#f3f6fb}
-  .prow.active{background:var(--accent-soft);border-left-color:var(--accent)}
+  .prow.active-a{background:var(--p-aisha-soft);border-left-color:var(--p-aisha)}
+  .prow.active-f{background:var(--p-fatima-soft);border-left-color:var(--p-fatima)}
+  .prow.active-o{background:var(--p-omar-soft);border-left-color:var(--p-omar)}
   .prow .avatar{
     width:44px;height:44px;flex:none;border-radius:50%;color:#fff;font-weight:700;font-size:16px;
     display:flex;align-items:center;justify-content:center;
@@ -306,32 +359,29 @@
   .prow .role{font-size:11.5px;color:var(--text-3);margin-top:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .prow .snip{font-size:12.5px;color:var(--text-2);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-style:italic}
 
-  /* coaching card */
+  /* patterns / aggregate coaching card */
   .coach{
-    margin:10px 10px 8px;padding:12px 14px;background:linear-gradient(135deg, var(--amber-soft), #fff);
-    border:1px solid #f2e2c0;border-radius:14px;
+    margin:10px 10px 8px;padding:12px 14px;background:linear-gradient(135deg, var(--purple-soft), #fff);
+    border:1px solid #e0d1f7;border-radius:14px;
   }
   .coach .ch{
-    font-size:10.5px;font-weight:800;letter-spacing:1.2px;color:var(--amber);margin-bottom:6px;
+    font-size:10.5px;font-weight:800;letter-spacing:1.2px;color:var(--purple);margin-bottom:8px;
     display:flex;align-items:center;gap:6px;
   }
   .coach .ch svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2}
-  .coach .line{font-size:12.5px;color:var(--text);margin-bottom:4px;display:flex;align-items:flex-start;gap:8px}
-  .coach .line .n{
-    flex:none;background:#fff;color:var(--amber);font-weight:800;font-size:11px;
-    width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;
-    border:1px solid #f2e2c0;
+  .coach .line{
+    font-size:12.5px;color:var(--text);margin-bottom:6px;display:flex;align-items:flex-start;gap:8px;line-height:1.4;
+  }
+  .coach .line:last-of-type{margin-bottom:2px}
+  .coach .line .frac{
+    flex:none;background:#fff;color:var(--purple);font-weight:800;font-size:10.5px;letter-spacing:.2px;
+    padding:2px 7px;border-radius:6px;border:1px solid #e0d1f7;min-width:32px;text-align:center;
   }
   .coach .cta-review{
     margin-top:8px;font-size:11.5px;font-weight:600;color:var(--accent-deep);cursor:pointer;
     background:none;border:0;padding:0;
   }
   .coach .cta-review:hover{text-decoration:underline}
-
-  /* avatar palette */
-  .av-aisha{background:linear-gradient(135deg,#7c3aed,#1a73e8)}
-  .av-fatima{background:linear-gradient(135deg,#188038,#34a853)}
-  .av-omar{background:linear-gradient(135deg,#b26a00,#e37400)}
 
   /* scrollbar polish */
   .panel-body::-webkit-scrollbar,.chat-body::-webkit-scrollbar{width:10px}
@@ -372,6 +422,18 @@
       <div class="panel-h"><span>YOUR MATERIALS</span></div>
       <div class="panel-body">
 
+        <div class="url-row">
+          <div class="lbl">
+            <svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.5.5L21 10a5 5 0 0 0-7-7l-2 2"/><path d="M14 11a5 5 0 0 0-7.5-.5L3 14a5 5 0 0 0 7 7l2-2"/></svg>
+            PRODUCT URL
+          </div>
+          <div class="url-input-wrap">
+            <input id="product-url" type="text" value="https://astra.ai/dental" autocomplete="off">
+            <button class="url-go" id="url-go">Load</button>
+          </div>
+          <div class="url-loaded"><span class="dot"></span>Crawled 12 pages · homepage, pricing, docs, cases</div>
+        </div>
+
         <div class="drop" id="drop">
           <div class="drop-ic">
             <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
@@ -402,45 +464,53 @@
       </div>
     </div>
 
-    <!-- =========== MIDDLE: CHAT =========== -->
+    <!-- =========== MIDDLE: GROUP CHAT =========== -->
     <div class="panel chat-panel">
 
       <div class="chat-header">
-        <div class="avatar" id="chdr-avatar">A</div>
+        <div class="stack-av">
+          <div class="a-mini av-omar">O</div>
+          <div class="a-mini av-fatima">F</div>
+          <div class="a-mini av-aisha">A</div>
+        </div>
         <div class="name-block">
           <div class="name">
-            <span id="chdr-name">Dr. Aisha Rashid</span>
-            <span class="sim-chip" title="Grounded persona simulation. Not the real person.">SIMULATED</span>
+            Nova Dental — Buying Committee
+            <span class="sim-chip" title="Grounded persona simulation. Not the real people.">SIMULATED</span>
           </div>
           <div class="role">
-            <span id="chdr-role">Practice Owner · Nova Dental Clinic</span>
-            <span class="status"><span class="status-dot"></span>Rehearsing now</span>
+            3 personas reacting in one thread
+            <span class="status"><span class="status-dot"></span>Live</span>
           </div>
         </div>
-        <div class="hbtns">
-          <button class="iconbtn" title="Search">
-            <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          </button>
-          <button class="iconbtn" title="More">
-            <svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>
-          </button>
-        </div>
+      </div>
+
+      <div class="filter-row" id="filter-row">
+        <span class="lbl">FILTER</span>
+        <button class="fchip active" data-filter="all"><span class="cdot"></span>All 3 · full feed</button>
+        <button class="fchip" data-filter="aisha"><span class="cdot" style="background:var(--p-aisha)"></span>Aisha</button>
+        <button class="fchip" data-filter="fatima"><span class="cdot" style="background:var(--p-fatima)"></span>Fatima</button>
+        <button class="fchip" data-filter="omar"><span class="cdot" style="background:var(--p-omar)"></span>Omar</button>
       </div>
 
       <div class="chat-body" id="chat-body">
-        <!-- populated by JS from PERSONAS[current].seed -->
+        <!-- populated by JS -->
       </div>
 
-      <div class="composer" id="composer">
-        <button class="cbtn" title="Attach">
-          <svg viewBox="0 0 24 24"><path d="M21.4 11 12.7 19.7a5.9 5.9 0 0 1-8.4-8.4L13 2.6a4 4 0 0 1 5.6 5.6l-8.7 8.7a2 2 0 0 1-2.8-2.8L15.2 6"/></svg>
-        </button>
-        <input id="msg-input" type="text" placeholder="Type a message" autocomplete="off">
-        <button class="cbtn mic" title="Voice">
-          <svg viewBox="0 0 24 24"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><line x1="12" y1="17" x2="12" y2="21"/><line x1="8" y1="21" x2="16" y2="21"/></svg>
-        </button>
-        <button class="send" id="send-btn" title="Send">
-          <svg viewBox="0 0 24 24"><line x1="4" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      <div class="simbar">
+        <div class="simsel">
+          <span class="lbl">NEXT</span>
+          <select id="sim-select">
+            <option value="homepage">Homepage</option>
+            <option value="pricing">Pricing page</option>
+            <option value="integrations">Integration docs</option>
+            <option value="case">Case studies</option>
+          </select>
+        </div>
+        <button class="stopbtn" id="reset-btn">Reset</button>
+        <button class="runbtn" id="run-btn">
+          <svg viewBox="0 0 24 24"><polygon points="6 4 20 12 6 20 6 4"/></svg>
+          Run simulation
         </button>
       </div>
 
@@ -457,12 +527,14 @@
 
         <div class="coach">
           <div class="ch">
-            <svg viewBox="0 0 24 24"><path d="M12 2v4M12 18v4M4.9 4.9l2.8 2.8M16.3 16.3l2.8 2.8M2 12h4M18 12h4M4.9 19.1l2.8-2.8M16.3 7.7l2.8-2.8"/></svg>
-            COACHING SO FAR
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-6"/></svg>
+            PATTERNS ACROSS 3 PERSONAS
           </div>
-          <div class="line"><span class="n">2</span><span>objections unaddressed across this rehearsal.</span></div>
-          <div class="line"><span class="n">1</span><span>SA claim (“15-20% retention lift”) accepted without pushback.</span></div>
-          <button class="cta-review">Review full transcript →</button>
+          <div class="line"><span class="frac">3/3</span><span>asked about <b>concrete pricing</b> — none is shown on the site.</span></div>
+          <div class="line"><span class="frac">3/3</span><span>flagged the <b>Dentrix integration gap</b> as a blocker.</span></div>
+          <div class="line"><span class="frac">2/3</span><span>raised <b>data / PHI safety</b> concerns without prompting.</span></div>
+          <div class="line"><span class="frac">1/3</span><span>expected a <b>clinical-workflow demo</b> above the fold.</span></div>
+          <button class="cta-review">Open full pattern report →</button>
         </div>
 
       </div>
@@ -473,97 +545,187 @@
 
 <script>
 /* ------------------------------------------------------------------
-   Astra Rehearsal — mockup logic
+   Astra Rehearsal — group-chat simulation mockup
    Pure vanilla JS, no external deps. All state lives in memory.
 ------------------------------------------------------------------ */
 
-/* ---------- PERSONAS + seed conversations ---------- */
+/* ---------- personas ---------- */
 const PERSONAS = {
   aisha: {
-    id:"aisha",
-    name:"Dr. Aisha Rashid",
-    initial:"A",
+    id:"aisha", key:"a",
+    name:"Dr. Aisha Rashid", initial:"A",
     role:"Practice Owner · Nova Dental Clinic",
-    avatarClass:"av-aisha",
-    snippet:"…I've heard the ROI pitch before.",
-    lastTime:"now",
-    replies:[
-      "That number sounds nice, but I'll need to see how you got there. Model it against my last two quarters, not a case study.",
-      "You keep saying integration is easy. My PMS is Dentrix. Have you actually done it there, with our schema? Names, please.",
-      "I appreciate the pitch, but I'll make the decision with Omar and Fatima. Send me a one-pager I can circulate — not a deck."
-    ],
-    seed:[
-      {side:"out", text:"Dr. Rashid, thanks for the time. In 15 minutes I want to show you how Astra lifts patient retention 15–20% across your three Nova clinics.", time:"10:02"},
-      {side:"in",  text:"I've heard the ROI pitch before. Every vendor promises 20%. What's actually different about you?", time:"10:03"},
-      {side:"out", text:"Fair. We integrate directly with your PMS, so we're measuring against your real no-show data — not industry averages. First 30 days is a live baseline, no payment.", time:"10:03"},
-      {side:"in", voice:true, dur:"0:12", time:"10:04"},
-      {side:"in",  cite:{text:"LinkedIn post 3 weeks ago", tip:"“Vendors love their own metrics. I trust mine.”"},
-                   prefix:"As I said in my ",
-                   suffix:", my CPA background means I don't trust vendor-supplied metrics. I need audit-grade evidence, tied to my P&L.",
-                   time:"10:04"},
-      {side:"out", text:"Understood. I'll bring a reconciliation view against your Q3 revenue lines. Not our dashboard — yours.", time:"10:05"}
-    ]
+    avatarClass:"av-aisha", bubbleClass:"p-aisha",
+    snippet:"…the ROI pitch keeps skipping my P&L.",
+    lastTime:"just now"
   },
   fatima:{
-    id:"fatima",
-    name:"Fatima Hassan",
-    initial:"F",
+    id:"fatima", key:"f",
+    name:"Fatima Hassan", initial:"F",
     role:"Office Manager · Nova Dental Clinic",
-    avatarClass:"av-fatima",
-    snippet:"…will my team actually use it?",
-    lastTime:"2m",
-    replies:[
-      "Okay, 45 minutes of training sounds fine. But who owns it when the front desk lead is on leave? That's when things fall over.",
-      "Send me the exact click-path a receptionist takes to override a reschedule. If it's more than 3 clicks I'm out.",
-      "I'll be honest — Aisha will nod, but I'm the one who gets the 7am calls when it breaks. What's your response SLA?"
-    ],
-    seed:[
-      {side:"out", text:"Fatima, you're the one who has to make this actually work day-to-day. Let me walk you through the receptionist workflow.", time:"10:12"},
-      {side:"in",  text:"Honestly — will my team actually use it? We tried a new booking system last year and half the front desk went back to spreadsheets inside a month.", time:"10:13"},
-      {side:"out", text:"That's a real concern. Onboarding is 45 minutes total, and Astra sits inside the existing PMS UI. There's no second tab to open, no new password.", time:"10:14"},
-      {side:"in", voice:true, dur:"0:18", time:"10:14"},
-      {side:"in",  cite:{text:"staff meeting last Tuesday", tip:"From Discovery Call transcript, 00:14:22"},
-                   prefix:"As Dr. Rashid told us in our ",
-                   suffix:", if it takes more than a week to see value we drop it. That's my constraint, not hers.",
-                   time:"10:15"}
-    ]
+    avatarClass:"av-fatima", bubbleClass:"p-fatima",
+    snippet:"…front desk won't touch a second tab.",
+    lastTime:"just now"
   },
   omar:{
-    id:"omar",
-    name:"Dr. Omar Al Farsi",
-    initial:"O",
+    id:"omar", key:"o",
+    name:"Dr. Omar Al Farsi", initial:"O",
     role:"Clinical Lead · Nova Dental Clinic",
-    avatarClass:"av-omar",
-    snippet:"…don't let this book over treatment blocks.",
-    lastTime:"7m",
-    replies:[
-      "Manual override is fine on paper. In practice, that means the receptionist gets pressured by a walk-in and overrides my block. Design against that.",
-      "I care about one thing: chair time on complex cases. Show me a scenario where a molar RCT gets bumped by your algorithm.",
-      "Fine. Send me the escalation rules doc before Friday. I want to see it before Aisha signs anything."
-    ],
-    seed:[
-      {side:"out", text:"Dr. Al Farsi — I want to make sure the scheduling never intrudes on protected clinical time. Can I show you the calendar guardrails?", time:"10:24"},
-      {side:"in",  text:"Don't let this book over treatment blocks. That's my line. I've watched two software rollouts collapse because someone thought a 90-minute crown prep was a soft appointment.", time:"10:25"},
-      {side:"out", text:"Absolutely. Blocks are respected by default and require manual override with a reason code. We can also tag procedures that can never be auto-filled.", time:"10:25"},
-      {side:"in", voice:true, dur:"0:09", time:"10:26"},
-      {side:"in",  cite:{text:"Google Review response last month", tip:"“We protect 90-minute blocks. Full stop.” — Dr. Al Farsi, May 2026"},
-                   prefix:"In my ",
-                   suffix:", I made it clear we protect 90-minute blocks for complex work. Any automation you build has to honor that — publicly.",
-                   time:"10:26"}
-    ]
+    avatarClass:"av-omar", bubbleClass:"p-omar",
+    snippet:"…don't touch protected chair time.",
+    lastTime:"just now"
   }
 };
 
-let currentId = "aisha";
-let replyCursor = {aisha:0, fatima:0, omar:0};
+/* ---------- scripted simulation rounds ----------
+   Each round: label, timestamp, and ordered bubbles from the
+   three personas. All personas contribute to the SAME feed. */
+const ROUNDS = [
+  {
+    id:"sim1",
+    label:"SIMULATION 1 · Homepage · 10:42",
+    bubbles:[
+      {
+        who:"aisha", time:"10:42",
+        text:"Your hero says \"AI-powered dental practice growth.\" As someone who runs three clinics, that could mean anything. What does it actually do for a multi-location practice with an in-house CPA?",
+        tag:{cls:"crit", text:"[LIFT: value prop unclear]"},
+      },
+      {
+        who:"fatima", time:"10:42",
+        text:"I see \"Book a Demo\" three times above the fold and no way to just… look at the product. If I'm the one evaluating this on a Tuesday morning, I bounce.",
+        tag:{cls:"crit", text:"[LIFT: next-step friction]"},
+      },
+      {
+        who:"omar", time:"10:43",
+        text:"Nothing on this page mentions clinical workflows. No word on chair-time protection, no word on how you handle a walk-in override. Twenty seconds in, I'm gone.",
+        tag:{cls:"warn", text:"[LIFT: relevance to clinical audience]"},
+      },
+      {
+        who:"aisha", time:"10:43",
+        cite:{ prefix:"You claim \"15–20% retention lift.\" ", text:"That's the same number I heard from your competitor last quarter", suffix:" — model it against my actual Q3 numbers or I'll assume it's a stock claim.", tip:"From Discovery Call transcript, 00:22:18 — Dr. Rashid mentions competitor pitch." },
+        tag:{cls:"warn", text:"[LIFT: proof missing]"},
+      }
+    ],
+    report:{
+      aisha:[
+        "\"AI-powered\" hero copy is <b>too generic</b> for a multi-location owner.",
+        "Retention claim needs <b>audit-grade proof</b> tied to her actual P&L, not a stock case study."
+      ],
+      fatima:[
+        "3× \"Book a Demo\" above the fold, <b>no product tour path</b> — bounce risk high.",
+        "No signal that the day-to-day user (receptionist) is even the audience for this page."
+      ],
+      omar:[
+        "<b>Zero clinical framing</b> — page reads as pure marketing, filters out clinical leads instantly."
+      ],
+      shared:[
+        "All 3 wanted a <b>concrete artifact</b> in the first 20s — pricing, workflow, or number.",
+        "\"AI-powered growth\" phrase was flagged by <b>2 of 3</b> as vendor-generic language."
+      ]
+    }
+  },
+  {
+    id:"sim2",
+    label:"SIMULATION 2 · Pricing page · 10:47",
+    bubbles:[
+      {
+        who:"aisha", time:"10:47",
+        text:"There's no pricing on the pricing page. As a CPA that's a red flag — you're either hiding cost or you don't know it yourselves. Neither builds confidence.",
+        tag:{cls:"crit", text:"[LIFT: anxiety spike]"},
+      },
+      {
+        who:"fatima", time:"10:47",
+        text:"Is this per chair, per clinic, or per user? I'm sitting here with 3 locations and 14 chairs and can't even do a back-of-envelope estimate. I'd need to loop in Aisha and I don't want to yet.",
+        tag:{cls:"warn", text:"[LIFT: pricing model unclear]"},
+      },
+      {
+        who:"omar", time:"10:48",
+        text:"Skipping pricing for now. But if we're paying, I want an uptime SLA on this page. Clinical software that goes down mid-appointment costs me real money.",
+        tag:{cls:"warn", text:"[LIFT: trust signals missing]"},
+      },
+      {
+        who:"aisha", time:"10:48",
+        text:"And the ROI calculator only accepts round numbers. My reality has decimals — average revenue per patient isn't \"$300\", it's $317.42. Feels toy.",
+        tag:{cls:"warn", text:"[LIFT: credibility gap]"},
+      }
+    ],
+    report:{
+      aisha:[
+        "<b>\"Contact Sales\"</b> as the only pricing signal reads as evasive to a CPA-trained buyer.",
+        "ROI calculator inputs are <b>too coarse</b> — she can't map it to real financials."
+      ],
+      fatima:[
+        "Can't self-serve a <b>rough estimate for 3 locations, 14 chairs</b> without escalating.",
+        "Doesn't want to loop in the owner just to <b>ballpark a number</b> — this is where a champion goes cold."
+      ],
+      omar:[
+        "Expected an <b>uptime / SLA statement</b> on the pricing page — its absence is a trust ding."
+      ],
+      shared:[
+        "<b>3/3 wanted a concrete number</b> before they'd take a next step.",
+        "<b>2/3</b> stopped trusting the page mid-scroll because of missing artifacts (SLA, real inputs)."
+      ]
+    }
+  },
+  {
+    id:"sim3",
+    label:"SIMULATION 3 · Integration docs · 10:53",
+    bubbles:[
+      {
+        who:"aisha", time:"10:53",
+        text:"You claim \"seamless PMS integration.\" I need names. Dentrix, Eaglesoft, Open Dental — which ones, and at what version? \"Seamless\" is a verb, not a checklist.",
+        tag:{cls:"crit", text:"[LIFT: proof missing]"},
+      },
+      {
+        who:"fatima", time:"10:53",
+        text:"This page is aimed at engineers — API keys, webhook events, JSON. My front desk lead doesn't speak any of this. Where is the admin UI screenshot?",
+        tag:{cls:"crit", text:"[LIFT: audience mismatch]"},
+      },
+      {
+        who:"omar", time:"10:54",
+        text:"I want to see the data model. What patient PHI leaves our four walls, where does it live, and who at Astra can query it? \"Encrypted at rest\" is table stakes.",
+        tag:{cls:"crit", text:"[LIFT: security anxiety]"},
+      },
+      {
+        who:"aisha", time:"10:54",
+        cite:{ prefix:"And if the answer to my Dentrix question is \"coming soon\" — ", text:"we're a Dentrix shop", suffix:", so \"soon\" means we can't pilot until you ship it. Say so plainly.", tip:"From LinkedIn — Nova Dental Clinic tech stack, updated 3 weeks ago." },
+        tag:{cls:"warn", text:"[LIFT: qualification friction]"},
+      }
+    ],
+    report:{
+      aisha:[
+        "Wants an <b>explicit PMS compatibility matrix</b> — Dentrix in particular, at their version.",
+        "\"Seamless\" language reads as marketing filler without a named list."
+      ],
+      fatima:[
+        "Integration docs are <b>engineer-only</b> — no path for a non-technical admin buyer.",
+        "No admin-UI screenshot means she can't visualize the day-to-day."
+      ],
+      omar:[
+        "<b>PHI / data-residency questions unanswered</b> — hard blocker for a clinical lead.",
+        "\"Encrypted at rest\" alone is insufficient — he expects role-based access disclosure."
+      ],
+      shared:[
+        "All 3 tried to <b>disqualify Astra</b> at this step — the docs should be doing the qualifying.",
+        "<b>3/3</b> named the Dentrix gap explicitly — this is not one persona's obsession, it's the room."
+      ]
+    }
+  }
+];
 
-/* ---------- render helpers ---------- */
-const chatBody = document.getElementById("chat-body");
-const personaList = document.getElementById("persona-list");
-const chdrAvatar = document.getElementById("chdr-avatar");
-const chdrName   = document.getElementById("chdr-name");
-const chdrRole   = document.getElementById("chdr-role");
+/* ---------- DOM refs ---------- */
+const chatBody   = document.getElementById("chat-body");
+const personaList= document.getElementById("persona-list");
+const filterRow  = document.getElementById("filter-row");
+const runBtn     = document.getElementById("run-btn");
+const resetBtn   = document.getElementById("reset-btn");
+const simSelect  = document.getElementById("sim-select");
 
+let currentRound = 0;    // index into ROUNDS to play next
+let activeFilter = "all";
+let running = false;
+
+/* ---------- helpers ---------- */
 function el(tag, attrs={}, children=[]){
   const node = document.createElement(tag);
   for(const k in attrs){
@@ -579,102 +741,184 @@ function el(tag, attrs={}, children=[]){
   return node;
 }
 
-function tickSvg(){
-  return '<svg viewBox="0 0 16 11"><polyline points="1 6 5 10 11 2"/><polyline points="5 10 15 1"/></svg>';
+function scrollToBottom(){
+  chatBody.scrollTop = chatBody.scrollHeight;
 }
 
-function buildBubble(b, persona){
+/* Build a group-chat bubble row for a persona message. */
+function buildBubbleRow(msg){
+  const p = PERSONAS[msg.who];
   const row = document.createElement("div");
-  row.className = "bubble-row " + (b.side === "out" ? "out" : "in");
+  row.className = "bubble-row";
+  row.dataset.who = msg.who;
 
+  // avatar
+  const av = document.createElement("div");
+  av.className = "b-av " + p.avatarClass;
+  av.textContent = p.initial;
+  row.appendChild(av);
+
+  // bubble
   const bubble = document.createElement("div");
-  bubble.className = "bubble " + (b.side === "out" ? "out" : "in");
+  bubble.className = "bubble " + p.bubbleClass;
 
-  if(b.voice){
-    // Voice-note bubble
-    const voice = document.createElement("div");
-    voice.className = "voice";
-    voice.innerHTML = `
-      <button class="play" aria-label="Play voice note">
-        <svg class="ic-play" viewBox="0 0 24 24"><polygon points="6 4 20 12 6 20 6 4"/></svg>
-        <svg class="ic-pause" viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
-      </button>
-      <div class="wave">
-        ${Array.from({length:26}).map((_,i)=>{
-          const c = i%5===0?"tall":i%3===0?"hi":i%2===0?"mid":"";
-          return `<span class="${c}"></span>`;
-        }).join("")}
-      </div>
-      <span class="dur">${b.dur || "0:10"}</span>
-    `;
-    voice.querySelector(".play").addEventListener("click", ()=>{
-      voice.classList.toggle("playing");
-    });
-    bubble.appendChild(voice);
-    const meta = document.createElement("div");
-    meta.className = "meta";
-    meta.textContent = b.time || "";
-    bubble.appendChild(meta);
-  } else if(b.cite){
-    // Text with inline citation
-    const wrap = document.createElement("div");
-    wrap.appendChild(document.createTextNode(b.prefix || ""));
-    const cite = document.createElement("span");
-    cite.className = "cite";
-    cite.appendChild(document.createTextNode(b.cite.text));
+  // sender line
+  const sender = document.createElement("div");
+  sender.className = "sender";
+  const nameSpan = document.createElement("span");
+  nameSpan.textContent = p.name;
+  const roleMini = document.createElement("span");
+  roleMini.className = "role-mini";
+  roleMini.textContent = p.role.split(" · ")[0];
+  sender.appendChild(nameSpan);
+  sender.appendChild(roleMini);
+  bubble.appendChild(sender);
+
+  // body
+  const body = document.createElement("div");
+  body.className = "body-t";
+  if(msg.cite){
+    body.appendChild(document.createTextNode(msg.cite.prefix || ""));
+    const c = document.createElement("span");
+    c.className = "cite";
+    c.appendChild(document.createTextNode(msg.cite.text));
     const tip = document.createElement("span");
     tip.className = "tip";
-    tip.textContent = b.cite.tip;
-    cite.appendChild(tip);
-    wrap.appendChild(cite);
-    wrap.appendChild(document.createTextNode(b.suffix || ""));
-    bubble.appendChild(wrap);
-    const meta = document.createElement("div");
-    meta.className = "meta";
-    meta.innerHTML = (b.time||"") + (b.side==="out"?" "+tickSvg():"");
-    bubble.appendChild(meta);
+    tip.textContent = msg.cite.tip;
+    c.appendChild(tip);
+    body.appendChild(c);
+    body.appendChild(document.createTextNode(msg.cite.suffix || ""));
   } else {
-    // Plain text
-    const p = document.createElement("div");
-    p.textContent = b.text;
-    bubble.appendChild(p);
-    const meta = document.createElement("div");
-    meta.className = "meta";
-    meta.innerHTML = (b.time||"") + (b.side==="out"?" "+tickSvg():"");
-    bubble.appendChild(meta);
+    body.textContent = msg.text || "";
+  }
+  bubble.appendChild(body);
+
+  // framework tag (LIFT etc)
+  if(msg.tag){
+    const tg = document.createElement("div");
+    tg.className = "tag " + (msg.tag.cls || "");
+    tg.textContent = msg.tag.text;
+    bubble.appendChild(tg);
   }
 
+  // timestamp
+  const meta = document.createElement("div");
+  meta.className = "meta";
+  meta.textContent = msg.time || "";
+  bubble.appendChild(meta);
+
   row.appendChild(bubble);
+  applyFilterTo(row);
   return row;
 }
 
-function renderChat(){
-  const persona = PERSONAS[currentId];
-  chatBody.innerHTML = "";
-
-  const sepWrap = document.createElement("div");
-  sepWrap.className = "day-wrap";
-  const sep = document.createElement("div");
-  sep.className = "day-sep";
-  sep.textContent = "TODAY · REHEARSAL SESSION 3";
-  sepWrap.appendChild(sep);
-  chatBody.appendChild(sepWrap);
-
-  persona.seed.forEach(b => chatBody.appendChild(buildBubble(b, persona)));
-  chatBody.scrollTop = chatBody.scrollHeight;
-
-  // header
-  chdrAvatar.textContent = persona.initial;
-  chdrAvatar.className = "avatar " + persona.avatarClass;
-  chdrName.textContent = persona.name;
-  chdrRole.textContent = persona.role;
+function buildTypingRow(who){
+  const p = PERSONAS[who];
+  const row = document.createElement("div");
+  row.className = "bubble-row typing";
+  row.dataset.who = who;
+  const av = document.createElement("div");
+  av.className = "b-av " + p.avatarClass;
+  av.textContent = p.initial;
+  row.appendChild(av);
+  const tb = document.createElement("div");
+  tb.className = "typing-bubble " + p.bubbleClass;
+  tb.innerHTML = "<span></span><span></span><span></span>";
+  row.appendChild(tb);
+  applyFilterTo(row);
+  return row;
 }
 
+function buildDaySep(text){
+  const wrap = document.createElement("div");
+  wrap.className = "day-wrap";
+  const sep = document.createElement("div");
+  sep.className = "day-sep";
+  sep.textContent = text;
+  wrap.appendChild(sep);
+  return wrap;
+}
+
+function buildReport(round){
+  const card = document.createElement("div");
+  card.className = "sim-report";
+  const rh = document.createElement("div");
+  rh.className = "rh";
+  const rt = document.createElement("div");
+  rt.className = "rt";
+  rt.textContent = "COMBINED REPORT";
+  const rn = document.createElement("div");
+  rn.className = "rn";
+  rn.textContent = round.label.replace("SIMULATION ", "Simulation ").replace(" · ", " — ").split(" — ").slice(0,2).join(" — ");
+  rh.appendChild(rt);
+  rh.appendChild(rn);
+  card.appendChild(rh);
+
+  const sections = [
+    {key:"aisha",  label:"CRITICAL FRICTION", kindClass:"", who:"a", whoName:"Aisha"},
+    {key:"fatima", label:"CRITICAL FRICTION", kindClass:"", who:"f", whoName:"Fatima"},
+    {key:"omar",   label:"CRITICAL FRICTION", kindClass:"", who:"o", whoName:"Omar"},
+    {key:"shared", label:"SHARED PATTERNS",   kindClass:"share", who:null, whoName:null}
+  ];
+  sections.forEach(s => {
+    const sec = document.createElement("div");
+    sec.className = "sec";
+    const sh = document.createElement("div");
+    sh.className = "sh";
+    const kind = document.createElement("span");
+    kind.className = "kind " + (s.kindClass || "");
+    kind.textContent = s.label;
+    sh.appendChild(kind);
+    if(s.who){
+      const who = document.createElement("span");
+      who.className = "who " + s.who;
+      who.textContent = s.whoName;
+      sh.appendChild(who);
+    }
+    sec.appendChild(sh);
+    (round.report[s.key] || []).forEach(line => {
+      const row = document.createElement("div");
+      row.className = "row" + (s.key === "shared" ? " pattern" : "");
+      row.innerHTML = line;
+      sec.appendChild(row);
+    });
+    card.appendChild(sec);
+  });
+  return card;
+}
+
+/* ---------- filter ---------- */
+function applyFilterTo(row){
+  if(activeFilter === "all"){ row.classList.remove("dim"); return; }
+  if(row.dataset.who === activeFilter) row.classList.remove("dim");
+  else row.classList.add("dim");
+}
+function applyFilterAll(){
+  chatBody.querySelectorAll(".bubble-row").forEach(applyFilterTo);
+}
+filterRow.addEventListener("click", (e) => {
+  const btn = e.target.closest(".fchip");
+  if(!btn) return;
+  filterRow.querySelectorAll(".fchip").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  activeFilter = btn.dataset.filter;
+  applyFilterAll();
+});
+/* clicking a persona row also filters */
+function setFilter(id){
+  activeFilter = id;
+  filterRow.querySelectorAll(".fchip").forEach(b => {
+    b.classList.toggle("active", b.dataset.filter === id);
+  });
+  applyFilterAll();
+}
+
+/* ---------- render personas ---------- */
 function renderPersonaList(){
   personaList.innerHTML = "";
   Object.values(PERSONAS).forEach(p => {
     const row = document.createElement("div");
-    row.className = "prow" + (p.id === currentId ? " active" : "");
+    row.className = "prow";
     row.innerHTML = `
       <div class="avatar ${p.avatarClass}">${p.initial}</div>
       <div class="body">
@@ -686,68 +930,96 @@ function renderPersonaList(){
         <div class="snip">${p.snippet}</div>
       </div>
     `;
-    row.addEventListener("click", ()=>{
-      currentId = p.id;
-      renderPersonaList();
-      renderChat();
+    row.addEventListener("click", () => {
+      // toggle: clicking active persona reverts to "all"
+      if(activeFilter === p.id) setFilter("all");
+      else setFilter(p.id);
+      updatePersonaActive();
     });
+    row.dataset.who = p.id;
     personaList.appendChild(row);
+  });
+  updatePersonaActive();
+}
+function updatePersonaActive(){
+  personaList.querySelectorAll(".prow").forEach(r => {
+    r.classList.remove("active-a","active-f","active-o");
+    if(r.dataset.who === activeFilter){
+      r.classList.add("active-" + PERSONAS[r.dataset.who].key);
+    }
   });
 }
 
-/* ---------- composer ---------- */
-const composer = document.getElementById("composer");
-const input    = document.getElementById("msg-input");
-const sendBtn  = document.getElementById("send-btn");
+/* ---------- run simulation ---------- */
+function playRound(round){
+  return new Promise((resolve) => {
+    // separator first
+    chatBody.appendChild(buildDaySep(round.label));
+    scrollToBottom();
 
-function updateComposerState(){
-  if(input.value.trim().length > 0) composer.classList.add("has-text");
-  else composer.classList.remove("has-text");
+    let i = 0;
+    const step = () => {
+      if(i >= round.bubbles.length){
+        // append combined report at end of round
+        setTimeout(() => {
+          chatBody.appendChild(buildReport(round));
+          scrollToBottom();
+          resolve();
+        }, 400);
+        return;
+      }
+      const msg = round.bubbles[i];
+      const typing = buildTypingRow(msg.who);
+      chatBody.appendChild(typing);
+      scrollToBottom();
+      setTimeout(() => {
+        typing.remove();
+        chatBody.appendChild(buildBubbleRow(msg));
+        scrollToBottom();
+        i++;
+        setTimeout(step, 550);
+      }, 900);
+    };
+    setTimeout(step, 300);
+  });
 }
-input.addEventListener("input", updateComposerState);
-input.addEventListener("keydown", e => {
-  if(e.key === "Enter" && input.value.trim().length > 0){
-    e.preventDefault();
-    sendMessage();
+
+async function runNext(){
+  if(running) return;
+  if(currentRound >= ROUNDS.length){
+    // wrap around at the demo boundary — but keep already-shown history.
+    // Prefer to disable and let user reset explicitly.
+    runBtn.disabled = true;
+    runBtn.innerHTML = "All simulations played · Reset to replay";
+    return;
   }
+  running = true;
+  runBtn.disabled = true;
+  const round = ROUNDS[currentRound];
+  await playRound(round);
+  currentRound++;
+  running = false;
+  runBtn.disabled = currentRound >= ROUNDS.length;
+  // move dropdown to next available
+  if(currentRound < ROUNDS.length){
+    const nextKeys = ["homepage","pricing","integrations","case"];
+    simSelect.value = nextKeys[currentRound] || "case";
+  }
+}
+
+runBtn.addEventListener("click", runNext);
+
+resetBtn.addEventListener("click", () => {
+  chatBody.innerHTML = "";
+  currentRound = 0;
+  simSelect.value = "homepage";
+  runBtn.disabled = false;
+  runBtn.innerHTML = `
+    <svg viewBox="0 0 24 24"><polygon points="6 4 20 12 6 20 6 4"/></svg>
+    Run simulation
+  `;
+  seedInitial();
 });
-sendBtn.addEventListener("click", sendMessage);
-
-function nowStr(){
-  const d = new Date();
-  const h = d.getHours(), m = d.getMinutes();
-  const hh = ((h + 11) % 12) + 1;
-  return hh + ":" + (m<10?"0"+m:m);
-}
-
-function sendMessage(){
-  const text = input.value.trim();
-  if(!text) return;
-  const bubble = buildBubble({side:"out", text, time:nowStr()}, PERSONAS[currentId]);
-  chatBody.appendChild(bubble);
-  input.value = "";
-  updateComposerState();
-  chatBody.scrollTop = chatBody.scrollHeight;
-
-  // typing indicator, then canned reply
-  const typingRow = document.createElement("div");
-  typingRow.className = "bubble-row in";
-  typingRow.innerHTML = `<div class="typing-bubble"><span></span><span></span><span></span></div>`;
-  chatBody.appendChild(typingRow);
-  chatBody.scrollTop = chatBody.scrollHeight;
-
-  const persona = PERSONAS[currentId];
-  const replies = persona.replies;
-  const reply = replies[replyCursor[persona.id] % replies.length];
-  replyCursor[persona.id]++;
-
-  setTimeout(()=>{
-    typingRow.remove();
-    const replyBubble = buildBubble({side:"in", text:reply, time:nowStr()}, persona);
-    chatBody.appendChild(replyBubble);
-    chatBody.scrollTop = chatBody.scrollHeight;
-  }, 1500);
-}
 
 /* ---------- drag-drop / file input ---------- */
 const drop = document.getElementById("drop");
@@ -767,7 +1039,6 @@ function typeFromName(name){
   if(["mp3","m4a","wav"].includes(ext)) return "mp3";
   return "";
 }
-
 function addMaterial(name, type){
   type = type || typeFromName(name);
   const row = document.createElement("div");
@@ -783,8 +1054,6 @@ function addMaterial(name, type){
   row.querySelector(".rm").addEventListener("click", ()=> row.remove());
   materialsList.appendChild(row);
 }
-
-// seed
 seedMaterials.forEach(m => addMaterial(m.name, m.type));
 
 drop.addEventListener("dragover", e => { e.preventDefault(); drop.classList.add("over"); });
@@ -800,11 +1069,32 @@ fileInput.addEventListener("change", e => {
   files.forEach(f => addMaterial(f.name));
   e.target.value = "";
 });
+/* product URL — cosmetic only for the mockup */
+document.getElementById("url-go").addEventListener("click", () => {
+  const urlBtn = document.getElementById("url-go");
+  const orig = urlBtn.textContent;
+  urlBtn.textContent = "Crawling…";
+  urlBtn.disabled = true;
+  setTimeout(() => {
+    urlBtn.textContent = "Loaded";
+    setTimeout(() => { urlBtn.textContent = orig; urlBtn.disabled = false; }, 900);
+  }, 900);
+});
 
-/* ---------- init ---------- */
+/* ---------- initial state ---------- */
+function seedInitial(){
+  // Pre-play the first simulation so the workspace never looks empty.
+  const round = ROUNDS[0];
+  chatBody.appendChild(buildDaySep(round.label));
+  round.bubbles.forEach(msg => chatBody.appendChild(buildBubbleRow(msg)));
+  chatBody.appendChild(buildReport(round));
+  currentRound = 1;
+  simSelect.value = "pricing";
+  scrollToBottom();
+}
+
 renderPersonaList();
-renderChat();
-updateComposerState();
+seedInitial();
 </script>
 </body>
 </html>
