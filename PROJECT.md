@@ -103,9 +103,9 @@ The intended transformation is not merely visual rebranding. It is a shift from 
 
 ## Hackathon Demo Product
 
-For the demo, the seller product is a fictional enterprise logistics SaaS product called **ContextSE**.
+For the demo, the seller product is a fictional enterprise logistics SaaS product called **Relay**.
 
-ContextSE is a **Supply Chain Visibility / Operations Control Tower**.
+Relay is a **Supply Chain Visibility / Operations Control Tower**.
 
 Its truthful capability boundary for the hackathon is:
 
@@ -117,7 +117,7 @@ Its truthful capability boundary for the hackathon is:
 6. cross-region operational visibility;
 7. executive operational KPIs.
 
-No generated demo may imply ContextSE supports capabilities outside this list.
+No generated demo may imply Relay supports capabilities outside this list.
 
 ## Generic Foundation Prospect
 
@@ -154,7 +154,7 @@ This is the P0 visual product moment.
 
 ### BEFORE
 
-ContextSE is a generic logistics product demo.
+Relay is a generic logistics product demo.
 
 Generic:
 
@@ -173,12 +173,12 @@ The Solutions Engineer adds a prospect. The agent:
 - researches;
 - understands;
 - determines what matters;
-- maps prospect priorities to truthful ContextSE capabilities;
+- maps prospect priorities to truthful Relay capabilities;
 - recommends the strongest demo narrative.
 
 ### AFTER
 
-ContextSE becomes a prospect-relevant demonstration.
+Relay becomes a prospect-relevant demonstration.
 
 The following may change:
 

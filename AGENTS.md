@@ -49,7 +49,8 @@ Application implementation is limited to:
 - **shadcn/ui** and the primitives and styling dependencies it requires;
 - browser-native APIs, HTML, and CSS for basic frontend behavior;
 - **Convex** as the only application backend, database, and state layer;
-- **Context.dev** as the public-web intelligence provider.
+- **Context.dev** as the public-web intelligence provider;
+- **OpenRouter** as the conversational model gateway.
 
 Do not introduce:
 
@@ -57,6 +58,7 @@ Do not introduce:
 - another component library, design system, or competing CSS framework;
 - another database, backend, BaaS, ORM, or API abstraction layer;
 - another crawling, research, extraction, or company-intelligence provider;
+- another model gateway;
 - unnecessary state management, queues, CMS, authentication, analytics, or infrastructure;
 - a package that duplicates an approved platform or browser capability.
 
@@ -156,17 +158,17 @@ No engineer or agent may silently change a contract merely because its implement
 All account content must use one of these categories:
 
 - **FACT** — supported by a retrieved or provided source.
-- **SELLER CONTEXT** — provided by ContextSE/seller context.
+- **SELLER CONTEXT** — provided by Relay/seller context.
 - **INFERENCE** — a reasoned conclusion based on evidence.
 - **SYNTHETIC** — invented only to demonstrate a workflow.
 
 Never:
 
 - fabricate prospect facts;
-- fabricate ContextSE capabilities;
+- fabricate Relay capabilities;
 - present synthetic demo operations as real customer data.
 
-For the hackathon, generated content must stay within ContextSE’s capability boundary in `/PROJECT.md`. Facts must retain evidence; synthetic operational records must be visibly labeled.
+For the hackathon, generated content must stay within Relay’s capability boundary in `/PROJECT.md`. Facts must retain evidence; synthetic operational records must be visibly labeled.
 
 ## Mandatory Ponytail Usage
 

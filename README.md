@@ -1,6 +1,6 @@
 # ContextSE
 
-ContextSE is a context-native AI presales agent that turns prospect research into an evidence-backed sales strategy and a personalized interactive enterprise software demo.
+ContextSE is a context-native AI presales agent that turns prospect research into an evidence-backed sales strategy and a personalized interactive enterprise software demo. The hackathon scenario prepares the fictional Relay logistics product for the synthetic GulfLink Logistics account.
 
 Built for Solutions Engineers and Presales Engineers, ContextSE organizes each opportunity in an intelligent **Account Workspace**:
 
@@ -21,7 +21,8 @@ The standard is one account, one excellent workflow, and one obvious before/afte
 - **Devin** — substantial engineering execution;
 - **Ponytail** — mandatory minimal-engineering ruleset for every coding agent;
 - **Convex** — the only application backend, database, persistent state, artifact, and realtime layer;
-- **Context.dev** — the public-web research, extraction, company-intelligence, and evidence provider.
+- **Context.dev** — the public-web research, extraction, company-intelligence, and evidence provider;
+- **OpenRouter** — the conversational model gateway.
 
 Substitute frameworks, UI kits, backends, databases, and unnecessary runtime dependencies are out of scope.
 
@@ -41,6 +42,35 @@ Start a new agent session after installation so the Ponytail rules and skills lo
 Read these before contributing:
 
 1. [`AGENTS.md`](./AGENTS.md) — repository constitution and engineering rules;
-2. [`PROJECT.md`](./PROJECT.md) — product definition, hackathon scope, truth boundaries, and non-goals.
+2. [`PROJECT.md`](./PROJECT.md) — product definition, hackathon scope, truth boundaries, and non-goals;
+3. [`DESIGN.md`](./DESIGN.md) — visual and interaction direction;
+4. [`docs/CONTRACTS.md`](./docs/CONTRACTS.md) — frozen frontend/backend data contracts.
 
-The repository currently contains the approved project foundation only. Application scaffolding and implementation follow after these documents are reviewed.
+## Run the Reliable Fixture
+
+```bash
+npm install
+npm run dev
+```
+
+The complete GulfLink golden path works without external credentials. External failures retain the deterministic fixture and are identified in the UI.
+
+## Enable Live Services
+
+Start and configure Convex:
+
+```bash
+npm run convex:dev
+npx convex env set OPENROUTER_API_KEY
+npx convex env set CONTEXT_DEV_API_KEY
+npx convex env set SITE_URL http://localhost:3000
+```
+
+`convex dev` writes the local deployment values used by the browser. OpenRouter powers account conversation through `openrouter/free`; Context.dev powers public-web company intelligence. Both calls execute only in Convex actions.
+
+## Verify
+
+```bash
+npm run typecheck
+npm run build
+```
