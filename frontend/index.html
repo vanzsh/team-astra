@@ -1,0 +1,497 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Astra — AI Presales Agent</title>
+<style>
+  :root{
+    --bg:#f6f8fc; --surface:#ffffff; --border:#e3e8f0; --border-soft:#edf1f7;
+    --text:#1f2430; --text-2:#5b6472; --text-3:#8a93a3;
+    --accent:#1a73e8; --accent-soft:#e8f0fe; --accent-deep:#174ea6;
+    --green:#188038; --green-soft:#e6f4ea;
+    --amber:#b26a00; --amber-soft:#fef3dc;
+    --purple:#7c3aed; --purple-soft:#f1eafe;
+    --radius:16px;
+    --shadow:0 1px 2px rgba(16,24,40,.05),0 4px 16px rgba(16,24,40,.06);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    background:var(--bg); color:var(--text); font-size:14px; line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  .hidden{display:none!important}
+  .screen{height:100vh;display:flex;align-items:center;justify-content:center}
+
+  /* ---------- shared bits ---------- */
+  .brand{display:flex;align-items:center;gap:8px;font-weight:700;font-size:15px;letter-spacing:.2px}
+  .brand .mark{
+    width:26px;height:26px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;
+    background:linear-gradient(135deg,#1a73e8,#7c3aed);color:#fff;font-size:13px;font-weight:800;
+  }
+  .tag{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.6px;padding:2px 7px;border-radius:999px;vertical-align:1px}
+  .tag.fact{background:var(--green-soft);color:var(--green)}
+  .tag.inf{background:var(--amber-soft);color:var(--amber)}
+  .tag.seller{background:var(--accent-soft);color:var(--accent-deep)}
+  .tag.syn{background:var(--purple-soft);color:var(--purple)}
+
+  /* ---------- screen 1 : create ---------- */
+  .create-card{
+    width:520px;max-width:92vw;background:var(--surface);border:1px solid var(--border);
+    border-radius:24px;box-shadow:var(--shadow);padding:36px 40px;
+  }
+  .create-card .brand{margin-bottom:26px}
+  .create-card h1{font-size:22px;font-weight:700;margin-bottom:6px}
+  .create-card .sub{color:var(--text-2);margin-bottom:26px}
+  .field{margin-bottom:18px}
+  .field label{display:block;font-size:12px;font-weight:600;color:var(--text-2);margin-bottom:6px;letter-spacing:.3px}
+  .field input{
+    width:100%;padding:11px 14px;border:1px solid var(--border);border-radius:12px;font-size:14px;
+    background:#fbfcfe;color:var(--text);outline:none;transition:border .15s, box-shadow .15s;
+  }
+  .field input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+  .chips{display:flex;flex-wrap:wrap;gap:8px}
+  .chip{
+    display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;
+    background:#f1f4f9;border:1px solid var(--border-soft);font-size:12.5px;color:var(--text-2);
+  }
+  .chip .ok{color:var(--green);font-weight:700}
+  .chip.add{background:#fff;border:1px dashed #c9d3e0;color:var(--accent);cursor:pointer;font-weight:600}
+  .chip.add:hover{background:var(--accent-soft)}
+  .cta{
+    width:100%;margin-top:26px;padding:13px;border:none;border-radius:12px;cursor:pointer;
+    background:var(--accent);color:#fff;font-size:14.5px;font-weight:600;letter-spacing:.2px;
+    transition:background .15s, transform .05s;
+  }
+  .cta:hover{background:var(--accent-deep)}
+  .cta:active{transform:scale(.99)}
+
+  /* ---------- screen 2 : research ---------- */
+  .research-card{width:460px;max-width:92vw;text-align:center}
+  .orb{
+    width:64px;height:64px;margin:0 auto 22px;border-radius:20px;display:flex;align-items:center;justify-content:center;
+    background:linear-gradient(135deg,#1a73e8,#7c3aed);color:#fff;font-weight:800;font-size:24px;
+    animation:breathe 2.2s ease-in-out infinite;box-shadow:0 8px 30px rgba(26,115,232,.35);
+  }
+  @keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
+  .research-card h2{font-size:19px;font-weight:700;margin-bottom:4px}
+  .research-card .rsub{color:var(--text-3);font-size:13px;min-height:20px;margin-bottom:26px;transition:opacity .3s}
+  .steps{
+    text-align:left;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+    box-shadow:var(--shadow);padding:10px 14px;
+  }
+  .step{display:flex;align-items:center;gap:12px;padding:11px 8px;border-bottom:1px solid var(--border-soft);
+    font-size:12.5px;font-weight:700;letter-spacing:1.2px;color:var(--text-3);transition:color .3s}
+  .step:last-child{border-bottom:none}
+  .step .ind{width:18px;height:18px;flex:none;display:flex;align-items:center;justify-content:center}
+  .step .dot{width:7px;height:7px;border-radius:50%;background:#d4dbe6}
+  .step.active{color:var(--text)}
+  .step.done{color:var(--green)}
+  .spinner{width:15px;height:15px;border:2px solid var(--accent-soft);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .check{color:var(--green);font-weight:800;font-size:14px}
+
+  /* ---------- screen 3 : workspace ---------- */
+  #screen-workspace{display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start}
+  .topbar{
+    height:54px;flex:none;display:flex;align-items:center;gap:16px;padding:0 20px;
+    background:var(--surface);border-bottom:1px solid var(--border);
+  }
+  .topbar .crumb{color:var(--text-3)}
+  .topbar .acct{font-weight:700}
+  .topbar .persona{margin-left:auto;display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--text-2)}
+  .persona .pchip{background:var(--accent-soft);color:var(--accent-deep);font-weight:700;padding:4px 12px;border-radius:999px;font-size:12px}
+  .panels{flex:1;display:grid;grid-template-columns:264px 1fr 300px;gap:14px;padding:14px;min-height:0}
+  .panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);
+    display:flex;flex-direction:column;min-height:0;overflow:hidden}
+  .panel-h{padding:14px 16px 10px;font-size:11px;font-weight:800;letter-spacing:1.4px;color:var(--text-3);flex:none;
+    display:flex;align-items:center;justify-content:space-between}
+  .panel-body{flex:1;overflow-y:auto;padding:0 10px 12px;min-height:0}
+
+  /* sources */
+  .src-group{margin:8px 6px 14px}
+  .src-group .gname{font-size:11px;font-weight:700;color:var(--text-2);letter-spacing:.8px;padding:0 8px;margin-bottom:6px}
+  .src{display:flex;align-items:center;gap:9px;padding:7px 8px;border-radius:10px;font-size:13px;color:var(--text)}
+  .src:hover{background:#f3f6fb}
+  .src .ok{color:var(--green);font-weight:800;font-size:12px;flex:none}
+  .src .ico{flex:none;width:20px;height:20px;border-radius:6px;background:#eef2f8;display:flex;align-items:center;justify-content:center;
+    font-size:10px;font-weight:800;color:var(--text-2)}
+  .addsrc{margin:2px 6px;width:calc(100% - 12px);padding:8px;border-radius:10px;border:1px dashed #c9d3e0;background:none;
+    color:var(--accent);font-size:12.5px;font-weight:600;cursor:pointer}
+  .addsrc:hover{background:var(--accent-soft)}
+
+  /* agent chat */
+  .chat{flex:1;overflow-y:auto;padding:18px 22px;display:flex;flex-direction:column;gap:14px;min-height:0}
+  .msg{max-width:88%;padding:13px 16px;border-radius:16px;font-size:13.5px;animation:pop .25s ease}
+  @keyframes pop{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .msg.agent{background:#f4f7fc;border:1px solid var(--border-soft);border-top-left-radius:6px;align-self:flex-start}
+  .msg.user{background:var(--accent);color:#fff;border-top-right-radius:6px;align-self:flex-end}
+  .msg h4{font-size:11px;letter-spacing:1.2px;color:var(--text-3);margin-bottom:6px;font-weight:800}
+  .msg p{margin-bottom:8px}
+  .msg p:last-child{margin-bottom:0}
+  .msg ol{margin:0 0 8px 18px}
+  .msg ol li{margin-bottom:4px}
+  .typing{display:flex;gap:4px;align-items:center;padding:14px 16px}
+  .typing span{width:6px;height:6px;border-radius:50%;background:#b9c3d3;animation:blink 1.2s infinite}
+  .typing span:nth-child(2){animation-delay:.2s}.typing span:nth-child(3){animation-delay:.4s}
+  @keyframes blink{0%,80%,100%{opacity:.3}40%{opacity:1}}
+  .why{
+    display:inline-block;margin-top:4px;padding:5px 12px;border-radius:999px;border:1px solid var(--border);
+    background:#fff;font-size:10.5px;font-weight:800;letter-spacing:.8px;color:var(--text-2);cursor:pointer;
+  }
+  .why:hover{border-color:var(--accent);color:var(--accent)}
+  .evidence{display:none;margin-top:10px;border-top:1px dashed var(--border);padding-top:10px}
+  .evidence.open{display:block}
+  .ev{display:flex;gap:8px;align-items:flex-start;margin-bottom:7px;font-size:12.5px;color:var(--text-2)}
+  .ev .tag{flex:none;margin-top:1px}
+  .actions{display:flex;gap:10px;margin-top:12px}
+  .btn{padding:8px 16px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:#fff;color:var(--text-2)}
+  .btn:hover{border-color:#c9d3e0}
+  .btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+  .btn.primary:hover{background:var(--accent-deep)}
+  .btn:disabled{opacity:.5;cursor:default}
+  .build-title{font-size:11px;font-weight:800;letter-spacing:1.4px;color:var(--text-3);margin-bottom:8px}
+  .build li{list-style:none;display:flex;align-items:center;gap:10px;padding:5px 0;font-size:13px;color:var(--text-3)}
+  .build li.done{color:var(--text)}
+  .composer{flex:none;display:flex;gap:10px;padding:12px 16px;border-top:1px solid var(--border-soft)}
+  .composer input{flex:1;padding:11px 14px;border:1px solid var(--border);border-radius:12px;font-size:13.5px;outline:none;background:#fbfcfe}
+  .composer input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+  .composer button{padding:0 18px;border:none;border-radius:12px;background:var(--accent);color:#fff;font-weight:600;cursor:pointer}
+
+  /* outputs */
+  .empty-out{margin:26px 14px;text-align:center;color:var(--text-3);font-size:12.5px}
+  .empty-out .ph{width:44px;height:44px;margin:0 auto 10px;border-radius:12px;border:1px dashed #c9d3e0;
+    display:flex;align-items:center;justify-content:center;color:#c9d3e0;font-size:18px}
+  .asset{
+    margin:8px 6px;padding:13px 14px;border:1px solid var(--border);border-radius:14px;cursor:pointer;
+    transition:border .15s, box-shadow .15s;animation:pop .3s ease;background:#fff;
+  }
+  .asset:hover{border-color:var(--accent);box-shadow:0 2px 10px rgba(26,115,232,.10)}
+  .asset .arow{display:flex;align-items:center;gap:10px}
+  .asset .aico{width:30px;height:30px;flex:none;border-radius:9px;display:flex;align-items:center;justify-content:center;
+    font-size:13px;background:#eef2f8;color:var(--text-2)}
+  .asset.hero .aico{background:linear-gradient(135deg,#1a73e8,#7c3aed);color:#fff}
+  .asset .aname{font-weight:600;font-size:13.5px}
+  .asset .ameta{font-size:11.5px;color:var(--text-3)}
+  .asset .open-link{
+    display:inline-block;margin-top:10px;padding:7px 14px;border-radius:9px;background:var(--accent);color:#fff;
+    font-size:12px;font-weight:600;text-decoration:none;
+  }
+  .asset .open-link:hover{background:var(--accent-deep)}
+  .asset .ghost-link{display:inline-block;margin-top:10px;margin-left:8px;font-size:12px;color:var(--text-2);text-decoration:none;padding:7px 10px}
+  .ghost-link:hover{color:var(--accent)}
+
+  /* toast */
+  .toast{
+    position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(80px);opacity:0;
+    background:#252b38;color:#fff;padding:11px 20px;border-radius:12px;font-size:13px;
+    transition:all .3s ease;z-index:99;box-shadow:0 8px 30px rgba(0,0,0,.25);
+  }
+  .toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+</style>
+</head>
+<body>
+
+<!-- ============ SCREEN 1 : CREATE ============ -->
+<div id="screen-create" class="screen">
+  <div class="create-card">
+    <div class="brand"><span class="mark">A</span> Astra <span style="color:var(--text-3);font-weight:500">· AI Presales Agent</span></div>
+    <h1>New Account Workspace</h1>
+    <p class="sub">Give Astra everything you know about the account. It figures out what will resonate and builds what you need to sell.</p>
+    <div class="field">
+      <label>COMPANY DOMAIN</label>
+      <input id="in-domain" value="acme.com" spellcheck="false">
+    </div>
+    <div class="field">
+      <label>TARGET PERSONA</label>
+      <input id="in-persona" value="COO" spellcheck="false">
+    </div>
+    <div class="field">
+      <label>ADDITIONAL CONTEXT</label>
+      <div class="chips" id="filechips">
+        <span class="chip"><span class="ok">✓</span> Discovery Call.mp3</span>
+        <span class="chip"><span class="ok">✓</span> CRM Notes.csv</span>
+        <button class="chip add" onclick="addFile()">+ Add files</button>
+      </div>
+    </div>
+    <button class="cta" onclick="startResearch()">Research &amp; Create Workspace</button>
+  </div>
+</div>
+
+<!-- ============ SCREEN 2 : RESEARCH ============ -->
+<div id="screen-research" class="screen hidden">
+  <div class="research-card">
+    <div class="orb">A</div>
+    <h2 id="research-title">Researching acme.com</h2>
+    <div class="rsub" id="research-sub">Starting…</div>
+    <div class="steps" id="steps">
+      <div class="step" data-step><span class="ind"><span class="dot"></span></span>UNDERSTANDING ACCOUNT</div>
+      <div class="step" data-step><span class="ind"><span class="dot"></span></span>RESEARCHING BUSINESS</div>
+      <div class="step" data-step><span class="ind"><span class="dot"></span></span>MATCHING USE CASES</div>
+      <div class="step" data-step><span class="ind"><span class="dot"></span></span>PLANNING DEMO</div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ SCREEN 3 : WORKSPACE ============ -->
+<div id="screen-workspace" class="screen hidden">
+  <header class="topbar">
+    <div class="brand"><span class="mark">A</span> Astra</div>
+    <span class="crumb">/</span>
+    <span class="acct">Acme Corporation — Enterprise Opportunity</span>
+    <div class="persona">Target persona <span class="pchip">COO</span></div>
+  </header>
+  <main class="panels">
+
+    <!-- LEFT : SOURCES -->
+    <aside class="panel">
+      <div class="panel-h">SOURCES</div>
+      <div class="panel-body">
+        <div class="src-group">
+          <div class="gname">OUR COMPANY — FLOWPORT</div>
+          <div class="src"><span class="ico">▤</span> Product Deck <span class="ok" style="margin-left:auto">✓</span></div>
+          <div class="src"><span class="ico">▤</span> Product Documentation <span class="ok" style="margin-left:auto">✓</span></div>
+          <div class="src"><span class="ico">▤</span> Case Studies <span class="ok" style="margin-left:auto">✓</span></div>
+          <div class="src"><span class="ico">▶</span> Demo Environment <span class="ok" style="margin-left:auto">✓</span></div>
+        </div>
+        <div class="src-group">
+          <div class="gname">ACME</div>
+          <div class="src"><span class="ico">◉</span> acme.com <span class="ok" style="margin-left:auto">✓</span></div>
+          <div class="src"><span class="ico">♪</span> Discovery Call <span class="ok" style="margin-left:auto">✓</span></div>
+          <div class="src"><span class="ico">▤</span> CRM Notes <span class="ok" style="margin-left:auto">✓</span></div>
+          <div class="src"><span class="ico">▤</span> Annual Report 2024 <span class="ok" style="margin-left:auto">✓</span></div>
+          <div class="src"><span class="ico">▤</span> Uploaded Requirements <span class="ok" style="margin-left:auto">✓</span></div>
+        </div>
+        <button class="addsrc" onclick="addSource()">+ Add source</button>
+      </div>
+    </aside>
+
+    <!-- CENTER : AGENT -->
+    <section class="panel">
+      <div class="panel-h">AGENT</div>
+      <div class="chat" id="chat"></div>
+      <div class="composer">
+        <input id="composer-in" placeholder="Ask about the account, challenge the strategy, or request an asset…"
+               onkeydown="if(event.key==='Enter')sendMsg()">
+        <button onclick="sendMsg()">Send</button>
+      </div>
+    </section>
+
+    <!-- RIGHT : OUTPUTS -->
+    <aside class="panel">
+      <div class="panel-h">ACCOUNT ASSETS</div>
+      <div class="panel-body" id="outputs">
+        <div class="empty-out" id="empty-out">
+          <div class="ph">◇</div>
+          Assets Astra builds for this deal will appear here.
+        </div>
+
+        <div class="asset hero hidden" id="asset-demo">
+          <div class="arow">
+            <div class="aico">▶</div>
+            <div>
+              <div class="aname">Personalized Demo</div>
+              <div class="ameta">FlowPort environment · Acme scenario · <span class="tag syn">SYNTHETIC DATA</span></div>
+            </div>
+          </div>
+          <a class="open-link" href="templates/logistics-demo.html?mode=personalized" target="_blank">Open demo →</a>
+          <a class="ghost-link" href="templates/logistics-demo.html?mode=generic" target="_blank">Compare generic</a>
+        </div>
+
+        <div class="asset hidden" id="asset-deck" onclick="toast('Mockup: deck preview not wired yet')">
+          <div class="arow">
+            <div class="aico">▤</div>
+            <div>
+              <div class="aname">Executive Deck</div>
+              <div class="ameta">9 slides · operational visibility narrative</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="asset hidden" id="asset-roi" onclick="toast('Mockup: ROI model preview not wired yet')">
+          <div class="arow">
+            <div class="aico">▤</div>
+            <div>
+              <div class="aname">ROI Model</div>
+              <div class="ameta">1-page · dwell time &amp; delay cost focus</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="asset hidden" id="asset-brief" onclick="toast('Mockup: brief preview not wired yet')">
+          <div class="arow">
+            <div class="aico">▤</div>
+            <div>
+              <div class="aname">Meeting Brief</div>
+              <div class="ameta">COO prep · open discovery gaps</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const $=s=>document.querySelector(s);
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+let fileN=1;
+
+function addFile(){
+  const names=['Requirements.pdf','COO Interview.docx','RFP Response.docx','Org Chart.png'];
+  const chip=document.createElement('span');
+  chip.className='chip';
+  chip.innerHTML='<span class="ok">✓</span> '+names[(fileN++)%names.length];
+  $('#filechips').insertBefore(chip,$('.chip.add'));
+}
+function addSource(){ toast('Mockup: source upload not wired yet'); }
+
+function toast(t){
+  const el=$('#toast'); el.textContent=t; el.classList.add('show');
+  clearTimeout(el._t); el._t=setTimeout(()=>el.classList.remove('show'),2400);
+}
+
+/* ---------- research flow ---------- */
+const SUBS=[
+  ['Reading acme.com…','Mapping products and business units…'],
+  ['Crawling Annual Report 2024…','Extracting markets, facilities, strategic initiatives…'],
+  ['Comparing Acme priorities against FlowPort capabilities…','Scoring candidate use cases…'],
+  ['Selecting demo storyline and entities…','Preparing account strategy…']
+];
+async function startResearch(){
+  const domain=$('#in-domain').value||'acme.com';
+  $('#screen-create').classList.add('hidden');
+  $('#screen-research').classList.remove('hidden');
+  $('#research-title').textContent='Researching '+domain;
+  const steps=[...document.querySelectorAll('[data-step]')];
+  for(let i=0;i<steps.length;i++){
+    steps[i].classList.add('active');
+    steps[i].querySelector('.ind').innerHTML='<span class="spinner"></span>';
+    for(const s of SUBS[i]){ $('#research-sub').textContent=s; await sleep(700); }
+    steps[i].classList.remove('active'); steps[i].classList.add('done');
+    steps[i].querySelector('.ind').innerHTML='<span class="check">✓</span>';
+  }
+  $('#research-sub').textContent='Workspace ready.';
+  await sleep(500);
+  openWorkspace();
+}
+
+/* ---------- agent chat ---------- */
+function typingEl(){
+  const t=document.createElement('div');
+  t.className='msg agent typing'; t.innerHTML='<span></span><span></span><span></span>';
+  $('#chat').appendChild(t); scrollChat(); return t;
+}
+async function agentSay(html,delay=1100){
+  const t=typingEl(); await sleep(delay); t.remove();
+  const m=document.createElement('div'); m.className='msg agent'; m.innerHTML=html;
+  $('#chat').appendChild(m); scrollChat(); return m;
+}
+function userSay(text){
+  const m=document.createElement('div'); m.className='msg user'; m.textContent=text;
+  $('#chat').appendChild(m); scrollChat();
+}
+function scrollChat(){ const c=$('#chat'); c.scrollTop=c.scrollHeight; }
+function toggleWhy(btn){ btn.nextElementSibling.classList.toggle('open'); }
+
+async function openWorkspace(){
+  $('#screen-research').classList.add('hidden');
+  $('#screen-workspace').classList.remove('hidden');
+  await sleep(400);
+
+  await agentSay(`
+    <h4>ACCOUNT SUMMARY</h4>
+    <p><b>Acme Corporation</b> is a global consumer-goods manufacturer operating across <b>14 markets</b>, currently
+    expanding distribution into Europe. Their annual report emphasizes supply-chain resilience, and your discovery
+    call flagged <b>fragmented visibility across regional operations</b> as a recurring frustration for the COO's team.</p>`,1400);
+
+  await agentSay(`
+    <h4>RECOMMENDED STRATEGY</h4>
+    <p>For this account I recommend leading with <b>cross-region shipment visibility</b> rather than inventory
+    optimization. Acme's expansion creates a stronger narrative around a single control tower across their
+    Gulf–Europe lanes.</p>
+    <button class="why" onclick="toggleWhy(this)">WHY THIS WAS CHOSEN ▾</button>
+    <div class="evidence">
+      <div class="ev"><span class="tag fact">FACT</span> Acme publicly operates across 14 markets — Annual Report 2024, p.7</div>
+      <div class="ev"><span class="tag fact">FACT</span> "We can't see regional delays until customers complain" — Discovery Call, 12:41</div>
+      <div class="ev"><span class="tag inf">INFERENCE</span> EU expansion increases exposure to port congestion on Gulf–Europe lanes</div>
+      <div class="ev"><span class="tag seller">SELLER CONTEXT</span> Multi-region visibility is FlowPort's strongest differentiator — Product Deck, slide 9</div>
+    </div>`,1600);
+
+  await agentSay(`
+    <h4>PROPOSED ASSETS</h4>
+    <p>For tomorrow's meeting with Acme's COO, I recommend preparing three things:</p>
+    <ol>
+      <li>a <b>personalized interactive demo</b> — your FlowPort environment rebuilt around Acme's lanes and entities;</li>
+      <li>a short <b>executive deck</b> focused on operational visibility;</li>
+      <li>a one-page <b>ROI model</b> quantifying delay and dwell-time costs.</li>
+    </ol>
+    <p>I can build all three.</p>
+    <div class="actions">
+      <button class="btn primary" id="btn-approve" onclick="approve()">Approve &amp; build</button>
+      <button class="btn" id="btn-adjust" onclick="adjust()">Adjust strategy</button>
+    </div>`,1600);
+}
+
+async function approve(){
+  $('#btn-approve').disabled=true; $('#btn-adjust').disabled=true;
+  userSay('Approved — build all three.');
+  await sleep(500);
+  const m=await agentSay(`
+    <div class="build">
+      <div class="build-title">BUILDING</div>
+      <ul>
+        <li data-b><span class="ind"><span class="spinner"></span></span> Account narrative</li>
+        <li data-b><span class="ind"></span> Demo scenario</li>
+        <li data-b><span class="ind"></span> Synthetic account data</li>
+        <li data-b><span class="ind"></span> Executive presentation</li>
+        <li data-b><span class="ind"></span> Personalized demo</li>
+      </ul>
+    </div>`,900);
+  const items=[...m.querySelectorAll('[data-b]')];
+  for(let i=0;i<items.length;i++){
+    items[i].querySelector('.ind').innerHTML='<span class="spinner"></span>';
+    await sleep(850);
+    items[i].querySelector('.ind').innerHTML='<span class="check">✓</span> ';
+    items[i].classList.add('done'); scrollChat();
+  }
+  $('#empty-out').classList.add('hidden');
+  for(const id of ['#asset-demo','#asset-deck','#asset-roi','#asset-brief']){
+    $(id).classList.remove('hidden'); await sleep(350);
+  }
+  await agentSay(`
+    <p>Done. All assets are attached to this account and stay reusable for the rest of the deal.</p>
+    <p>Open the <b>Personalized Demo</b> on the right — the generic FlowPort environment now shows Acme's
+    Jebel Ali → Rotterdam lanes, their containers, and a congestion scenario matched to the COO's concerns.
+    All scenario data is labeled <span class="tag syn">SYNTHETIC</span>.</p>`,1500);
+}
+
+async function adjust(){
+  userSay('Adjust strategy');
+  await agentSay(`
+    <p>Tell me what to change — a different lead use case, persona focus, or constraints on which
+    capabilities to show. I will re-plan the assets before building anything.</p>`,1000);
+}
+
+const CANNED=[
+  `<p>Good question. Based on the CRM notes, procurement raised data-residency concerns in the last cycle —
+   I'd address that proactively in the deck appendix. Want me to add a slide?</p>`,
+  `<p>From the discovery call, the COO's stated KPI is regional on-time delivery. I've centered the demo's
+   opening view on exactly that metric.</p>`,
+  `<p>In the full product I'd reason over every source on the left to answer that — here in the mockup
+   I only have a few canned replies.</p>`
+];
+let cannedI=0;
+async function sendMsg(){
+  const inp=$('#composer-in'); const v=inp.value.trim(); if(!v)return;
+  inp.value=''; userSay(v);
+  await agentSay(CANNED[(cannedI++)%CANNED.length],1200);
+}
+</script>
+</body>
+</html>
