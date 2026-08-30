@@ -2,11 +2,11 @@ import { ConvexHttpClient } from "convex/browser";
 import { api } from "@/convex/_generated/api";
 import type { AccountWorkspace, AgentResponse, ConversationMessage, PersonaTestResult, Source } from "./contracts";
 
-const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
-const client = convexUrl ? new ConvexHttpClient(convexUrl) : null;
-const configurationError = "Connect Convex and set GROQ_API_KEY to use live AI.";
+const defaultConvexUrl = "https://perfect-monitor-827.eu-west-1.convex.cloud";
+const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL?.trim() || defaultConvexUrl;
+const client = new ConvexHttpClient(convexUrl);
 
-export const backendMode = client ? "convex" : "unconfigured";
+export const backendMode = process.env.NEXT_PUBLIC_CONVEX_URL ? "convex" : "demo";
 
 export function compactAccountContext(workspace: AccountWorkspace, persona: string) {
   return JSON.stringify({
@@ -21,7 +21,6 @@ export function compactAccountContext(workspace: AccountWorkspace, persona: stri
 }
 
 export async function converse(workspace: AccountWorkspace, persona: string, messages: ConversationMessage[], text: string): Promise<AgentResponse> {
-  if (!client) return { answer: configurationError, citations: [], action: { type: "none" }, live: false, error: configurationError };
   try {
     return await client.action(api.agent.converse, {
       text,
@@ -35,7 +34,6 @@ export async function converse(workspace: AccountWorkspace, persona: string, mes
 }
 
 export async function testPersona(workspace: AccountWorkspace, persona: string, target: string): Promise<PersonaTestResult> {
-  if (!client) return { persona, target, reaction: configurationError, objections: [], missing: [], score: 0, improve: [], live: false, error: configurationError };
   try {
     return await client.action(api.agent.testPersona, { persona, target, context: compactAccountContext(workspace, persona) });
   } catch {
@@ -44,7 +42,6 @@ export async function testPersona(workspace: AccountWorkspace, persona: string, 
 }
 
 export async function researchProspect(domain: string) {
-  if (!client) return { status: "unavailable", domain, message: "Convex is not configured" };
   try {
     return await client.action(api.research.researchProspect, { domain });
   } catch {
@@ -53,7 +50,6 @@ export async function researchProspect(domain: string) {
 }
 
 export async function persistApproval(workspace: AccountWorkspace, persona: string) {
-  if (!client) return null;
   try {
     return await client.mutation(api.accounts.approveStrategy, { slug: workspace.id, name: workspace.name, domain: workspace.domain, persona });
   } catch {
