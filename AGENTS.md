@@ -168,6 +168,21 @@ Never:
 
 For the hackathon, generated content must stay within ContextSE’s capability boundary in `/PROJECT.md`. Facts must retain evidence; synthetic operational records must be visibly labeled.
 
+## Mandatory Ponytail Usage
+
+Every agent must use the official [Ponytail](https://github.com/dietrichgebert/ponytail) ruleset. The repository requires the `DietrichGebert/ponytail` Devin plugin through `/.devin/config.json`. Authenticated Devin sessions auto-install this required plugin when it is missing.
+
+If automatic installation fails, run `devin auth login`, then `devin plugins install DietrichGebert/ponytail`, and start a new agent session. Do not begin implementation until Ponytail is active.
+
+Before any task that may write implementation code:
+
+1. activate Ponytail using the host’s official plugin or skill command;
+2. on Devin, invoke `/ponytail:ponytail` and keep the default `full` mode;
+3. do not disable Ponytail for convenience;
+4. if a host cannot load the plugin, apply the ladder below directly and report that the plugin was unavailable.
+
+Every delegated coding subagent must receive the same requirement. Read-only investigation may proceed without explicit activation, but any resulting implementation plan must follow Ponytail.
+
 ## Ponytail Engineering Principles
 
 Prefer, in order:

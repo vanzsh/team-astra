@@ -19,10 +19,22 @@ The standard is one account, one excellent workflow, and one obvious before/afte
 - **Next.js, React, and TypeScript** — application foundation;
 - **shadcn/ui** — UI components using only its required styling primitives;
 - **Devin** — substantial engineering execution;
+- **Ponytail** — mandatory minimal-engineering ruleset for every coding agent;
 - **Convex** — the only application backend, database, persistent state, artifact, and realtime layer;
 - **Context.dev** — the public-web research, extraction, company-intelligence, and evidence provider.
 
 Substitute frameworks, UI kits, backends, databases, and unnecessary runtime dependencies are out of scope.
+
+## Agent Setup
+
+`/.devin/config.json` requires Ponytail for this repository. Authenticated Devin sessions install it automatically when missing. If needed, run:
+
+```bash
+devin auth login
+devin plugins install DietrichGebert/ponytail
+```
+
+Start a new agent session after installation so the Ponytail rules and skills load.
 
 ## Source of Truth
 
