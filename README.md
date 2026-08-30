@@ -2,37 +2,63 @@
 
 > Turn a prospect domain into an evidence-backed sales strategy and a personalized product demo.
 
-Presales teams lose hours researching accounts, deciding what will resonate, rebuilding generic demos, and preparing for objections. ContextSE compresses that work into one account workspace.
-
-Give it a prospect. It researches the company, connects evidence to approved product capabilities, recommends the strongest story, creates account-relevant sales assets, and pressure-tests the pitch against buyer personas.
+ContextSE is an AI presales workspace for Solutions Engineers. It researches an account, determines what will resonate, creates account-relevant sales assets, and pressure-tests the pitch against buyer personas.
 
 `Prospect domain → Research → Account strategy → Personalized demo → Buyer test`
 
-## The Wedge
+## Judges: Start Here
 
-**Personalized enterprise software demos.**
+The public hackathon build uses a shared Convex demo deployment. You do not need API keys or a `.env.local` file.
 
-Most demo tools start after the seller already knows what to show. ContextSE starts one layer earlier: it determines what matters to the account, why it matters, and which truthful product capabilities should lead the conversation.
+```bash
+npm install
+npm run dev
+```
 
-The result is not a generic demo with a new logo. It is an account-specific operating story with relevant language, scenarios, locations, KPIs, feature ordering, and evidence.
+Open [http://localhost:3000](http://localhost:3000). The app starts in the preloaded **GulfLink Logistics** workspace. For the most reliable judging path, use this workspace before creating a new account.
 
-## What the Hackathon Demo Proves
+### Three-Minute Walkthrough
 
-1. **Research a prospect** from its public domain with Context.dev.
-2. **Build an account view** that separates sourced facts, seller context, inferences, and synthetic demo data.
-3. **Recommend a strategy** grounded in evidence and approved Relay capabilities.
-4. **Create working outputs**: a personalized interactive demo and meeting brief.
-5. **Test the pitch** against an adversarial CEO or CFO powered by Groq.
-6. **Keep the demo reliable** with a deterministic fixture when external services are unavailable.
+| Step | What to do | What it proves |
+| --- | --- | --- |
+| 1. Inspect context | In **Sources**, open a Relay source and a GulfLink source. Check the visible **Provided**, **Inference**, and **Synthetic** labels. | Seller truth, prospect context, and generated demo data remain distinguishable. |
+| 2. Ask the agent | Click **What should I show the CEO?** or type a question in the center composer. Open any source citation in the response. | Groq reasons from the account workspace instead of answering as a generic chatbot. |
+| 3. Review the strategy | Expand **Account brief**, inspect the objective and recommended sequence, then click **Approve strategy**. | Evidence becomes an explicit, human-approved presales plan. |
+| 4. See the hero moment | Under **Artifacts**, open **Interactive demo**. Toggle **Before · Generic** and **After · GulfLink**. | The same Relay product becomes an account-specific operating story, not just a logo swap. |
+| 5. Use the demo | In the personalized view, switch between **Control tower** and **Shipments**, then select an operational exception. | The output is a working interactive artifact with relevant lanes, KPIs, scenarios, and feature ordering. |
+| 6. Open the brief | Return to the workspace and open **Meeting brief**. Try **Print / PDF** or **Download HTML**. | The shared account strategy produces another real, usable sales asset. |
+| 7. Pressure-test it | In **Testing Lab**, choose **CFO**, select **Personalized demo**, and click **Test with CFO**. | A separate Groq buyer role returns a score, reaction, objections, missing proof, and improvements. |
 
-## The Workspace
+### Optional: Show Live Research
 
-ContextSE keeps the full presales loop visible in four persistent zones:
+Click **Refresh research** at the bottom of Sources. ContextSE calls Context.dev through a Convex action and adds retrieved public-web intelligence as a **Fact**. If the provider is unavailable, the known-good fixture remains intact and the UI reports the failure.
 
-- **Workspace & Artifacts** — account conversations and generated work;
+### Optional: Create Another Account
+
+1. Click **New chat**.
+2. Enter a company website, discovery material, and meeting objective.
+3. Click **Create workspace**.
+4. Add a source or click **Refresh research**.
+5. Ask the agent what matters and what Relay should show.
+
+The GulfLink fixture is the polished golden path; arbitrary domains demonstrate the reusable account-workspace architecture.
+
+## What to Look For
+
+ContextSE is not a generic chatbot or a reskinned demo generator. It starts before generation:
+
+1. understand the seller and prospect;
+2. separate evidence from assumptions;
+3. choose a truthful sales strategy;
+4. create the right account-specific output;
+5. test it from the buyer's perspective.
+
+The four persistent workspace zones keep that loop visible:
+
+- **Workspace & Artifacts** — account conversations and finished work;
 - **Sources** — seller context, prospect research, and evidence;
 - **AI Solutions Engineer** — grounded reasoning, strategy, and creation;
-- **Testing Lab** — buyer reactions, objections, missing proof, scores, and improvements.
+- **Testing Lab** — buyer reactions, objections, missing proof, and improvements.
 
 ## Demo Scenario
 
@@ -40,41 +66,28 @@ The hackathon uses **Relay**, a fictional supply-chain visibility platform, sell
 
 Relay is limited to seven approved capabilities: shipment visibility, ETA monitoring, exception detection, prioritized alerts, route performance, cross-region visibility, and executive KPIs. ContextSE never invents capabilities outside that boundary.
 
-GulfLink gives the demo a reliable before-and-after experience without pretending synthetic details are real customer facts. The same workspace can accept arbitrary prospect domains through Context.dev.
+GulfLink provides a reliable before-and-after experience without presenting synthetic details as real customer facts. Every operational record in the personalized demo is visibly labeled synthetic.
 
 ## Built With
 
 - **Next.js, React, TypeScript, and shadcn/ui** — product experience;
 - **Convex** — backend, persisted account state, actions, and realtime data;
 - **Context.dev** — public-web company intelligence and evidence;
-- **Groq** — separate Solutions Engineer and buyer-testing model roles;
+- **Groq** — separate Solutions Engineer and buyer-testing roles;
 - **Devin** — substantial engineering execution;
 - **Ponytail** — minimal, demo-first engineering discipline.
 
 Provider secrets stay in Convex actions and are never exposed to browser code.
 
-## Run Locally
+## Use Your Own Backend
 
-The GulfLink workspace and working artifacts run without external credentials:
-
-```bash
-npm install
-npm run dev
-```
-
-Open [http://localhost:3000](http://localhost:3000).
-
-Missing live credentials are shown explicitly. ContextSE does not replace unavailable AI or research with fake live responses.
-
-## Enable Live Research and AI
-
-Start Convex in one terminal:
+The shared deployment requires no setup. To use your own Convex deployment, start Convex in one terminal:
 
 ```bash
 npm run convex:dev
 ```
 
-Then configure the development deployment from another terminal. Omitting each value keeps the secret out of shell history and opens an interactive prompt:
+Then configure the deployment from another terminal. Omitting each value opens an interactive prompt and keeps the secret out of shell history:
 
 ```bash
 npx convex env set GROQ_API_KEY
@@ -82,7 +95,7 @@ npx convex env set CONTEXT_DEV_API_KEY
 npm run dev
 ```
 
-Groq powers the Solutions Engineer and buyer tester through separate model roles. Context.dev powers prospect research. Both integrations run behind the Convex backend boundary.
+Set `NEXT_PUBLIC_CONVEX_URL` to override the shared demo deployment.
 
 ## Verify
 
@@ -93,12 +106,10 @@ npm run build
 
 ## Project Sources of Truth
 
-Before contributing, read:
+- [`PROJECT.md`](./PROJECT.md) — product scope, golden path, and truth boundaries;
+- [`DESIGN.md`](./DESIGN.md) — visual and interaction direction;
+- [`docs/ARCHITECTURE.md`](./docs/ARCHITECTURE.md) — runtime boundaries;
+- [`docs/CONTRACTS.md`](./docs/CONTRACTS.md) — frozen frontend/backend contracts;
+- [`AGENTS.md`](./AGENTS.md) — repository constitution and engineering rules.
 
-1. [`AGENTS.md`](./AGENTS.md) — repository constitution and engineering rules;
-2. [`PROJECT.md`](./PROJECT.md) — product scope, golden path, and truth boundaries;
-3. [`DESIGN.md`](./DESIGN.md) — visual and interaction direction;
-4. [`docs/ARCHITECTURE.md`](./docs/ARCHITECTURE.md) — runtime boundaries;
-5. [`docs/CONTRACTS.md`](./docs/CONTRACTS.md) — frozen frontend/backend contracts.
-
-The hackathon standard is simple: **one account, one excellent workflow, one obvious transformation.**
+**One account. One excellent workflow. One obvious transformation.**
