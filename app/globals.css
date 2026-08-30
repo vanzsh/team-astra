@@ -43,13 +43,22 @@ button { color: inherit; }
 button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible { outline: 2px solid #171717; outline-offset: 2px; }
 svg { stroke-width: 1.75; }
 
-.workspace-shell { height: 100dvh; display: grid; grid-template-columns: 184px 248px minmax(460px, 1fr) 300px; overflow: hidden; background: #fff; }
+.workspace-shell { height: 100dvh; display: grid; grid-template-columns: var(--global-width) var(--sources-width) minmax(460px, 1fr) var(--testing-width); overflow: hidden; background: #fff; transition: grid-template-columns .18s ease; }
 .global-rail, .sources-pane, .agent-pane, .testing-lab { min-width: 0; min-height: 0; }
 .global-rail { display: flex; flex-direction: column; padding: 15px 11px 12px; border-right: 1px solid var(--border); background: var(--panel); }
 .brand { height: 32px; display: flex; align-items: center; gap: 9px; padding: 0 7px; margin-bottom: 14px; }
 .brand > span { width: 24px; height: 24px; display: grid; place-items: center; border-radius: 5px; color: #fff; background: #171717; font-size: 11px; font-weight: 700; }
 .brand strong { font-size: 13px; letter-spacing: -.02em; }
-.new-chat { width: 100%; height: 36px; justify-content: flex-start; padding: 0 11px; box-shadow: 0 1px 1px rgba(0,0,0,.06); }
+.collapse-control { width: 24px; height: 24px; display: grid; place-items: center; margin-left: auto; padding: 0; border: 0; border-radius: 4px; color: #666; background: transparent; cursor: pointer; }
+.collapse-control:hover { color: #171717; background: #e8e8e8; }
+.collapse-control svg { width: 13px; }
+.new-chat { width: 100%; height: 36px; justify-content: flex-start; padding: 0 11px; color: #fff !important; background: #171717 !important; box-shadow: 0 1px 1px rgba(0,0,0,.06); }
+.new-chat:hover { color: #fff !important; background: #2b2b2b !important; }
+.global-rail.collapsed { padding-left: 8px; padding-right: 8px; }
+.global-rail.collapsed .brand { justify-content: center; padding: 0; }
+.global-rail.collapsed .collapse-control { margin: 0; }
+.global-rail.collapsed .new-chat { justify-content: center; padding: 0; }
+.global-rail.collapsed .rail-foot { justify-content: center; padding-left: 0; padding-right: 0; }
 .global-section { margin-top: 23px; }
 .global-section h2, .source-list section h2 { margin: 0 7px 8px; color: #858585; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; }
 .chat-row, .artifact-row { width: 100%; display: flex; align-items: center; gap: 8px; padding: 8px 7px; border: 0; border-radius: 6px; background: transparent; text-align: left; }
@@ -73,6 +82,10 @@ svg { stroke-width: 1.75; }
 .pane-header strong { font-size: 12px; font-weight: 600; }
 .pane-header span { color: #888; font-size: 9px; }
 .pane-header > svg { width: 15px; color: #666; }
+.pane-actions { display: flex; align-items: center; gap: 2px; margin-left: auto; }
+.pane-actions svg, .pane-header button svg { width: 13px; }
+.sources-pane.collapsed .pane-header, .testing-lab.collapsed .pane-header { justify-content: center; padding: 0; }
+.testing-lab:not(.collapsed) .pane-header > button { order: 3; margin-left: auto; }
 .source-list { flex: 1; min-height: 0; overflow-y: auto; padding: 18px 9px; }
 .source-list section + section { margin-top: 25px; }
 .source-row { width: 100%; display: grid; grid-template-columns: 26px minmax(0,1fr) 12px; align-items: start; gap: 7px; padding: 8px 6px; border: 0; border-radius: 6px; background: transparent; text-align: left; cursor: pointer; }
@@ -166,6 +179,8 @@ svg { stroke-width: 1.75; }
 .lab-section select, .setup-modal input, .setup-modal select, .persona-add input { height: 34px; padding: 0 9px; font-size: 10px; }
 .field-label { display: block; margin-bottom: 6px; }
 .test-button { width: 100%; justify-content: space-between; margin-top: 13px; }
+.test-button, .agent-composer button[type="submit"], .setup-modal footer button[type="submit"] { color: #fff !important; background: #171717 !important; }
+.test-button:hover, .agent-composer button[type="submit"]:hover, .setup-modal footer button[type="submit"]:hover { color: #fff !important; background: #2b2b2b !important; }
 .lab-empty { margin-top: 24px; padding: 24px 12px; border: 1px dashed #d7d7d7; border-radius: 6px; text-align: center; color: #777; }
 .lab-empty svg { width: 18px; margin: 0 auto 8px; }.lab-empty strong { display: block; color: #555; font-size: 9px; }.lab-empty p { margin: 3px 0 0; font-size: 8px; }
 .model-error { margin-top: 15px; padding: 10px; border: 1px solid #edc9c4; border-radius: 6px; background: #fff7f6; }

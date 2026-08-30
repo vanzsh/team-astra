@@ -1,7 +1,7 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
-import { ArrowUp, Bot, Check, ChevronDown, ChevronRight, FileText, Globe2, LoaderCircle, MessageSquare, MonitorPlay, Plus, ShieldCheck, TestTube2, X } from "lucide-react";
+import { type CSSProperties, FormEvent, useEffect, useMemo, useRef, useState } from "react";
+import { ArrowUp, Bot, Check, ChevronDown, ChevronLeft, ChevronRight, FileText, Globe2, LoaderCircle, MessageSquare, MonitorPlay, Plus, ShieldCheck, TestTube2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { MeetingBrief } from "@/components/meeting-brief";
 import { RelayDemo } from "@/components/relay-demo";
@@ -18,12 +18,12 @@ function TruthTag({ value }: { value: TruthKind }) {
   return <span className={`truth-tag ${value.toLowerCase()}`}>{truthLabels[value]}</span>;
 }
 
-function GlobalRail({ accountName, artifactsReady, onNew, onDemo, onBrief }: { accountName: string; artifactsReady: boolean; onNew: () => void; onDemo: () => void; onBrief: () => void }) {
+function GlobalRail({ accountName, artifactsReady, collapsed, onToggle, onNew, onDemo, onBrief }: { accountName: string; artifactsReady: boolean; collapsed: boolean; onToggle: () => void; onNew: () => void; onDemo: () => void; onBrief: () => void }) {
   return (
-    <aside className="global-rail">
-      <div className="brand"><span>C</span><strong>ContextSE</strong></div>
-      <Button className="new-chat" onClick={onNew}><Plus />New chat</Button>
-      <section className="global-section">
+    <aside className={`global-rail ${collapsed ? "collapsed" : ""}`}>
+      <div className="brand">{!collapsed && <><span>C</span><strong>ContextSE</strong></>}<button className="collapse-control" onClick={onToggle} aria-label={collapsed ? "Expand workspace rail" : "Collapse workspace rail"}>{collapsed ? <ChevronRight /> : <ChevronLeft />}</button></div>
+      <Button className="new-chat" onClick={onNew} aria-label="New chat"><Plus />{!collapsed && <span>New chat</span>}</Button>
+      {!collapsed && <><section className="global-section">
         <h2>Chats</h2>
         <div className="chat-row active"><span className="chat-icon"><MessageSquare /></span><span><strong>{accountName}</strong><small>Active opportunity</small></span></div>
       </section>
@@ -31,17 +31,17 @@ function GlobalRail({ accountName, artifactsReady, onNew, onDemo, onBrief }: { a
         <h2>Artifacts</h2>
         <button className="artifact-row" onClick={onDemo} disabled={!artifactsReady}><MonitorPlay /><span><strong>Interactive demo</strong><small>{artifactsReady ? "Ready" : "Not generated"}</small></span></button>
         <button className="artifact-row" onClick={onBrief} disabled={!artifactsReady}><FileText /><span><strong>Meeting brief</strong><small>{artifactsReady ? "PDF · HTML" : "Not generated"}</small></span></button>
-      </section>
-      <div className="rail-foot"><ShieldCheck /><span>Truth-aware workspace</span></div>
+      </section></>}
+      <div className="rail-foot"><ShieldCheck />{!collapsed && <span>Truth-aware workspace</span>}</div>
     </aside>
   );
 }
 
-function SourcesPane({ sources, status, onSelect, onAdd, onResearch }: { sources: Source[]; status: string; onSelect: (source: Source) => void; onAdd: () => void; onResearch: () => void }) {
+function SourcesPane({ sources, status, collapsed, onToggle, onSelect, onAdd, onResearch }: { sources: Source[]; status: string; collapsed: boolean; onToggle: () => void; onSelect: (source: Source) => void; onAdd: () => void; onResearch: () => void }) {
   return (
-    <aside className="sources-pane">
-      <div className="pane-header"><div><strong>Sources</strong><span>{sources.length}</span></div><Button variant="ghost" size="icon-sm" onClick={onAdd} aria-label="Add source"><Plus /></Button></div>
-      <div className="source-list">
+    <aside className={`sources-pane ${collapsed ? "collapsed" : ""}`}>
+      <div className="pane-header">{!collapsed && <div><strong>Sources</strong><span>{sources.length}</span></div>}<div className="pane-actions">{!collapsed && <Button variant="ghost" size="icon-sm" onClick={onAdd} aria-label="Add source"><Plus /></Button>}<Button variant="ghost" size="icon-sm" onClick={onToggle} aria-label={collapsed ? "Expand sources" : "Collapse sources"}>{collapsed ? <ChevronRight /> : <ChevronLeft />}</Button></div></div>
+      {!collapsed && <><div className="source-list">
         {(["seller", "prospect"] as SourceGroup[]).map((group) => (
           <section key={group}>
             <h2>{group === "seller" ? "Our company" : "Prospect"}</h2>
@@ -55,12 +55,12 @@ function SourcesPane({ sources, status, onSelect, onAdd, onResearch }: { sources
           </section>
         ))}
       </div>
-      <div className="source-footer"><p>{status}</p><Button variant="outline" size="sm" onClick={onAdd}><Plus />Add source</Button><button onClick={onResearch}>Refresh research</button></div>
+      <div className="source-footer"><p>{status}</p><Button variant="outline" size="sm" onClick={onAdd}><Plus />Add source</Button><button onClick={onResearch}>Refresh research</button></div></>}
     </aside>
   );
 }
 
-function TestingLab({ workspace, persona, setPersona, request }: { workspace: AccountWorkspace; persona: string; setPersona: (value: string) => void; request: { id: number; persona: string } | null }) {
+function TestingLab({ workspace, persona, setPersona, request, collapsed, onToggle }: { workspace: AccountWorkspace; persona: string; setPersona: (value: string) => void; request: { id: number; persona: string } | null; collapsed: boolean; onToggle: () => void }) {
   const [personas, setPersonas] = useState(["CEO", "CFO", "COO"]);
   const [target, setTarget] = useState("Current strategy");
   const [result, setResult] = useState<PersonaTestResult | null>(null);
@@ -90,9 +90,9 @@ function TestingLab({ workspace, persona, setPersona, request }: { workspace: Ac
   }, [request?.id]);
 
   return (
-    <aside className="testing-lab">
-      <div className="pane-header"><div><strong>Testing Lab</strong><span>Buyer simulation</span></div><TestTube2 /></div>
-      <div className="testing-body">
+    <aside className={`testing-lab ${collapsed ? "collapsed" : ""}`}>
+      <div className="pane-header"><Button variant="ghost" size="icon-sm" onClick={onToggle} aria-label={collapsed ? "Expand Testing Lab" : "Collapse Testing Lab"}>{collapsed ? <ChevronLeft /> : <ChevronRight />}</Button>{!collapsed && <><div><strong>Testing Lab</strong><span>Buyer simulation</span></div><TestTube2 /></>}</div>
+      {!collapsed && <div className="testing-body">
         <div className="lab-intro"><strong>Pressure-test before the meeting.</strong><p>See how this account’s buyer may react, object, and decide.</p></div>
         <section className="lab-section"><div className="lab-label"><span>Buyer persona</span><button onClick={() => setAdding(!adding)}>+ Custom</button></div><div className="persona-grid">{personas.map((item) => <button key={item} className={persona === item ? "active" : ""} onClick={() => setPersona(item)}><strong>{item}</strong><small>{item === "CEO" ? "Strategy & risk" : item === "CFO" ? "ROI & proof" : "Operations"}</small></button>)}</div>{adding && <div className="persona-add"><input value={newPersona} onChange={(event) => setNewPersona(event.target.value)} placeholder="e.g. CTO" onKeyDown={(event) => event.key === "Enter" && addPersona()} /><Button size="sm" onClick={addPersona}>Add</Button></div>}</section>
         <section className="lab-section"><label className="field-label" htmlFor="test-target">Test</label><select id="test-target" value={target} onChange={(event) => setTarget(event.target.value)}><option>Current strategy</option><option>Personalized demo</option><option>Meeting brief</option><option>Current pitch</option></select></section>
@@ -100,7 +100,7 @@ function TestingLab({ workspace, persona, setPersona, request }: { workspace: Ac
         {!result && <div className="lab-empty"><TestTube2 /><strong>No test run yet</strong><p>Select a buyer and test the current work.</p></div>}
         {result && result.error && <div className="model-error"><strong>Groq configuration needed</strong><p>{result.reaction}</p></div>}
         {result && !result.error && <div className="test-result"><div className="result-score"><span>Buyer score</span><strong>{result.score}<small>/10</small></strong></div><section><h3>Reaction</h3><p>{result.reaction}</p></section><section><h3>Objections</h3><ul>{result.objections.map((item) => <li key={item}>{item}</li>)}</ul></section><section><h3>Missing</h3><ul>{result.missing.map((item) => <li key={item}>{item}</li>)}</ul></section><section><h3>Improve</h3><ol>{result.improve.map((item) => <li key={item}>{item}</li>)}</ol></section></div>}
-      </div>
+      </div>}
     </aside>
   );
 }
@@ -117,9 +117,17 @@ export function Workspace() {
   const [sourceStatus, setSourceStatus] = useState("Fixture context · refresh when Context.dev is configured");
   const [strategyApproved, setStrategyApproved] = useState(false);
   const [testRequest, setTestRequest] = useState<{ id: number; persona: string } | null>(null);
+  const [globalCollapsed, setGlobalCollapsed] = useState(false);
+  const [sourcesCollapsed, setSourcesCollapsed] = useState(false);
+  const [testingCollapsed, setTestingCollapsed] = useState(false);
   const messageId = useRef(0);
   const sourceById = useMemo(() => new Map(workspace.sources.map((source) => [source.id, source])), [workspace.sources]);
   const artifactsReady = workspace.artifacts.every((artifact) => artifact.status === "ready");
+  const layoutStyle = {
+    "--global-width": globalCollapsed ? "52px" : "184px",
+    "--sources-width": sourcesCollapsed ? "52px" : "248px",
+    "--testing-width": testingCollapsed ? "52px" : "300px",
+  } as CSSProperties;
 
   function openDemo(mode: "generic" | "personalized" = "personalized") {
     setDemoMode(mode);
@@ -183,9 +191,9 @@ export function Workspace() {
   }
 
   return (
-    <div className="workspace-shell">
-      <GlobalRail accountName={workspace.name} artifactsReady={artifactsReady} onNew={() => setModal("new")} onDemo={() => openDemo()} onBrief={() => setModal("brief")} />
-      <SourcesPane sources={workspace.sources} status={sourceStatus} onSelect={setSelectedSource} onAdd={() => setModal("source")} onResearch={() => void runResearch()} />
+    <div className="workspace-shell" style={layoutStyle}>
+      <GlobalRail accountName={workspace.name} artifactsReady={artifactsReady} collapsed={globalCollapsed} onToggle={() => setGlobalCollapsed((value) => !value)} onNew={() => setModal("new")} onDemo={() => openDemo()} onBrief={() => setModal("brief")} />
+      <SourcesPane sources={workspace.sources} status={sourceStatus} collapsed={sourcesCollapsed} onToggle={() => setSourcesCollapsed((value) => !value)} onSelect={setSelectedSource} onAdd={() => setModal("source")} onResearch={() => void runResearch()} />
       <main className="agent-pane">
         <header className="agent-header"><div><span className="agent-mark"><Bot /></span><span><strong>AI Solutions Engineer</strong><small>{workspace.name} · {workspace.sources.length} sources</small></span></div><span className={`connection ${backendMode}`}><i />{backendMode === "convex" ? "Groq via Convex" : "Groq demo backend"}</span></header>
         <div className="conversation-scroll">
@@ -193,9 +201,9 @@ export function Workspace() {
           {messages.length === 0 ? <div className="conversation-empty"><span className="empty-mark"><Bot /></span><h1>Work through the {workspace.name} opportunity.</h1><p>I’ll reason from the sources in this workspace, surface assumptions, and create what you need for the meeting.</p><div>{prompts.map((prompt) => <button key={prompt} onClick={() => void sendPrompt(prompt)}>{prompt}<ChevronRight /></button>)}</div></div> : <div className="messages">{messages.map((message) => <article className={`${message.role} ${message.error ? "error" : ""}`} key={message.id}><div><strong>{message.role === "assistant" ? "ContextSE" : "You"}</strong>{message.role === "assistant" && <span>{message.live ? "Groq" : "Configuration"}</span>}</div><p>{message.content}</p>{message.citations && message.citations.length > 0 && <footer>{message.citations.map((id) => <button key={id} onClick={() => setSelectedSource(sourceById.get(id) ?? null)}>{sourceById.get(id)?.title ?? id}</button>)}</footer>}</article>)}</div>}
           {sending && <div className="agent-working"><LoaderCircle className="spin" />Groq is reasoning from this workspace…</div>}
         </div>
-        <form className="agent-composer" onSubmit={submit}><textarea value={input} onChange={(event) => setInput(event.target.value)} placeholder="Ask about the account or create an artifact…" rows={2} /><div><span><ShieldCheck />Grounded in workspace sources</span><Button type="submit" size="icon" disabled={!input.trim() || sending} aria-label="Send"><ArrowUp /></Button></div></form>
+        <form className="agent-composer" onSubmit={submit}><textarea value={input} onChange={(event) => setInput(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter" && !event.shiftKey) { event.preventDefault(); void sendPrompt(input); } }} placeholder="Ask about the account or create an artifact…" rows={2} /><div><span><ShieldCheck />Grounded in workspace sources</span><Button type="submit" size="icon" disabled={!input.trim() || sending} aria-label="Send"><ArrowUp /></Button></div></form>
       </main>
-      <TestingLab workspace={workspace} persona={persona} setPersona={setPersona} request={testRequest} />
+      <TestingLab workspace={workspace} persona={persona} setPersona={setPersona} request={testRequest} collapsed={testingCollapsed} onToggle={() => setTestingCollapsed((value) => !value)} />
 
       {modal === "new" && <NewWorkspaceModal onClose={() => setModal(null)} onCreate={createWorkspace} />}
       {modal === "source" && <AddSourceModal onClose={() => setModal(null)} onAdd={addSource} />}
