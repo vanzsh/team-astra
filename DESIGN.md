@@ -19,7 +19,7 @@ Desktop widths are intentionally unequal: global rail 184px, sources 248px, cent
 
 ## Type and Density
 
-Use Geist. Panel labels are compact and semibold; body copy is concise; controls are 32–38px high. Prefer separators and whitespace over nested cards. Every interactive element has a visible focus state.
+Use Geist and the Vercel-inspired scale in [`vercel/DESIGN.md`](./vercel/DESIGN.md): 14px minimum body text, 12px captions, 14px controls, and 20–32px headings. Panel labels are compact and semibold without becoming difficult to read. Controls are 32–40px high. Prefer separators and whitespace over nested cards. Every interactive element has a visible focus state.
 
 ## Truth Presentation
 

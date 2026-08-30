@@ -217,6 +217,41 @@ svg { stroke-width: 1.75; }
 .shipment-panel table { width: 100%; border-collapse: collapse; }.shipment-panel th,.shipment-panel td { padding: 11px 14px; border-bottom: 1px solid #e6e6e6; text-align: left; font-size: 8px; }.shipment-panel th { color: #777; background: #fafafa; font-size: 7px; text-transform: uppercase; }.status-good,.status-risk { padding: 3px 5px; border-radius: 999px; background: #edf8f3; color: #267052; font-size: 7px; }.status-risk { background: #fff0ee; color: #a33d31; }
 
 .brief-modal { width: min(1000px,100%); height: min(900px,100%); overflow: auto; border-radius: 9px; background: #efefef; }.brief-toolbar { position: sticky; top: 0; z-index: 2; height: 56px; display: flex; align-items: center; justify-content: space-between; padding: 0 14px; border-bottom: 1px solid #ddd; background: #fafafa; }.brief-toolbar > div:first-child { display: flex; flex-direction: column; }.brief-toolbar strong { font-size: 10px; }.brief-toolbar span { color: #777; font-size: 8px; }.brief-toolbar > div:last-child { display: flex; gap: 6px; }.brief-sheet { width: min(760px,calc(100% - 40px)); min-height: 860px; margin: 24px auto; padding: 54px 60px; background: #fff; box-shadow: 0 5px 20px rgba(0,0,0,.08); }.brief-sheet header { padding-bottom: 24px; border-bottom: 2px solid #222; }.brief-sheet h1 { margin: 8px 0 3px; font-size: 31px; letter-spacing: -.04em; }.brief-sheet h1 i { color: #999; font-style: normal; font-weight: 300; }.brief-sheet header p { margin: 0; color: #777; font-size: 10px; }.brief-summary { display: grid; grid-template-columns: 1fr 1fr; gap: 23px; padding: 22px 0; border-bottom: 1px solid #ddd; }.brief-summary span,.brief-sheet h2 { color: #777; font-size: 7px; font-weight: 650; letter-spacing: .1em; text-transform: uppercase; }.brief-summary p { margin: 5px 0 0; font-size: 10px; line-height: 1.5; }.brief-sheet section > h2 { margin: 22px 0 10px; }.brief-sequence { list-style: none; padding: 0; margin: 0; }.brief-sequence li { display: grid; grid-template-columns: 25px 1fr; gap: 9px; padding: 10px 0; border-bottom: 1px solid #e5e5e5; }.brief-sequence li > b { width: 20px; height: 20px; display: grid; place-items: center; border-radius: 50%; background: #222; color: #fff; font-size: 7px; }.brief-sequence strong { font-size: 9px; }.brief-sequence p { margin: 2px 0; color: #555; font-size: 8px; }.brief-sequence small { color: #555; font-size: 7px; }.brief-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }.brief-columns ul { padding-left: 15px; margin: 0; }.brief-columns li { margin-bottom: 6px; color: #555; font-size: 8px; }.brief-sheet footer { margin-top: 27px; padding: 10px; border: 1px solid #ddd; background: #fafafa; color: #555; font-size: 7px; }.brief-sheet footer strong { display: block; color: #222; }
+.brand strong { font-size: 15px; }
+.global-section h2, .source-list section h2 { font-size: 11px; }
+.chat-row strong, .artifact-row strong { font-size: 13px; }
+.chat-row small, .artifact-row small, .rail-foot { font-size: 11px; }
+.pane-header strong { font-size: 14px; }
+.pane-header span, .source-row small, .source-footer p { font-size: 11px; }
+.source-row strong { font-size: 13px; }
+.truth-tag { font-size: 9px; }
+.agent-header strong { font-size: 14px; }
+.agent-header small, .connection { font-size: 11px; }
+.account-brief summary strong, .brief-content > div > strong, .brief-content p { font-size: 13px; }
+.account-brief summary small, .brief-content li strong { font-size: 12px; }
+.brief-content > div > span, .brief-content li small { font-size: 10px; }
+.conversation-empty > p, .messages article p, .agent-composer textarea { font-size: 14px; }
+.conversation-empty button, .agent-working { font-size: 12px; }
+.messages article strong, .messages article footer button { font-size: 11px; }
+.messages article > div span, .agent-composer > div > span { font-size: 10px; }
+.lab-intro strong { font-size: 14px; }
+.lab-intro p, .persona-grid small, .lab-empty p, .model-error p, .test-result p, .test-result li { font-size: 11px; }
+.lab-label span, .field-label, .lab-label button, .test-result h3, .result-score span { font-size: 10px; }
+.persona-grid strong, .lab-section select, .setup-modal input, .setup-modal select, .persona-add input { font-size: 13px; }
+.lab-empty strong, .model-error strong { font-size: 12px; }
+.setup-modal header span, .setup-modal header p, .setup-modal > label { font-size: 12px; }
+.setup-modal textarea { font-size: 13px; }
+.drawer-layer article > header, .drawer-layer article > div > p, .drawer-layer a { font-size: 12px; }
+.drawer-layer blockquote { font-size: 14px; }
+.integrity-note strong { font-size: 11px; }
+.integrity-note small { font-size: 10px; }
+.relay-brand strong { font-size: 14px; }
+.relay-brand span, .demo-context, .comparison-switch button, .relay-tabs button, .relay-title-row p, .personalization-note, .relay-kpis span, .relay-kpis small, .panel-heading strong, .exception-list strong, .exception-list small, .exception-list em, .shipment-panel th, .shipment-panel td { font-size: 11px; }
+.eyebrow, .personalization-note span, .panel-heading span, .detail-action, .status-good, .status-risk { font-size: 10px; }
+.brief-toolbar strong, .brief-sheet header p, .brief-summary p, .brief-sequence strong { font-size: 13px; }
+.brief-toolbar span, .brief-summary span, .brief-sheet h2, .brief-sequence small, .brief-columns li, .brief-sheet footer { font-size: 11px; }
+.brief-sequence p { font-size: 12px; }
+
 .spin { animation: spin .8s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 

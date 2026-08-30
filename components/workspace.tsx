@@ -117,16 +117,16 @@ export function Workspace() {
   const [sourceStatus, setSourceStatus] = useState("Fixture context · refresh when Context.dev is configured");
   const [strategyApproved, setStrategyApproved] = useState(false);
   const [testRequest, setTestRequest] = useState<{ id: number; persona: string } | null>(null);
-  const [globalCollapsed, setGlobalCollapsed] = useState(false);
+  const [globalCollapsed, setGlobalCollapsed] = useState(true);
   const [sourcesCollapsed, setSourcesCollapsed] = useState(false);
   const [testingCollapsed, setTestingCollapsed] = useState(false);
   const messageId = useRef(0);
   const sourceById = useMemo(() => new Map(workspace.sources.map((source) => [source.id, source])), [workspace.sources]);
   const artifactsReady = workspace.artifacts.every((artifact) => artifact.status === "ready");
   const layoutStyle = {
-    "--global-width": globalCollapsed ? "52px" : "184px",
-    "--sources-width": sourcesCollapsed ? "52px" : "248px",
-    "--testing-width": testingCollapsed ? "52px" : "300px",
+    "--global-width": globalCollapsed ? "52px" : "200px",
+    "--sources-width": sourcesCollapsed ? "52px" : "270px",
+    "--testing-width": testingCollapsed ? "52px" : "320px",
   } as CSSProperties;
 
   function openDemo(mode: "generic" | "personalized" = "personalized") {
