@@ -183,6 +183,27 @@
   .asset .ghost-link{display:inline-block;margin-top:10px;margin-left:8px;font-size:12px;color:var(--text-2);text-decoration:none;padding:7px 10px}
   .ghost-link:hover{color:var(--accent)}
 
+  /* personas */
+  .sect-h{padding:12px 10px 8px;font-size:11px;font-weight:800;letter-spacing:1.4px;color:var(--text-3);
+    display:flex;align-items:center;justify-content:space-between}
+  .mini-add{border:none;background:none;color:var(--accent);font-size:11.5px;font-weight:700;cursor:pointer;
+    padding:2px 6px;border-radius:6px;letter-spacing:.2px}
+  .mini-add:hover{background:var(--accent-soft)}
+  .p-card{margin:0 6px 8px;padding:12px 13px;border:1px solid var(--border);border-radius:14px;cursor:pointer;
+    background:#fff;transition:border .15s, box-shadow .15s}
+  .p-card:hover{border-color:var(--accent)}
+  .p-card.sel{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+  .p-top{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+  .p-ava{width:30px;height:30px;flex:none;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    font-size:11px;font-weight:800;color:#fff}
+  .p-ava.a1{background:linear-gradient(135deg,#1a73e8,#4dabf7)}
+  .p-ava.a2{background:linear-gradient(135deg,#7c3aed,#a78bfa)}
+  .p-ava.a3{background:linear-gradient(135deg,#0d9488,#2dd4bf)}
+  .p-name{font-weight:700;font-size:13px;line-height:1.3}
+  .p-role{font-size:11px;font-weight:700;color:var(--accent-deep)}
+  .p-desc{font-size:12px;color:var(--text-2);margin-bottom:8px}
+  .p-badges{display:flex;gap:6px;flex-wrap:wrap}
+
   /* toast */
   .toast{
     position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(80px);opacity:0;
@@ -279,10 +300,50 @@
       </div>
     </section>
 
-    <!-- RIGHT : OUTPUTS -->
+    <!-- RIGHT : PERSONAS + OUTPUTS -->
     <aside class="panel">
-      <div class="panel-h">ACCOUNT ASSETS</div>
+      <div class="panel-h">CLIENT PERSONAS
+        <button class="mini-add" onclick="toast('Mockup: persona editor not wired yet')">+ New</button>
+      </div>
       <div class="panel-body" id="outputs">
+
+        <div class="p-card" onclick="personaFocus(this,'coo')">
+          <div class="p-top">
+            <div class="p-ava a1">CO</div>
+            <div>
+              <div class="p-name">Chief Operating Officer</div>
+              <div class="p-role">Operational &amp; Pragmatic</div>
+            </div>
+          </div>
+          <div class="p-desc">Owns regional operations. Measured on on-time delivery; wants one view across all 14 markets.</div>
+          <div class="p-badges"><span class="tag seller">PRIMARY TARGET</span><span class="tag fact">FROM CRM</span></div>
+        </div>
+
+        <div class="p-card" onclick="personaFocus(this,'cfo')">
+          <div class="p-top">
+            <div class="p-ava a2">CF</div>
+            <div>
+              <div class="p-name">Chief Financial Officer</div>
+              <div class="p-role">Strategic &amp; Analytical</div>
+            </div>
+          </div>
+          <div class="p-desc">Evaluates ROI and working capital. Cares about the cost of delays, dwell time, and expediting spend.</div>
+          <div class="p-badges"><span class="tag inf">INFERRED</span></div>
+        </div>
+
+        <div class="p-card" onclick="personaFocus(this,'vpsc')">
+          <div class="p-top">
+            <div class="p-ava a3">VP</div>
+            <div>
+              <div class="p-name">VP Supply Chain</div>
+              <div class="p-role">Technical &amp; Hands-on</div>
+            </div>
+          </div>
+          <div class="p-desc">Runs the control-tower team daily. Cares about exception workflows, data accuracy, and integrations.</div>
+          <div class="p-badges"><span class="tag inf">INFERRED</span></div>
+        </div>
+
+        <div class="sect-h">ACCOUNT ASSETS</div>
         <div class="empty-out" id="empty-out">
           <div class="ph">◇</div>
           Assets Astra builds for this deal will appear here.
@@ -476,6 +537,26 @@ async function adjust(){
   await agentSay(`
     <p>Tell me what to change — a different lead use case, persona focus, or constraints on which
     capabilities to show. I will re-plan the assets before building anything.</p>`,1000);
+}
+
+const PERSONA_MSGS={
+  coo:`<h4>LENS · CHIEF OPERATING OFFICER</h4>
+    <p>The COO is our primary target — the current plan is already built around them. The demo opens on
+    regional on-time delivery and escalates the Jebel Ali congestion scenario, which mirrors the
+    frustration voiced in the discovery call.</p>`,
+  cfo:`<h4>LENS · CHIEF FINANCIAL OFFICER</h4>
+    <p>For the CFO I would lead with the <b>ROI model</b> instead of live operations: 14-hour delays at
+    Jebel Ali translate into expediting spend and safety stock. I can generate a CFO variant of the deck
+    with the business case up front — just ask.</p>`,
+  vpsc:`<h4>LENS · VP SUPPLY CHAIN</h4>
+    <p>The VP will want depth, not narrative: exception workflows, alert routing, and how FlowPort ingests
+    carrier data. I would keep the main demo unchanged and hold a technical appendix ready for their
+    questions.</p>`
+};
+async function personaFocus(card,key){
+  document.querySelectorAll('.p-card').forEach(c=>c.classList.remove('sel'));
+  card.classList.add('sel');
+  await agentSay(PERSONA_MSGS[key],900);
 }
 
 const CANNED=[
