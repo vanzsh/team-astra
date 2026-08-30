@@ -1,0 +1,329 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Relay for Clinics — Product Tour</title>
+<style>
+  :root{
+    --bg:#f6f8fc; --surface:#fff; --border:#e3e8f0; --border-soft:#edf1f7;
+    --text:#1f2430; --text-2:#5b6472; --text-3:#8a93a3;
+    --accent:#1a73e8; --accent-soft:#e8f0fe;
+    --green:#188038; --green-soft:#e6f4ea;
+    --amber:#b26a00; --amber-soft:#fef3dc;
+    --red:#c5221f; --red-soft:#fde8e7;
+    --purple:#7c3aed; --purple-soft:#f1eafe;
+    --shadow:0 1px 2px rgba(16,24,40,.05),0 4px 16px rgba(16,24,40,.06);
+    --radius:14px;
+  }
+  /* Nova Dental palette when personalized */
+  body.nova{ --accent:#0d9488; --accent-soft:#ccfbf1; }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    background:var(--bg);color:var(--text);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased;
+    padding-bottom:90px;
+  }
+
+  /* header */
+  .hdr{height:58px;background:var(--surface);border-bottom:1px solid var(--border);
+    display:flex;align-items:center;gap:14px;padding:0 22px}
+  .logo{display:flex;align-items:center;gap:9px;font-weight:800;font-size:15px}
+  .logo .lmark{width:28px;height:28px;border-radius:8px;background:var(--accent);color:#fff;
+    display:flex;align-items:center;justify-content:center;font-size:14px;transition:background .4s}
+  .client-chip{display:none;align-items:center;gap:6px;background:var(--accent-soft);color:var(--accent);
+    font-weight:800;font-size:11px;letter-spacing:1px;padding:5px 12px;border-radius:999px}
+  body.nova .client-chip{display:inline-flex}
+  .hdr nav{margin-left:20px;display:flex;gap:4px;font-size:13px;color:var(--text-2)}
+  .hdr nav span{padding:6px 12px;border-radius:8px;cursor:default}
+  .hdr nav span.on{background:var(--accent-soft);color:var(--accent);font-weight:600}
+  .locpick{margin-left:auto;display:flex;gap:6px;font-size:12.5px}
+  .locpick .l{padding:6px 12px;border-radius:8px;background:#f1f4f9;color:var(--text-2);font-weight:600;cursor:pointer;transition:.15s}
+  .locpick .l.on{background:var(--accent);color:#fff}
+  .locpick .l:not(.on):hover{background:#e6ebf3}
+  .user{width:32px;height:32px;border-radius:50%;background:#dfe6f0;color:var(--text-2);
+    display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;margin-left:10px}
+
+  /* layout */
+  .wrap{max-width:1280px;margin:0 auto;padding:22px}
+  h1.pgh{font-size:22px;font-weight:700;margin-bottom:4px}
+  .sub{color:var(--text-2);margin-bottom:22px;font-size:13.5px}
+
+  /* KPI row */
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+  .k{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+    padding:16px 18px;box-shadow:var(--shadow)}
+  .k .lbl{font-size:11px;font-weight:700;color:var(--text-3);letter-spacing:1px;margin-bottom:6px}
+  .k .val{font-size:26px;font-weight:800;line-height:1.1}
+  .k .delta{font-size:12px;font-weight:600;margin-top:5px}
+  .k .delta.up{color:var(--green)}
+  .k .delta.dn{color:var(--red)}
+
+  /* main grid */
+  .grid{display:grid;grid-template-columns:1.35fr 1fr;gap:14px}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+    box-shadow:var(--shadow);overflow:hidden}
+  .card h3{font-size:12px;font-weight:800;letter-spacing:1.2px;color:var(--text-3);
+    padding:14px 18px 10px;display:flex;align-items:center;justify-content:space-between}
+  .card h3 .live{font-size:10px;color:var(--green);font-weight:700;display:flex;align-items:center;gap:5px}
+  .card h3 .live::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 1.6s infinite}
+  @keyframes pulse{50%{opacity:.35}}
+
+  /* today's schedule */
+  .sched .row{display:flex;align-items:center;gap:12px;padding:10px 18px;border-top:1px solid var(--border-soft);
+    font-size:13px}
+  .sched .row:first-of-type{border-top:1px solid var(--border)}
+  .sched .t{width:64px;font-weight:700;color:var(--text-2);font-size:12.5px}
+  .sched .pat{flex:1;min-width:0}
+  .sched .pat .pn{font-weight:600}
+  .sched .pat .pd{font-size:11.5px;color:var(--text-3)}
+  .sched .stat{font-size:11px;font-weight:700;letter-spacing:.5px;padding:3px 9px;border-radius:999px}
+  .sched .stat.ok{background:var(--green-soft);color:var(--green)}
+  .sched .stat.risk{background:var(--amber-soft);color:var(--amber)}
+  .sched .stat.saved{background:var(--accent-soft);color:var(--accent)}
+  .sched .stat.new{background:#efe4fe;color:var(--purple)}
+
+  /* waitlist feed */
+  .feed{padding:6px 0}
+  .feed .fi{display:flex;gap:12px;padding:12px 18px;border-top:1px solid var(--border-soft);font-size:13px}
+  .feed .fi:first-child{border-top:0}
+  .feed .fi .dot{width:8px;height:8px;border-radius:50%;background:var(--accent);margin-top:6px;flex:none}
+  .feed .fi .t{color:var(--text-3);font-size:11.5px;font-weight:600;letter-spacing:.4px}
+  .feed .fi .msg{margin-top:2px}
+  .feed .fi .msg b{font-weight:700}
+  .feed .fi .msg .patname{color:var(--accent);font-weight:700}
+
+  /* ROI callout */
+  .roi{background:linear-gradient(135deg,var(--accent-soft),#fff);
+    border:1px solid var(--border);border-radius:var(--radius);padding:20px 22px;margin-top:14px;
+    display:flex;align-items:center;gap:24px}
+  .roi .n{font-size:34px;font-weight:800;color:var(--accent);line-height:1}
+  .roi .cap{font-size:13px;color:var(--text-2)}
+  .roi .cap b{color:var(--text);font-weight:700}
+
+  /* generic-only placeholder for personalized bits */
+  .nova-only{display:none}
+  body.nova .nova-only{display:block}
+  body.nova .generic-only{display:none}
+
+  /* toggle bar */
+  .toggle-bar{
+    position:fixed;bottom:0;left:0;right:0;background:#1f2126;color:#e5e7eb;
+    padding:12px 22px;display:flex;align-items:center;gap:18px;justify-content:center;
+    border-top:1px solid #2a2d33;z-index:99;
+  }
+  .toggle-bar .caption{font-size:12.5px;color:#9ca3af}
+  .toggle-bar .seg{display:flex;background:#111;border-radius:999px;padding:3px;gap:2px}
+  .toggle-bar .seg button{border:0;background:transparent;color:#9ca3af;padding:8px 18px;border-radius:999px;
+    font-size:12.5px;font-weight:700;cursor:pointer;letter-spacing:.3px}
+  .toggle-bar .seg button.on{background:#8ab4f8;color:#111}
+  body.nova .toggle-bar .seg button.on{background:#2dd4bf;color:#111}
+  .toggle-bar .diff{color:#9ca3af;font-size:12px}
+  .toggle-bar .diff b{color:#fff}
+</style>
+</head>
+<body>
+
+<header class="hdr">
+  <div class="logo">
+    <span class="lmark" id="lmark">R</span>
+    <span id="prod-name">Relay for Clinics</span>
+    <span class="client-chip">◆ NOVA DENTAL EDITION</span>
+  </div>
+  <nav>
+    <span class="on">Today</span>
+    <span>Waitlist</span>
+    <span>Recall</span>
+    <span>Reports</span>
+    <span>Settings</span>
+  </nav>
+  <div class="locpick nova-only">
+    <span class="l on">JLT</span>
+    <span class="l">Marina</span>
+    <span class="l">Downtown</span>
+  </div>
+  <div class="user" id="user-init">SA</div>
+</header>
+
+<div class="wrap">
+  <h1 class="pgh">
+    <span class="generic-only">Good morning, Sarah.</span>
+    <span class="nova-only">Good morning, Dr. Rashid.</span>
+  </h1>
+  <p class="sub">
+    <span class="generic-only">3 confirmations pending · 2 no-show risks · 4 open slots today.</span>
+    <span class="nova-only">JLT clinic · 6 dentists · 2 hygienists on floor · 4 chairs open before 12pm.</span>
+  </p>
+
+  <div class="kpis">
+    <div class="k">
+      <div class="lbl">CHAIR UTILIZATION</div>
+      <div class="val"><span class="generic-only">72%</span><span class="nova-only">68%</span></div>
+      <div class="delta up">▲ 4% vs last week</div>
+    </div>
+    <div class="k">
+      <div class="lbl">NO-SHOW RATE (30D)</div>
+      <div class="val"><span class="generic-only">18%</span><span class="nova-only">22%</span></div>
+      <div class="delta dn">▼ 3% since Relay pilot</div>
+    </div>
+    <div class="k">
+      <div class="lbl">SLOTS RECOVERED TODAY</div>
+      <div class="val" style="color:var(--accent)">7</div>
+      <div class="delta up">▲ AED <span class="generic-only">4,200</span><span class="nova-only">6,300</span> saved</div>
+    </div>
+    <div class="k">
+      <div class="lbl">WAITLIST DEPTH</div>
+      <div class="val">
+        <span class="generic-only">23</span>
+        <span class="nova-only">31</span>
+      </div>
+      <div class="delta" style="color:var(--text-3)">
+        <span class="generic-only">avg 6 min to fill</span>
+        <span class="nova-only">avg 4 min to fill</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid">
+    <!-- Today's schedule -->
+    <div class="card sched">
+      <h3>
+        <span class="generic-only">TODAY · Chair 3</span>
+        <span class="nova-only">TODAY · JLT Chair 3 · Dr. Al Farsi</span>
+        <span class="live">LIVE</span>
+      </h3>
+      <div class="row">
+        <div class="t">08:00</div>
+        <div class="pat">
+          <div class="pn"><span class="generic-only">Patient A</span><span class="nova-only">Aisha Al Marri</span></div>
+          <div class="pd"><span class="generic-only">Checkup</span><span class="nova-only">Cleaning · returning · insured (Daman)</span></div>
+        </div>
+        <span class="stat ok">CONFIRMED</span>
+      </div>
+      <div class="row">
+        <div class="t">08:45</div>
+        <div class="pat">
+          <div class="pn"><span class="generic-only">Patient B</span><span class="nova-only">Rahul Menon</span></div>
+          <div class="pd"><span class="generic-only">Cleaning</span><span class="nova-only">Composite filling · new · self-pay</span></div>
+        </div>
+        <span class="stat risk">NO REPLY 24H</span>
+      </div>
+      <div class="row" style="background:var(--accent-soft)">
+        <div class="t">09:30</div>
+        <div class="pat">
+          <div class="pn">
+            <span class="generic-only">Patient C — <span style="color:var(--accent)">auto-filled from waitlist</span></span>
+            <span class="nova-only">Fatima Hassan — <span style="color:var(--accent)">auto-filled from waitlist</span></span>
+          </div>
+          <div class="pd">
+            <span class="generic-only">Original patient cancelled at 07:14. Filled in 4 min.</span>
+            <span class="nova-only">Original: no-show. Waitlist SMS sent 07:16 · confirmed 07:20 · saved AED 900.</span>
+          </div>
+        </div>
+        <span class="stat saved">RECOVERED</span>
+      </div>
+      <div class="row">
+        <div class="t">10:30</div>
+        <div class="pat">
+          <div class="pn"><span class="generic-only">Patient D</span><span class="nova-only">Omar Sultan</span></div>
+          <div class="pd"><span class="generic-only">Consult</span><span class="nova-only">Ortho consult · returning · insurance TBD</span></div>
+        </div>
+        <span class="stat ok">CONFIRMED</span>
+      </div>
+      <div class="row">
+        <div class="t">11:15</div>
+        <div class="pat">
+          <div class="pn"><span class="generic-only">Patient E</span><span class="nova-only">Priya Sharma</span></div>
+          <div class="pd"><span class="generic-only">Extraction</span><span class="nova-only">Extraction · confirmed via WhatsApp · Dr. Al Farsi noted 40-min block</span></div>
+        </div>
+        <span class="stat ok">CONFIRMED</span>
+      </div>
+    </div>
+
+    <!-- Waitlist auto-fill feed -->
+    <div class="card">
+      <h3>WAITLIST AUTO-FILL <span class="live">LIVE</span></h3>
+      <div class="feed">
+        <div class="fi">
+          <div class="dot"></div>
+          <div>
+            <div class="t">2 MIN AGO</div>
+            <div class="msg">
+              <span class="generic-only">Slot filled at 09:30 — <span class="patname">Patient C</span> confirmed via SMS.</span>
+              <span class="nova-only">Slot filled at 09:30 — <span class="patname">Fatima Hassan</span> confirmed via SMS. AED 900 recovered.</span>
+            </div>
+          </div>
+        </div>
+        <div class="fi">
+          <div class="dot"></div>
+          <div>
+            <div class="t">14 MIN AGO</div>
+            <div class="msg">
+              <span class="generic-only">3 confirmation SMS sent for tomorrow's morning block.</span>
+              <span class="nova-only">3 confirmation SMS sent for tomorrow's morning block · JLT clinic.</span>
+            </div>
+          </div>
+        </div>
+        <div class="fi">
+          <div class="dot"></div>
+          <div>
+            <div class="t">32 MIN AGO</div>
+            <div class="msg">
+              <span class="generic-only">No-show risk flagged for Patient B (no reply, insurance pre-auth pending).</span>
+              <span class="nova-only">No-show risk flagged for <span class="patname">Rahul Menon</span> — no reply in 24h, new-patient pattern.</span>
+            </div>
+          </div>
+        </div>
+        <div class="fi">
+          <div class="dot"></div>
+          <div>
+            <div class="t">1 HR AGO</div>
+            <div class="msg">
+              <span class="generic-only">Morning huddle brief delivered to 2 dentists and 1 office manager.</span>
+              <span class="nova-only">Morning huddle brief delivered to Dr. Al Farsi, Dr. Iyer, and Fatima (office).</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="roi">
+    <div class="n"><span class="generic-only">AED 4.2k</span><span class="nova-only">AED 6.3k</span></div>
+    <div class="cap">
+      <b><span class="generic-only">saved today</span><span class="nova-only">saved today · JLT clinic alone</span></b><br>
+      <span class="generic-only">Extrapolated: ~AED 380k/year at this clinic's volume.</span>
+      <span class="nova-only">Extrapolated across all 3 Nova locations: <b>AED 480k/yr</b> recovered — matches your discovery-call estimate.</span>
+    </div>
+  </div>
+</div>
+
+<div class="toggle-bar">
+  <span class="caption">This tour →</span>
+  <div class="seg">
+    <button id="btn-generic">Generic Relay</button>
+    <button id="btn-nova" class="on">Nova Dental Edition</button>
+  </div>
+  <span class="diff">
+    <span class="generic-only">Placeholder clinic, generic patient names, one location, benchmark KPIs.</span>
+    <span class="nova-only">Nova brand · 3 Dubai clinics · real service mix · patient names · 22% no-show baseline · AED 480k ROI.</span>
+  </span>
+</div>
+
+<script>
+  const params=new URLSearchParams(location.search);
+  const mode=params.get('mode')||'personalized';
+  function apply(m){
+    document.body.classList.toggle('nova', m==='personalized');
+    document.getElementById('btn-nova').classList.toggle('on', m==='personalized');
+    document.getElementById('btn-generic').classList.toggle('on', m==='generic');
+    document.getElementById('prod-name').textContent = m==='personalized' ? 'Relay × Nova Dental' : 'Relay for Clinics';
+    document.getElementById('lmark').textContent = m==='personalized' ? 'N' : 'R';
+    document.getElementById('user-init').textContent = m==='personalized' ? 'FR' : 'SA';
+  }
+  apply(mode);
+  document.getElementById('btn-generic').onclick = ()=>apply('generic');
+  document.getElementById('btn-nova').onclick = ()=>apply('personalized');
+</script>
+</body>
+</html>
